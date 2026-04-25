@@ -1,6 +1,6 @@
 # JZLLMContext
 
-Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí jazykových modelů. Akce spustíš globální klávesovou zkratkou a výsledek dostaneš okamžitě.
+Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí jazykových modelů. Zkopíruješ text nebo obrázek, stiskneš zkratku a vybraná akce (překlad, přepis, shrnutí, …) pošle obsah do LLM a vrátí výsledek. Vlastní akce si definuješ jako systémové prompty — každá může mít jiný provider, model a parametry.
 
 ## Funkce
 

@@ -22,6 +22,11 @@ struct AboutView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Text("Zpracovává obsah schránky (text i obrázky) pomocí jazykových modelů. Definuj vlastní akce se systémovými prompty a spouštěj je globální klávesovou zkratkou.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
             Divider()
 
             VStack(spacing: 6) {
