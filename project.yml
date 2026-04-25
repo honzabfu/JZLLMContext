@@ -1,0 +1,34 @@
+name: JZLLMContext
+options:
+  bundleIdPrefix: com.jz
+  deploymentTarget:
+    macOS: "15.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: 6.0
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    PRODUCT_BUNDLE_IDENTIFIER: com.jz.JZLLMContext
+
+targets:
+  JZLLMContext:
+    type: application
+    platform: macOS
+    sources:
+      - Sources/JZLLMContext
+    resources:
+      - Sources/JZLLMContext/Resources
+    settings:
+      base:
+        PRODUCT_NAME: JZLLMContext
+        INFOPLIST_FILE: Sources/JZLLMContext/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/JZLLMContext/Resources/JZLLMContext.entitlements
+        SWIFT_STRICT_CONCURRENCY: complete
+    entitlements:
+      path: Sources/JZLLMContext/Resources/JZLLMContext.entitlements
+    scheme:
+      testTargets: []

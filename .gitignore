@@ -1,23 +1,45 @@
-### AL ###
-#Template for AL projects for Dynamics 365 Business Central
-#launch.json folder
+# Specific files to ignore
+Entra ID/AuthenticationMethods/SourceData.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+# *.log
+# logs/
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# IDE
 .vscode/
-#Cache folder
-.alcache/
-#Symbols folder
-.alpackages/
-#Snapshots folder
-.snapshots/
-#Testing Output folder
-.output/
-#Extension App-file
-*.app
-#Rapid Application Development File
-rad.json
-#Translation Base-file
-*.g.xlf
-#License-files
-*.bclicense
-*.flf
-#Test results file
-TestResults.xml
+.idea/
+*.user
+
+# Secrets
+.env
+*.key
+*.pfx
+
+# Build
+# bin/
+# obj/
+# dist/
+# build/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Misc
+# *.bak
+*.swp
+
+# JZEntra modul
+Entra ID/JZEntra/output/
