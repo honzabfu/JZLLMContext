@@ -40,6 +40,8 @@ final class HotkeyManager: @unchecked Sendable {
         RegisterEventHotKey(keyCode, modifiers, hotKeyID, GetApplicationEventTarget(), 0, &eventHotKeyRef)
     }
 
+    func reregister() { unregister(); register() }
+
     func unregister() {
         if let ref = eventHotKeyRef {
             UnregisterEventHotKey(ref)

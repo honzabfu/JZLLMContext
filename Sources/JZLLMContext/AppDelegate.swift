@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var overlayWindowController: OverlayWindowController?
     private var settingsWindowController: NSWindowController?
     private var statusItem: NSStatusItem?
+    private var hotkeyState = HotkeyState.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         setupStatusBarItem()
@@ -14,6 +15,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             Task { @MainActor in self?.showOverlay() }
         }
         hotkeyManager?.register()
+        NotificationCenter.default.addObserver(
+            forName: .hotkeyDidChange, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.hotkeyManager?.reregister()
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -34,7 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
 
         let headerItem = NSMenuItem()
-        let headerView = NSHostingView(rootView: MenuHeaderView())
+        let headerView = NSHostingView(rootView: MenuHeaderView(hotkeyState: hotkeyState))
         headerView.frame = NSRect(x: 0, y: 0, width: 240, height: 54)
         headerItem.view = headerView
         menu.addItem(headerItem)
@@ -79,6 +85,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 private struct MenuHeaderView: View {
+    @ObservedObject var hotkeyState: HotkeyState
+
     var body: some View {
         HStack(spacing: 10) {
             if let icon = NSImage(named: "AppColorIcon") {
@@ -89,7 +97,7 @@ private struct MenuHeaderView: View {
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text("JZLLMContext").font(.headline)
-                Text("Připraven").font(.caption).foregroundStyle(.secondary)
+                Text(hotkeyState.displayString).font(.caption).foregroundStyle(.secondary)
             }
             Spacer()
         }

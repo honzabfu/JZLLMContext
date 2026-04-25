@@ -14,9 +14,41 @@ struct SettingsView: View {
                 .tabItem { Label("Akce", systemImage: "list.bullet") }
             providersTab
                 .tabItem { Label("Providery", systemImage: "key") }
+            shortcutTab
+                .tabItem { Label("Zkratka", systemImage: "keyboard") }
         }
         .frame(width: 620, height: 520)
         .onAppear { loadKeys() }
+    }
+
+    private var shortcutTab: some View {
+        Form {
+            Section {
+                HStack {
+                    Text("Globální zkratka")
+                    Spacer()
+                    HotkeyRecorderView(keyCode: $config.hotkeyKeyCode, modifiers: $config.hotkeyModifiers)
+                        .frame(width: 150, height: 26)
+                        .onChange(of: config.hotkeyKeyCode) { saveHotkey() }
+                        .onChange(of: config.hotkeyModifiers) { saveHotkey() }
+                }
+            }
+            Section {
+                Text("Klikni na pole a stiskni požadovanou kombinaci kláves. Kliknutí znovu zruší záznam.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+    }
+
+    private func saveHotkey() {
+        ConfigStore.shared.update {
+            $0.hotkeyKeyCode = config.hotkeyKeyCode
+            $0.hotkeyModifiers = config.hotkeyModifiers
+        }
+        NotificationCenter.default.post(name: .hotkeyDidChange, object: nil)
     }
 
     private var actionsTab: some View {
