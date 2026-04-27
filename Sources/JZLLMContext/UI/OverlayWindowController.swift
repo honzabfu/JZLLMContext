@@ -14,6 +14,7 @@ final class OverlayState: ObservableObject {
 final class OverlayWindowController: NSObject {
     private var panel: NSPanel?
     private let state = OverlayState()
+    var onOpenSettings: (() -> Void)?
 
     func showOverlay() {
         if panel == nil {
@@ -45,6 +46,9 @@ final class OverlayWindowController: NSObject {
 
         let overlayView = OverlayView(state: state, onClose: { [weak self] in
             self?.hideOverlay()
+        }, onOpenSettings: { [weak self] in
+            self?.hideOverlay()
+            self?.onOpenSettings?()
         })
         panel.contentView = NSHostingView(rootView: overlayView)
         return panel

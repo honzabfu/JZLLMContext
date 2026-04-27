@@ -50,6 +50,10 @@ enum KeychainStore {
         return key
     }
 
+    static func hasKey(for provider: ProviderType) -> Bool {
+        (try? load(for: provider)) != nil
+    }
+
     static func delete(for provider: ProviderType) {
         let account = keychainRef(for: provider)
         let query: [String: Any] = [

@@ -3,6 +3,7 @@ import SwiftUI
 struct OverlayView: View {
     @ObservedObject var state: OverlayState
     let onClose: () -> Void
+    let onOpenSettings: () -> Void
 
     @StateObject private var engine = ActionEngine()
     @State private var contextText: String?
@@ -13,6 +14,12 @@ struct OverlayView: View {
     @State private var didCopy = false
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
+
+    private var isMissingKeyError: Bool {
+        guard let err = engine.lastError as? LLMError,
+              case .missingAPIKey = err else { return false }
+        return true
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -83,7 +90,7 @@ struct OverlayView: View {
             if contextIsFromOCR {
                 actionButton(
                     title: "Rozpoznat text z obrázku (OCR)",
-                    icon: "doc.text.viewfinder",
+                    missingKey: false,
                     isRunning: false
                 ) {
                     if let text = contextText { engine.showText(text) }
@@ -93,7 +100,7 @@ struct OverlayView: View {
             ForEach(actions) { action in
                 actionButton(
                     title: action.name,
-                    icon: "arrow.right",
+                    missingKey: !KeychainStore.hasKey(for: action.provider),
                     isRunning: engine.isLoading && lastAction == action
                 ) {
                     runAction(action)
@@ -102,15 +109,19 @@ struct OverlayView: View {
         }
     }
 
-    private func actionButton(title: String, icon: String, isRunning: Bool, action: @escaping () -> Void) -> some View {
+    private func actionButton(title: String, missingKey: Bool, isRunning: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Text(title)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if isRunning {
                     ProgressView().scaleEffect(0.65)
+                } else if missingKey {
+                    Image(systemName: "exclamationmark.triangle")
+                        .foregroundStyle(.orange)
+                        .font(.caption)
                 } else {
-                    Image(systemName: icon)
+                    Image(systemName: "arrow.right")
                         .foregroundStyle(.tertiary)
                         .font(.caption)
                 }
@@ -130,8 +141,13 @@ struct OverlayView: View {
                     Text(error)
                         .foregroundStyle(.secondary)
                 }
-                if let action = lastAction {
-                    Button("Zkusit znovu") { runAction(action) }
+                HStack(spacing: 8) {
+                    if let action = lastAction {
+                        Button("Zkusit znovu") { runAction(action) }
+                    }
+                    if isMissingKeyError {
+                        Button("Otevřít nastavení") { onOpenSettings() }
+                    }
                 }
             } else {
                 ScrollView {

@@ -15,6 +15,7 @@ final class ActionEngine: ObservableObject {
     @Published var result: String = ""
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var lastError: Error?
 
     private var currentTask: Task<Void, Never>?
 
@@ -30,6 +31,7 @@ final class ActionEngine: ObservableObject {
                 let output = try await provider.complete(systemPrompt: action.systemPrompt, userContent: input)
                 result = output
             } catch {
+                lastError = error
                 errorMessage = error.localizedDescription
             }
             isLoading = false
@@ -46,6 +48,7 @@ final class ActionEngine: ObservableObject {
         cancel()
         result = ""
         errorMessage = nil
+        lastError = nil
     }
 
     func showText(_ text: String) {

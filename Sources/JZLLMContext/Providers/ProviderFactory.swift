@@ -4,11 +4,15 @@ enum ProviderFactory {
     static func make(for action: Action) throws -> any LLMProvider {
         switch action.provider {
         case .openai:
-            let apiKey = try KeychainStore.load(for: .openai)
+            guard let apiKey = try? KeychainStore.load(for: .openai) else {
+                throw LLMError.missingAPIKey(.openai)
+            }
             return OpenAIProvider(model: action.model, apiKey: apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
 
         case .azureOpenai:
-            let apiKey = try KeychainStore.load(for: .azureOpenai)
+            guard let apiKey = try? KeychainStore.load(for: .azureOpenai) else {
+                throw LLMError.missingAPIKey(.azureOpenai)
+            }
             let config = ConfigStore.shared.config
             guard let endpointStr = config.azureEndpoint,
                   let deploymentName = config.azureDeploymentName,
@@ -17,7 +21,9 @@ enum ProviderFactory {
             return OpenAIProvider(model: action.model, apiKey: apiKey, baseURL: baseURL, temperature: action.temperature, maxTokens: action.maxTokens)
 
         case .anthropic:
-            let apiKey = try KeychainStore.load(for: .anthropic)
+            guard let apiKey = try? KeychainStore.load(for: .anthropic) else {
+                throw LLMError.missingAPIKey(.anthropic)
+            }
             return AnthropicProvider(model: action.model, apiKey: apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
 
         case .customOpenAI:

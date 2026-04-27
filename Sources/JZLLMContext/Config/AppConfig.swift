@@ -19,13 +19,34 @@ struct AppConfig: Codable {
                 Action(
                     name: "Přeložit do češtiny",
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
+                    provider: .anthropic,
+                    model: "claude-sonnet-4-6",
+                    enabled: true
+                ),
+                Action(
+                    name: "Přepsat + gramatika",
+                    systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem. Nepřidávej žádné další informace navíc.",
                     provider: .openai,
                     model: "gpt-4o",
                     enabled: true
                 ),
                 Action(
-                    name: "Přepsat",
-                    systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem.",
+                    name: "Zjednoduš a vysvětli",
+                    systemPrompt: "Vysvětli následující text jednoduše pro zaneprázdněného profesionála.\nBuď stručný a zaměř se na praktické pochopení.",
+                    provider: .openai,
+                    model: "gpt-4o",
+                    enabled: true
+                ),
+                Action(
+                    name: "Shrň do odrážek",
+                    systemPrompt: "Shrň následující text do:\n- 3 hlavních bodů\n- 1 krátké shrnující věty\n- důležitých entit (pokud existují)\nNepřidávej žádné další informace navíc.",
+                    provider: .openai,
+                    model: "gpt-4o",
+                    enabled: true
+                ),
+                Action(
+                    name: "Připrav odpověď",
+                    systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý  \nDélka: krátká",
                     provider: .openai,
                     model: "gpt-4o",
                     enabled: true
