@@ -1,15 +1,5 @@
 import Foundation
 
-enum ActionEngineError: Error, LocalizedError {
-    case providerError(Error)
-
-    var errorDescription: String? {
-        switch self {
-        case .providerError(let error): error.localizedDescription
-        }
-    }
-}
-
 @MainActor
 final class ActionEngine: ObservableObject {
     @Published var result: String = ""
@@ -26,15 +16,20 @@ final class ActionEngine: ObservableObject {
         result = ""
 
         currentTask = Task {
+            defer { isLoading = false }
             do {
                 let provider = try ProviderFactory.make(for: action)
-                let output = try await provider.complete(systemPrompt: action.systemPrompt, userContent: input)
-                result = output
+                for try await chunk in provider.stream(systemPrompt: action.systemPrompt, userContent: input) {
+                    result += chunk
+                }
+            } catch is CancellationError {
+                return
+            } catch let urlError as URLError where urlError.code == .cancelled {
+                return
             } catch {
                 lastError = error
                 errorMessage = error.localizedDescription
             }
-            isLoading = false
         }
     }
 

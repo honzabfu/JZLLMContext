@@ -1,7 +1,7 @@
 import Foundation
 
-protocol LLMProvider {
-    func complete(systemPrompt: String, userContent: String) async throws -> String
+protocol LLMProvider: Sendable {
+    func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error>
 }
 
 enum LLMError: Error, LocalizedError {

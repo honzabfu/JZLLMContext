@@ -1,4 +1,6 @@
+import ServiceManagement
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @State private var config = ConfigStore.shared.config
@@ -7,9 +9,14 @@ struct SettingsView: View {
     @State private var azureKey = ""
     @State private var customKey = ""
     @State private var keySaveStatus: [ProviderType: Bool] = [:]
+    @State private var launchAtLogin = false
+    @State private var importedActions: [Action] = []
+    @State private var showImportAlert = false
 
     var body: some View {
         TabView {
+            generalTab
+                .tabItem { Label("Obecné", systemImage: "gearshape") }
             actionsTab
                 .tabItem { Label("Akce", systemImage: "list.bullet") }
             providersTab
@@ -18,7 +25,31 @@ struct SettingsView: View {
                 .tabItem { Label("Zkratka", systemImage: "keyboard") }
         }
         .frame(width: 620, height: 520)
-        .onAppear { loadKeys() }
+        .onAppear {
+            loadKeys()
+            launchAtLogin = SMAppService.mainApp.status == .enabled
+        }
+    }
+
+    private var generalTab: some View {
+        Form {
+            Section {
+                Toggle("Spustit při přihlášení", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, enabled in
+                        do {
+                            if enabled {
+                                try SMAppService.mainApp.register()
+                            } else {
+                                try SMAppService.mainApp.unregister()
+                            }
+                        } catch {
+                            launchAtLogin = !enabled
+                        }
+                    }
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
     }
 
     private var shortcutTab: some View {
@@ -78,8 +109,57 @@ struct SettingsView: View {
                     ConfigStore.shared.update { $0.actions = config.actions }
                 }
                 Spacer()
+                Button("Importovat…") { importActions() }
+                Button("Exportovat…") { exportActions() }
+                    .disabled(config.actions.isEmpty)
             }
             .padding(12)
+        }
+        .alert("Importovat akce", isPresented: $showImportAlert) {
+            Button("Přidat k existujícím") {
+                let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
+                config.actions.append(contentsOf: fresh)
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+            Button("Nahradit vše", role: .destructive) {
+                let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
+                config.actions = fresh
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+            Button("Zrušit", role: .cancel) {}
+        } message: {
+            Text("Nalezeno \(importedActions.count) \(importedActions.count == 1 ? "akce" : "akcí"). Přidat k existujícím, nebo nahradit vše?")
+        }
+    }
+
+    private func exportActions() {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(config.actions) else { return }
+        let panel = NSSavePanel()
+        panel.title = "Exportovat akce"
+        panel.nameFieldStringValue = "JZLLMContext-actions.json"
+        panel.allowedContentTypes = [.json]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    private func importActions() {
+        let panel = NSOpenPanel()
+        panel.title = "Importovat akce"
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url,
+                  let data = try? Data(contentsOf: url),
+                  let actions = try? JSONDecoder().decode([Action].self, from: data),
+                  !actions.isEmpty else { return }
+            DispatchQueue.main.async {
+                importedActions = actions
+                showImportAlert = true
+            }
         }
     }
 

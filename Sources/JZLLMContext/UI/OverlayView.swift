@@ -21,6 +21,8 @@ struct OverlayView: View {
         return true
     }
 
+    private var hasResult: Bool { !engine.result.isEmpty || engine.errorMessage != nil }
+
     var body: some View {
         VStack(spacing: 0) {
             headerBar
@@ -29,15 +31,17 @@ struct OverlayView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     contextPreview
                     actionButtons
-                    if !engine.result.isEmpty || engine.errorMessage != nil {
-                        Divider()
-                        resultArea
-                    }
                 }
                 .padding(16)
             }
+            .frame(maxHeight: hasResult ? 200 : .infinity)
+            if hasResult {
+                Divider()
+                resultArea.padding(16)
+            }
         }
-        .frame(width: 640, height: 480)
+        .frame(minWidth: 480, idealWidth: 640, maxWidth: .infinity,
+               minHeight: 300, idealHeight: 480, maxHeight: .infinity)
         .background(.regularMaterial)
         .onAppear { resolveContext() }
         .onChange(of: state.refreshID) { resolveContext() }
@@ -45,9 +49,13 @@ struct OverlayView: View {
     }
 
     private var headerBar: some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline) {
             Text("JZLLMContext")
-                .font(.headline)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
             Spacer()
             Button(action: onClose) {
                 Image(systemName: "xmark.circle.fill")
@@ -88,28 +96,39 @@ struct OverlayView: View {
     private var actionButtons: some View {
         VStack(spacing: 6) {
             if contextIsFromOCR {
-                actionButton(
-                    title: "Rozpoznat text z obrázku (OCR)",
-                    missingKey: false,
-                    isRunning: false
-                ) {
+                actionButton(title: "Rozpoznat text z obrázku (OCR)", missingKey: false, isRunning: false) {
                     if let text = contextText { engine.showText(text) }
                 }
                 Divider()
             }
-            ForEach(actions) { action in
-                actionButton(
-                    title: action.name,
-                    missingKey: !KeychainStore.hasKey(for: action.provider),
-                    isRunning: engine.isLoading && lastAction == action
-                ) {
-                    runAction(action)
+            ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
+                if index < 9, let keyChar = String(index + 1).first {
+                    actionButton(
+                        title: action.name,
+                        missingKey: !KeychainStore.hasKey(for: action.provider),
+                        isRunning: engine.isLoading && lastAction == action,
+                        keyHint: String(index + 1)
+                    ) { runAction(action) }
+                        .keyboardShortcut(KeyEquivalent(keyChar), modifiers: [])
+                } else {
+                    actionButton(
+                        title: action.name,
+                        missingKey: !KeychainStore.hasKey(for: action.provider),
+                        isRunning: engine.isLoading && lastAction == action
+                    ) { runAction(action) }
+                }
+            }
+            if engine.isLoading {
+                HStack {
+                    Spacer()
+                    Button("Zrušit") { engine.cancel() }
+                        .buttonStyle(.bordered)
                 }
             }
         }
     }
 
-    private func actionButton(title: String, missingKey: Bool, isRunning: Bool, action: @escaping () -> Void) -> some View {
+    private func actionButton(title: String, missingKey: Bool, isRunning: Bool, keyHint: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Text(title)
@@ -120,6 +139,10 @@ struct OverlayView: View {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.orange)
                         .font(.caption)
+                } else if let hint = keyHint {
+                    Text(hint)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.tertiary)
                 } else {
                     Image(systemName: "arrow.right")
                         .foregroundStyle(.tertiary)
@@ -149,6 +172,7 @@ struct OverlayView: View {
                         Button("Otevřít nastavení") { onOpenSettings() }
                     }
                 }
+                Spacer()
             } else {
                 ScrollView {
                     Text(engine.result)
@@ -156,9 +180,9 @@ struct OverlayView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(8)
                 }
+                .frame(maxHeight: .infinity)
                 .background(Color(nsColor: .textBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
-                .frame(minHeight: 80)
 
                 HStack {
                     Button(didCopy ? "Zkopírováno ✓" : "Zkopírovat") {
