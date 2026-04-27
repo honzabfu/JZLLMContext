@@ -12,6 +12,7 @@
 		107E3F54587858A4B2D73F27 /* OpenAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */; };
 		1548F1816AF1565C5FFBB2FD /* ProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442548DEA3D00387E384367A /* ProviderFactory.swift */; };
 		1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299358F7A9CBA63430E341F7 /* HotkeyRecorderView.swift */; };
+		29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB65AD326E16BF2E0137AABE /* HistoryStore.swift */; };
 		450734B8BB48675A75765886 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D70E3B5C8380F38DF3181F /* OverlayView.swift */; };
 		4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */; };
 		55A7384824E1E417674390AE /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A0987C8886320AB4C42709 /* AboutView.swift */; };
@@ -48,6 +49,7 @@
 		CF007160F929203C6C07C38F /* ContextResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextResolver.swift; sourceTree = "<group>"; };
 		D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JZLLMContext.entitlements; sourceTree = "<group>"; };
 		D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		EB65AD326E16BF2E0137AABE /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -135,6 +137,7 @@
 			children = (
 				22902D0B71BC3BDCD04276DE /* AppConfig.swift */,
 				62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */,
+				EB65AD326E16BF2E0137AABE /* HistoryStore.swift */,
 				D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */,
 			);
 			path = Config;
@@ -229,6 +232,7 @@
 				9663B7E3F4E9E183B640A3A1 /* AppDelegate.swift in Sources */,
 				A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */,
 				0C3A306A2EAF3CCD2796ACC4 /* ContextResolver.swift in Sources */,
+				29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */,
 				7C7F7BE7E9C1F5004DA1382B /* HotkeyManager.swift in Sources */,
 				1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */,
 				64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */,

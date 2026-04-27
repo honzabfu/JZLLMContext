@@ -6,6 +6,7 @@ struct OverlayView: View {
     let onOpenSettings: () -> Void
 
     @StateObject private var engine = ActionEngine()
+    @ObservedObject private var history = HistoryStore.shared
     @State private var contextText: String?
     @State private var contextError: String?
     @State private var isResolvingContext = false
@@ -13,8 +14,13 @@ struct OverlayView: View {
     @State private var lastAction: Action?
     @State private var didCopy = false
     @State private var userContext: String = ""
+    @State private var showHistory = false
+    @State private var shownHistoryResult: String?
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
+    private var displayedResult: String? {
+        shownHistoryResult ?? (engine.result.isEmpty ? nil : engine.result)
+    }
 
 
     private var isMissingKeyError: Bool {
@@ -23,12 +29,16 @@ struct OverlayView: View {
         return true
     }
 
-    private var hasResult: Bool { !engine.result.isEmpty || engine.errorMessage != nil }
+    private var hasResult: Bool { displayedResult != nil || engine.errorMessage != nil }
 
     var body: some View {
         VStack(spacing: 0) {
             headerBar
             Divider()
+            if showHistory {
+                historyPanel
+                Divider()
+            }
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     contextPreview
@@ -49,12 +59,12 @@ struct OverlayView: View {
         .onAppear { resolveContext() }
         .onChange(of: state.refreshID) { resolveContext() }
         .onChange(of: engine.isLoading) { _, isLoading in
-            guard !isLoading,
-                  engine.errorMessage == nil,
-                  !engine.result.isEmpty,
-                  ConfigStore.shared.config.autoCopyAndClose else { return }
-            copyResult()
-            onClose()
+            guard !isLoading, engine.errorMessage == nil, !engine.result.isEmpty else { return }
+            HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
+            if ConfigStore.shared.config.autoCopyAndClose {
+                copyResult()
+                onClose()
+            }
         }
         .onKeyPress(.escape) { onClose(); return .handled }
     }
@@ -68,6 +78,13 @@ struct OverlayView: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
             Spacer()
+            if ConfigStore.shared.config.historyLimit > 0 {
+                Button { showHistory.toggle() } label: {
+                    Image(systemName: showHistory ? "clock.fill" : "clock")
+                        .foregroundStyle(showHistory ? .primary : .secondary)
+                }
+                .buttonStyle(.plain)
+            }
             Button(action: onClose) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.secondary)
@@ -76,6 +93,49 @@ struct OverlayView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    private var historyPanel: some View {
+        Group {
+            if history.entries.isEmpty {
+                Text("Žádná historie")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(16)
+            } else {
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(history.entries) { entry in
+                            Button {
+                                shownHistoryResult = entry.result
+                                showHistory = false
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(entry.actionName)
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                        Text(entry.inputSnippet)
+                                            .font(.caption2)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                    }
+                                    Spacer()
+                                    Text(entry.date, style: .time)
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                            }
+                            .buttonStyle(.plain)
+                            Divider()
+                        }
+                    }
+                }
+                .frame(maxHeight: 180)
+            }
+        }
     }
 
     private var userContextField: some View {
@@ -184,7 +244,7 @@ struct OverlayView: View {
 
     private var resultArea: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if let error = engine.errorMessage {
+            if let error = engine.errorMessage, shownHistoryResult == nil {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
@@ -200,9 +260,9 @@ struct OverlayView: View {
                     }
                 }
                 Spacer()
-            } else {
+            } else if let result = displayedResult {
                 ScrollView {
-                    Text(engine.result)
+                    Text(result)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(8)
@@ -242,6 +302,8 @@ struct OverlayView: View {
         contextError = nil
         didCopy = false
         userContext = ""
+        shownHistoryResult = nil
+        showHistory = false
         let pb = NSPasteboard.general
         contextIsFromOCR = pb.string(forType: .string)?.isEmpty != false
             && NSImage(pasteboard: pb) != nil
@@ -262,6 +324,7 @@ struct OverlayView: View {
         guard let text = contextText else { return }
         lastAction = action
         didCopy = false
+        shownHistoryResult = nil
         var resolved = action
         resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
         let input: String
@@ -274,8 +337,9 @@ struct OverlayView: View {
     }
 
     private func copyResult() {
+        guard let text = displayedResult else { return }
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(engine.result, forType: .string)
+        NSPasteboard.general.setString(text, forType: .string)
         didCopy = true
     }
 }

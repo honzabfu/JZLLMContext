@@ -10,6 +10,34 @@ struct AppConfig: Codable {
     var azureDeploymentName: String?
     var customOpenAIBaseURL: String?
     var autoCopyAndClose: Bool = false
+    var historyLimit: Int = 5
+
+    init(schemaVersion: Int, hotkeyKeyCode: Int, hotkeyModifiers: Int, actions: [Action],
+         azureEndpoint: String? = nil, azureDeploymentName: String? = nil,
+         customOpenAIBaseURL: String? = nil, autoCopyAndClose: Bool = false, historyLimit: Int = 5) {
+        self.schemaVersion = schemaVersion
+        self.hotkeyKeyCode = hotkeyKeyCode
+        self.hotkeyModifiers = hotkeyModifiers
+        self.actions = actions
+        self.azureEndpoint = azureEndpoint
+        self.azureDeploymentName = azureDeploymentName
+        self.customOpenAIBaseURL = customOpenAIBaseURL
+        self.autoCopyAndClose = autoCopyAndClose
+        self.historyLimit = historyLimit
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try c.decode(Int.self, forKey: .schemaVersion)
+        hotkeyKeyCode = try c.decode(Int.self, forKey: .hotkeyKeyCode)
+        hotkeyModifiers = try c.decode(Int.self, forKey: .hotkeyModifiers)
+        actions = try c.decode([Action].self, forKey: .actions)
+        azureEndpoint = try c.decodeIfPresent(String.self, forKey: .azureEndpoint)
+        azureDeploymentName = try c.decodeIfPresent(String.self, forKey: .azureDeploymentName)
+        customOpenAIBaseURL = try c.decodeIfPresent(String.self, forKey: .customOpenAIBaseURL)
+        autoCopyAndClose = try c.decodeIfPresent(Bool.self, forKey: .autoCopyAndClose) ?? false
+        historyLimit = try c.decodeIfPresent(Int.self, forKey: .historyLimit) ?? 5
+    }
 
     static var `default`: AppConfig {
         AppConfig(

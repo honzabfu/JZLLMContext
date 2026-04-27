@@ -33,10 +33,6 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle("Spustit při přihlášení", isOn: $launchAtLogin)
-                Toggle("Po dokončení akce zkopírovat výsledek a zavřít panel", isOn: $config.autoCopyAndClose)
-                    .onChange(of: config.autoCopyAndClose) { _, val in
-                        ConfigStore.shared.update { $0.autoCopyAndClose = val }
-                    }
                     .onChange(of: launchAtLogin) { _, enabled in
                         do {
                             if enabled {
@@ -47,6 +43,16 @@ struct SettingsView: View {
                         } catch {
                             launchAtLogin = !enabled
                         }
+                    }
+                Toggle("Po dokončení akce zkopírovat výsledek a zavřít panel", isOn: $config.autoCopyAndClose)
+                    .onChange(of: config.autoCopyAndClose) { _, val in
+                        ConfigStore.shared.update { $0.autoCopyAndClose = val }
+                    }
+                Stepper("Historie výsledků: \(config.historyLimit == 0 ? "vypnuto" : "\(config.historyLimit)")",
+                        value: $config.historyLimit, in: 0...10)
+                    .onChange(of: config.historyLimit) { _, val in
+                        ConfigStore.shared.update { $0.historyLimit = val }
+                        HistoryStore.shared.trim(to: val)
                     }
             }
             Section("Globální zkratka") {
