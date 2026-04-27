@@ -16,6 +16,7 @@ struct OverlayView: View {
     @State private var userContext: String = ""
     @State private var showHistory = false
     @State private var shownHistoryResult: String?
+    @FocusState private var userContextFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
     private var displayedResult: String? {
@@ -67,6 +68,13 @@ struct OverlayView: View {
             }
         }
         .onKeyPress(.escape) { onClose(); return .handled }
+        .onKeyPress { press in
+            guard !userContextFocused,
+                  let digit = Int(press.characters),
+                  digit >= 1, digit <= actions.count else { return .ignored }
+            runAction(actions[digit - 1])
+            return .handled
+        }
     }
 
     private var headerBar: some View {
@@ -145,6 +153,7 @@ struct OverlayView: View {
                 .font(.caption)
                 .padding(.top, 2)
             TextField("Doplňkový kontext…", text: $userContext, axis: .vertical)
+                .focused($userContextFocused)
                 .font(.caption)
                 .lineLimit(1...3)
                 .frame(maxWidth: .infinity)
@@ -189,21 +198,12 @@ struct OverlayView: View {
                 Divider()
             }
             ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
-                if index < 9, let keyChar = String(index + 1).first {
-                    actionButton(
-                        title: action.name,
-                        missingKey: !KeychainStore.hasKey(for: action.provider),
-                        isRunning: engine.isLoading && lastAction == action,
-                        keyHint: String(index + 1)
-                    ) { runAction(action) }
-                        .keyboardShortcut(KeyEquivalent(keyChar), modifiers: [])
-                } else {
-                    actionButton(
-                        title: action.name,
-                        missingKey: !KeychainStore.hasKey(for: action.provider),
-                        isRunning: engine.isLoading && lastAction == action
-                    ) { runAction(action) }
-                }
+                actionButton(
+                    title: action.name,
+                    missingKey: !KeychainStore.hasKey(for: action.provider),
+                    isRunning: engine.isLoading && lastAction == action,
+                    keyHint: index < 9 ? String(index + 1) : nil
+                ) { runAction(action) }
             }
             if engine.isLoading {
                 HStack {
@@ -296,6 +296,7 @@ struct OverlayView: View {
     }
 
     private func resolveContext() {
+        userContextFocused = false
         engine.reset()
         isResolvingContext = true
         contextText = nil
@@ -322,6 +323,7 @@ struct OverlayView: View {
 
     private func runAction(_ action: Action) {
         guard let text = contextText else { return }
+        userContextFocused = false
         lastAction = action
         didCopy = false
         shownHistoryResult = nil
