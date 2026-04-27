@@ -21,6 +21,7 @@
 		849D592AD8198F46B85F160C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B871CF2E7BE6343C453D36B /* SettingsView.swift */; };
 		9663B7E3F4E9E183B640A3A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3712CADC923FA76F06AD0828 /* AppDelegate.swift */; };
 		970E06E15E4CBB1D8EF21A98 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22902D0B71BC3BDCD04276DE /* AppConfig.swift */; };
+		9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */; };
 		A02FDD4035E09CBEE0817476 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84778605AF88F656C97B010D /* Assets.xcassets */; };
 		A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */; };
 		BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		09441EAAD72AD462864F9B2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelFetcher.swift; sourceTree = "<group>"; };
 		0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMProvider.swift; sourceTree = "<group>"; };
 		115B55BB48331930264A2987 /* OverlayWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindowController.swift; sourceTree = "<group>"; };
 		22902D0B71BC3BDCD04276DE /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */,
 				EB65AD326E16BF2E0137AABE /* HistoryStore.swift */,
 				D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */,
+				0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -237,6 +240,7 @@
 				1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */,
 				64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */,
 				BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */,
+				9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */,
 				107E3F54587858A4B2D73F27 /* OpenAIProvider.swift in Sources */,
 				450734B8BB48675A75765886 /* OverlayView.swift in Sources */,
 				E59EB23A8F4F48E658F183C4 /* OverlayWindowController.swift in Sources */,

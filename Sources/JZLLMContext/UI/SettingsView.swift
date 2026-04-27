@@ -12,6 +12,10 @@ struct SettingsView: View {
     @State private var launchAtLogin = false
     @State private var importedActions: [Action] = []
     @State private var showImportAlert = false
+    @State private var isFetching: ProviderType? = nil
+    @State private var fetchError: [ProviderType: String] = [:]
+    @State private var reviewModels: [FetchedModel] = []
+    @State private var reviewingProvider: ProviderType? = nil
 
     var body: some View {
         TabView {
@@ -26,6 +30,18 @@ struct SettingsView: View {
         .onAppear {
             loadKeys()
             launchAtLogin = SMAppService.mainApp.status == .enabled
+        }
+        .sheet(item: $reviewingProvider) { provider in
+            ModelReviewSheet(provider: provider, models: $reviewModels) { saved in
+                let presets = saved
+                    .filter(\.isIncluded)
+                    .map { ModelPreset(id: $0.id, displayName: $0.displayName, isRecommended: $0.isRecommended) }
+                ConfigStore.shared.update { $0.modelPresets[provider.rawValue] = presets }
+                config = ConfigStore.shared.config
+                reviewingProvider = nil
+            } onCancel: {
+                reviewingProvider = nil
+            }
         }
     }
 
@@ -168,11 +184,13 @@ struct SettingsView: View {
                 SecureField("API klíč", text: $openaiKey)
                     .onSubmit { saveKey(openaiKey, for: .openai) }
                 saveButton(for: .openai, key: openaiKey)
+                fetchModelsRow(for: .openai)
             }
             Section("Anthropic") {
                 SecureField("API klíč", text: $anthropicKey)
                     .onSubmit { saveKey(anthropicKey, for: .anthropic) }
                 saveButton(for: .anthropic, key: anthropicKey)
+                fetchModelsRow(for: .anthropic)
             }
             Section("Azure OpenAI") {
                 SecureField("API klíč", text: $azureKey)
@@ -210,6 +228,49 @@ struct SettingsView: View {
         .padding()
     }
 
+    @ViewBuilder
+    private func fetchModelsRow(for provider: ProviderType) -> some View {
+        HStack(spacing: 8) {
+            Button {
+                Task { await fetchModels(for: provider) }
+            } label: {
+                if isFetching == provider {
+                    HStack(spacing: 6) {
+                        ProgressView().scaleEffect(0.7)
+                        Text("Načítám modely…")
+                    }
+                } else {
+                    Label("Aktualizovat modely", systemImage: "arrow.clockwise")
+                }
+            }
+            .disabled(isFetching != nil)
+
+            if let stored = config.modelPresets[provider.rawValue] {
+                Text("\(stored.count) modelů uloženo")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        if let error = fetchError[provider] {
+            Text(error)
+                .font(.caption)
+                .foregroundStyle(.red)
+        }
+    }
+
+    private func fetchModels(for provider: ProviderType) async {
+        isFetching = provider
+        fetchError[provider] = nil
+        do {
+            let models = try await ModelFetcher.fetch(for: provider)
+            reviewModels = models
+            reviewingProvider = provider
+        } catch {
+            fetchError[provider] = error.localizedDescription
+        }
+        isFetching = nil
+    }
+
     private func saveButton(for provider: ProviderType, key: String) -> some View {
         HStack {
             Button("Uložit") { saveKey(key, for: provider) }
@@ -237,6 +298,79 @@ struct SettingsView: View {
         customKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
     }
 }
+
+// MARK: - Model Review Sheet
+
+private struct ModelReviewSheet: View {
+    let provider: ProviderType
+    @Binding var models: [FetchedModel]
+    let onSave: ([FetchedModel]) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Modely – \(provider.displayName)")
+                    .font(.headline)
+                Spacer()
+            }
+            .padding()
+            Divider()
+
+            List($models) { $model in
+                HStack(spacing: 10) {
+                    Toggle("", isOn: $model.isIncluded)
+                        .labelsHidden()
+                        .onChange(of: model.isIncluded) { _, included in
+                            if !included && model.isRecommended {
+                                model.isRecommended = false
+                            }
+                        }
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(model.displayName)
+                            .strikethrough(!model.isIncluded, color: .secondary)
+                            .foregroundStyle(model.isIncluded ? .primary : .secondary)
+                        if model.inUseByAction {
+                            Text("Používáno v akci")
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    Spacer()
+                    Button {
+                        let targetID = model.id
+                        for i in models.indices {
+                            models[i].isRecommended = models[i].id == targetID
+                        }
+                    } label: {
+                        Image(systemName: model.isRecommended ? "star.fill" : "star")
+                            .foregroundStyle(model.isRecommended ? Color.yellow : Color.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!model.isIncluded)
+                    .help("Označit jako doporučený model")
+                }
+            }
+
+            Divider()
+            HStack {
+                Button("Zrušit", role: .cancel) { onCancel() }
+                Spacer()
+                Text("\(models.filter(\.isIncluded).count) z \(models.count) modelů")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Uložit") { onSave(models) }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(models.filter(\.isIncluded).isEmpty)
+            }
+            .padding()
+        }
+        .frame(width: 500, height: 440)
+    }
+}
+
+// MARK: - Action Row
 
 private struct ActionRow: View {
     @Binding var action: Action
@@ -294,7 +428,7 @@ private struct ActionRow: View {
     }
 
     private func syncPickerFromAction() {
-        let presetIDs = action.provider.presetModels.map(\.id)
+        let presetIDs = action.provider.effectiveModels().map(\.id)
         if !presetIDs.isEmpty && presetIDs.contains(action.model) {
             pickerModel = action.model
             customModelText = ""
@@ -314,7 +448,7 @@ private struct ActionRow: View {
             .labelsHidden()
             .frame(width: 120)
             .onChange(of: action.provider) {
-                let presets = action.provider.presetModels
+                let presets = action.provider.effectiveModels()
                 if presets.isEmpty {
                     action.model = ""
                     pickerModel = customSentinel
@@ -327,7 +461,7 @@ private struct ActionRow: View {
                 }
             }
 
-            if action.provider.presetModels.isEmpty {
+            if action.provider.effectiveModels().isEmpty {
                 TextField("název modelu", text: $customModelText)
                     .frame(width: 260)
                     .onChange(of: customModelText) {
@@ -335,8 +469,9 @@ private struct ActionRow: View {
                     }
             } else {
                 Picker("Model", selection: $pickerModel) {
-                    ForEach(action.provider.presetModels) { preset in
-                        Text(preset.displayName).tag(preset.id)
+                    ForEach(action.provider.effectiveModels()) { preset in
+                        Text(preset.isRecommended ? "\(preset.displayName) [Doporučeno]" : preset.displayName)
+                            .tag(preset.id)
                     }
                     Divider()
                     Text("Vlastní model…").tag(customSentinel)
@@ -374,6 +509,20 @@ private struct ActionRow: View {
             Spacer()
 
             VStack(alignment: .leading, spacing: 2) {
+                Text("Zkopírovat a zavřít")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Picker("", selection: $action.autoCopyClose) {
+                    ForEach(AutoCopyClose.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .labelsHidden()
+                .frame(width: 120)
+                .pickerStyle(.menu)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Max. tokenů")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -389,40 +538,49 @@ private struct ActionRow: View {
     }
 }
 
+// MARK: - ProviderType extensions
+
+extension ProviderType: Identifiable {
+    public var id: String { rawValue }
+}
+
 extension ProviderType {
     var displayName: String {
         switch self {
-        case .openai: "OpenAI"
-        case .azureOpenai: "Azure OpenAI"
-        case .anthropic: "Anthropic"
+        case .openai:       "OpenAI"
+        case .azureOpenai:  "Azure OpenAI"
+        case .anthropic:    "Anthropic"
         case .customOpenAI: "Vlastní"
         }
+    }
+
+    func effectiveModels() -> [ModelPreset] {
+        let stored = ConfigStore.shared.config.modelPresets[rawValue] ?? []
+        return stored.isEmpty ? presetModels : stored
     }
 
     var presetModels: [ModelPreset] {
         switch self {
         case .openai:
             [
-                .init(id: "gpt-4o", displayName: "gpt-4o [Doporučeno]"),
-                .init(id: "gpt-4o-mini", displayName: "gpt-4o-mini"),
-                .init(id: "o4-mini", displayName: "o4-mini"),
-                .init(id: "o3", displayName: "o3")
+                .init(id: "gpt-4o",       displayName: "gpt-4o",       isRecommended: true),
+                .init(id: "gpt-4o-mini",  displayName: "gpt-4o-mini"),
+                .init(id: "o4-mini",      displayName: "o4-mini"),
+                .init(id: "o3",           displayName: "o3"),
+                .init(id: "o3-mini",      displayName: "o3-mini"),
+                .init(id: "o1",           displayName: "o1"),
+                .init(id: "o1-mini",      displayName: "o1-mini")
             ]
         case .azureOpenai:
-            [.init(id: "gpt-4o", displayName: "gpt-4o")]
+            [.init(id: "gpt-4o", displayName: "gpt-4o", isRecommended: true)]
         case .anthropic:
             [
-                .init(id: "claude-sonnet-4-6", displayName: "claude-sonnet-4.6 [Doporučeno]"),
-                .init(id: "claude-opus-4-7", displayName: "claude-opus-4.7"),
-                .init(id: "claude-haiku-4-5-20251001", displayName: "claude-haiku-4.5")
+                .init(id: "claude-sonnet-4-6",         displayName: "claude-sonnet-4.6", isRecommended: true),
+                .init(id: "claude-opus-4-7",            displayName: "claude-opus-4.7"),
+                .init(id: "claude-haiku-4-5-20251001",  displayName: "claude-haiku-4.5")
             ]
         case .customOpenAI:
             []
         }
     }
-}
-
-struct ModelPreset: Identifiable {
-    let id: String
-    let displayName: String
 }

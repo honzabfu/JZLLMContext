@@ -6,5 +6,6 @@ Steps to execute in order:
 3. If build succeeded: kill any running JZLLMContext instance with `pkill -x JZLLMContext`
 4. Launch the new build: `open ~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app`
 5. Open Finder at the build output folder: `open /Users/jan/Library/Developer/Xcode/DerivedData/JZLLMContext-ashuidigwvrybugixttzlkbflcis/Build/Products/Debug`
+6. Update readme.md if needed
 
 If the build fails, show only the error lines and stop — do not kill or relaunch.

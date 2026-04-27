@@ -62,7 +62,13 @@ struct OverlayView: View {
         .onChange(of: engine.isLoading) { _, isLoading in
             guard !isLoading, engine.errorMessage == nil, !engine.result.isEmpty else { return }
             HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
-            if ConfigStore.shared.config.autoCopyAndClose {
+            let shouldCopyClose: Bool
+            switch lastAction?.autoCopyClose {
+            case .always:   shouldCopyClose = true
+            case .never:    shouldCopyClose = false
+            default:        shouldCopyClose = ConfigStore.shared.config.autoCopyAndClose
+            }
+            if shouldCopyClose {
                 copyResult()
                 onClose()
             }

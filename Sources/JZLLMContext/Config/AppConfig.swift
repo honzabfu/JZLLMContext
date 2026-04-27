@@ -1,6 +1,18 @@
 import Carbon
 import Foundation
 
+struct ModelPreset: Identifiable, Codable, Equatable {
+    let id: String
+    var displayName: String
+    var isRecommended: Bool
+
+    init(id: String, displayName: String, isRecommended: Bool = false) {
+        self.id = id
+        self.displayName = displayName
+        self.isRecommended = isRecommended
+    }
+}
+
 struct AppConfig: Codable {
     var schemaVersion: Int
     var hotkeyKeyCode: Int
@@ -11,10 +23,12 @@ struct AppConfig: Codable {
     var customOpenAIBaseURL: String?
     var autoCopyAndClose: Bool = false
     var historyLimit: Int = 5
+    var modelPresets: [String: [ModelPreset]] = [:]
 
     init(schemaVersion: Int, hotkeyKeyCode: Int, hotkeyModifiers: Int, actions: [Action],
          azureEndpoint: String? = nil, azureDeploymentName: String? = nil,
-         customOpenAIBaseURL: String? = nil, autoCopyAndClose: Bool = false, historyLimit: Int = 5) {
+         customOpenAIBaseURL: String? = nil, autoCopyAndClose: Bool = false, historyLimit: Int = 5,
+         modelPresets: [String: [ModelPreset]] = [:]) {
         self.schemaVersion = schemaVersion
         self.hotkeyKeyCode = hotkeyKeyCode
         self.hotkeyModifiers = hotkeyModifiers
@@ -24,6 +38,7 @@ struct AppConfig: Codable {
         self.customOpenAIBaseURL = customOpenAIBaseURL
         self.autoCopyAndClose = autoCopyAndClose
         self.historyLimit = historyLimit
+        self.modelPresets = modelPresets
     }
 
     init(from decoder: Decoder) throws {
@@ -37,6 +52,7 @@ struct AppConfig: Codable {
         customOpenAIBaseURL = try c.decodeIfPresent(String.self, forKey: .customOpenAIBaseURL)
         autoCopyAndClose = try c.decodeIfPresent(Bool.self, forKey: .autoCopyAndClose) ?? false
         historyLimit = try c.decodeIfPresent(Int.self, forKey: .historyLimit) ?? 5
+        modelPresets = try c.decodeIfPresent([String: [ModelPreset]].self, forKey: .modelPresets) ?? [:]
     }
 
     static var `default`: AppConfig {
@@ -94,6 +110,8 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
     var enabled: Bool
     var temperature: Double
     var maxTokens: Int
+    var autoCopyClose: AutoCopyClose
+
     init(
         name: String,
         systemPrompt: String,
@@ -101,7 +119,8 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         model: String,
         enabled: Bool,
         temperature: Double = 0.7,
-        maxTokens: Int = 4096
+        maxTokens: Int = 4096,
+        autoCopyClose: AutoCopyClose = .useGlobal
     ) {
         self.id = UUID()
         self.name = name
@@ -111,6 +130,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         self.enabled = enabled
         self.temperature = temperature
         self.maxTokens = maxTokens
+        self.autoCopyClose = autoCopyClose
     }
 
     init(from decoder: Decoder) throws {
@@ -123,6 +143,21 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         enabled = try c.decode(Bool.self, forKey: .enabled)
         temperature = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
         maxTokens = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 4096
+        autoCopyClose = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
+    }
+}
+
+enum AutoCopyClose: String, Codable, CaseIterable {
+    case useGlobal
+    case always
+    case never
+
+    var displayName: String {
+        switch self {
+        case .useGlobal: "Dle nastavení"
+        case .always:    "Vždy"
+        case .never:     "Nikdy"
+        }
     }
 }
 
