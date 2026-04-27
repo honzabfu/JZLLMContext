@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindowController: NSWindowController?
     private var aboutWindowController: NSWindowController?
     private var statusItem: NSStatusItem?
+    private var statusMenu: NSMenu?
     private var hotkeyState = HotkeyState.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -36,6 +37,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 button.image = NSImage(systemSymbolName: "sparkles", accessibilityDescription: "JZLLMContext")
             }
+            button.target = self
+            button.action = #selector(statusBarButtonClicked(_:))
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         }
 
         let menu = NSMenu()
@@ -58,7 +62,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let quitItem = NSMenuItem(title: "Ukončit JZLLMContext", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quitItem)
-        statusItem?.menu = menu
+        statusMenu = menu
+    }
+
+    @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
+        guard let event = NSApp.currentEvent else { return }
+        if event.type == .rightMouseUp || event.modifierFlags.contains(.option) {
+            statusItem?.menu = statusMenu
+            sender.performClick(nil)
+            statusItem?.menu = nil
+        } else {
+            showOverlay()
+        }
     }
 
     @objc private func openAbout() {
