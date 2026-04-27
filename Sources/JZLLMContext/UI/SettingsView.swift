@@ -21,8 +21,6 @@ struct SettingsView: View {
                 .tabItem { Label("Akce", systemImage: "list.bullet") }
             providersTab
                 .tabItem { Label("Providery", systemImage: "key") }
-            shortcutTab
-                .tabItem { Label("Zkratka", systemImage: "keyboard") }
         }
         .frame(width: 620, height: 520)
         .onAppear {
@@ -35,6 +33,10 @@ struct SettingsView: View {
         Form {
             Section {
                 Toggle("Spustit při přihlášení", isOn: $launchAtLogin)
+                Toggle("Po dokončení akce zkopírovat výsledek a zavřít panel", isOn: $config.autoCopyAndClose)
+                    .onChange(of: config.autoCopyAndClose) { _, val in
+                        ConfigStore.shared.update { $0.autoCopyAndClose = val }
+                    }
                     .onChange(of: launchAtLogin) { _, enabled in
                         do {
                             if enabled {
@@ -47,24 +49,15 @@ struct SettingsView: View {
                         }
                     }
             }
-        }
-        .formStyle(.grouped)
-        .padding()
-    }
-
-    private var shortcutTab: some View {
-        Form {
-            Section {
+            Section("Globální zkratka") {
                 HStack {
-                    Text("Globální zkratka")
+                    Text("Zkratka")
                     Spacer()
                     HotkeyRecorderView(keyCode: $config.hotkeyKeyCode, modifiers: $config.hotkeyModifiers)
                         .frame(width: 150, height: 26)
                         .onChange(of: config.hotkeyKeyCode) { saveHotkey() }
                         .onChange(of: config.hotkeyModifiers) { saveHotkey() }
                 }
-            }
-            Section {
                 Text("Klikni na pole a stiskni požadovanou kombinaci kláves. Kliknutí znovu zruší záznam.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

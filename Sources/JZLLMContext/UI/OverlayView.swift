@@ -12,8 +12,10 @@ struct OverlayView: View {
     @State private var contextIsFromOCR = false
     @State private var lastAction: Action?
     @State private var didCopy = false
+    @State private var userContext: String = ""
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
+
 
     private var isMissingKeyError: Bool {
         guard let err = engine.lastError as? LLMError,
@@ -30,6 +32,7 @@ struct OverlayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
                     contextPreview
+                    userContextField
                     actionButtons
                 }
                 .padding(16)
@@ -45,6 +48,14 @@ struct OverlayView: View {
         .background(.regularMaterial)
         .onAppear { resolveContext() }
         .onChange(of: state.refreshID) { resolveContext() }
+        .onChange(of: engine.isLoading) { _, isLoading in
+            guard !isLoading,
+                  engine.errorMessage == nil,
+                  !engine.result.isEmpty,
+                  ConfigStore.shared.config.autoCopyAndClose else { return }
+            copyResult()
+            onClose()
+        }
         .onKeyPress(.escape) { onClose(); return .handled }
     }
 
@@ -65,6 +76,22 @@ struct OverlayView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+    }
+
+    private var userContextField: some View {
+        HStack(alignment: .top, spacing: 8) {
+            Image(systemName: "text.bubble")
+                .foregroundStyle(.secondary)
+                .font(.caption)
+                .padding(.top, 2)
+            TextField("Doplňkový kontext…", text: $userContext, axis: .vertical)
+                .font(.caption)
+                .lineLimit(1...3)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(8)
+        .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
     private var contextPreview: some View {
@@ -196,12 +223,25 @@ struct OverlayView: View {
         }
     }
 
+    private func resolveVariables(in prompt: String) -> String {
+        let df = DateFormatter()
+        df.dateStyle = .long
+        df.timeStyle = .none
+        df.locale = Locale.current
+        let lang = Locale.current.language.languageCode?.identifier ?? "cs"
+        return prompt
+            .replacingOccurrences(of: "{{datum}}", with: df.string(from: Date()))
+            .replacingOccurrences(of: "{{jazyk}}", with: lang)
+            .replacingOccurrences(of: "{{kontext}}", with: userContext)
+    }
+
     private func resolveContext() {
         engine.reset()
         isResolvingContext = true
         contextText = nil
         contextError = nil
         didCopy = false
+        userContext = ""
         let pb = NSPasteboard.general
         contextIsFromOCR = pb.string(forType: .string)?.isEmpty != false
             && NSImage(pasteboard: pb) != nil
@@ -222,7 +262,15 @@ struct OverlayView: View {
         guard let text = contextText else { return }
         lastAction = action
         didCopy = false
-        engine.run(action: action, input: text)
+        var resolved = action
+        resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
+        let input: String
+        if !userContext.isEmpty && !action.systemPrompt.contains("{{kontext}}") {
+            input = text + "\n\n---\nDoplňkový kontext: " + userContext
+        } else {
+            input = text
+        }
+        engine.run(action: resolved, input: input)
     }
 
     private func copyResult() {

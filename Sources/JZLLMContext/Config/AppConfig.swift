@@ -9,6 +9,7 @@ struct AppConfig: Codable {
     var azureEndpoint: String?
     var azureDeploymentName: String?
     var customOpenAIBaseURL: String?
+    var autoCopyAndClose: Bool = false
 
     static var `default`: AppConfig {
         AppConfig(
@@ -65,7 +66,6 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
     var enabled: Bool
     var temperature: Double
     var maxTokens: Int
-
     init(
         name: String,
         systemPrompt: String,

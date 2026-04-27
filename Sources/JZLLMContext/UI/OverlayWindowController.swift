@@ -19,10 +19,10 @@ final class OverlayWindowController: NSObject {
     func showOverlay() {
         if panel == nil {
             panel = makePanel()
+            panel?.center()
         }
         state.triggerRefresh()
         panel?.makeKeyAndOrderFront(nil)
-        panel?.center()
     }
 
     func hideOverlay() {
