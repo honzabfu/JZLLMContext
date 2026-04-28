@@ -46,11 +46,40 @@ enum ProviderFactory {
         case .customOpenAI:
             let apiKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
             let config = ConfigStore.shared.config
-            guard let urlStr = config.customOpenAIBaseURL, !urlStr.isEmpty,
-                  let baseURL = URL(string: urlStr)
-            else { throw LLMError.missingAPIKey(.customOpenAI) }
-            return OpenAIProvider(model: action.model, apiKey: apiKey, baseURL: baseURL, temperature: action.temperature, maxTokens: action.maxTokens, useMaxCompletionTokens: false)
+            guard let urlStr = config.customOpenAIBaseURL, !urlStr.isEmpty else {
+                throw LLMError.missingAPIKey(.customOpenAI)
+            }
+            let chatURL = try customChatURL(baseURLStr: urlStr, apiVersion: config.customOpenAIAPIVersion, slot: .customOpenAI)
+            return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
+                                  authStyle: .bearer, temperature: action.temperature, maxTokens: action.maxTokens, useMaxCompletionTokens: false)
+
+        case .customOpenAI2:
+            let apiKey = (try? KeychainStore.load(for: .customOpenAI2)) ?? ""
+            let config = ConfigStore.shared.config
+            guard let urlStr = config.customOpenAIBaseURL2, !urlStr.isEmpty else {
+                throw LLMError.missingAPIKey(.customOpenAI2)
+            }
+            let chatURL2 = try customChatURL(baseURLStr: urlStr, apiVersion: config.customOpenAIAPIVersion2, slot: .customOpenAI2)
+            return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL2,
+                                  authStyle: .bearer, temperature: action.temperature, maxTokens: action.maxTokens, useMaxCompletionTokens: false)
         }
+    }
+
+    /// Builds the chat/completions URL for a custom OpenAI-compatible provider.
+    /// Appends /chat/completions if not already present, and optionally ?api-version=…
+    private static func customChatURL(baseURLStr: String, apiVersion: String?, slot: ProviderType) throws -> URL {
+        var base = baseURLStr.hasSuffix("/") ? String(baseURLStr.dropLast()) : baseURLStr
+        if !base.hasSuffix("/chat/completions") {
+            base += "/chat/completions"
+        }
+        if let version = apiVersion, !version.isEmpty {
+            var components = URLComponents(string: base)
+            components?.queryItems = [URLQueryItem(name: "api-version", value: version)]
+            guard let url = components?.url else { throw LLMError.missingAPIKey(slot) }
+            return url
+        }
+        guard let url = URL(string: base) else { throw LLMError.missingAPIKey(slot) }
+        return url
     }
 
     /// Builds the full chat/completions URL for an Azure deployment.

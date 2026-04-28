@@ -18,6 +18,7 @@ struct SettingsView: View {
     @State private var azureKey = ""
     @State private var azureKey2 = ""
     @State private var customKey = ""
+    @State private var customKey2 = ""
     @State private var keySaveStatus: [ProviderType: Bool] = [:]
     @State private var launchAtLogin = false
     @State private var importedActions: [Action] = []
@@ -319,7 +320,7 @@ struct SettingsView: View {
                 saveButton(for: .azureOpenai2, key: azureKey2)
                 testConnectionRow(for: .azureOpenai2)
             }
-            Section("Vlastní OpenAI-compatible") {
+            Section("Vlastní API (slot 1)") {
                 TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
                     get: { config.customOpenAIBaseURL ?? "" },
                     set: {
@@ -327,10 +328,37 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.customOpenAIBaseURL = config.customOpenAIBaseURL }
                     }
                 ))
+                TextField("API verze (volitelné, přidá ?api-version=…)", text: Binding(
+                    get: { config.customOpenAIAPIVersion ?? "" },
+                    set: {
+                        config.customOpenAIAPIVersion = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
+                    }
+                ))
                 SecureField("API klíč (volitelné)", text: $customKey)
                     .onSubmit { saveKey(customKey, for: .customOpenAI) }
                 saveButton(for: .customOpenAI, key: customKey)
                 testConnectionRow(for: .customOpenAI)
+            }
+            Section("Vlastní API (slot 2)") {
+                TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
+                    get: { config.customOpenAIBaseURL2 ?? "" },
+                    set: {
+                        config.customOpenAIBaseURL2 = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.customOpenAIBaseURL2 = config.customOpenAIBaseURL2 }
+                    }
+                ))
+                TextField("API verze (volitelné, přidá ?api-version=…)", text: Binding(
+                    get: { config.customOpenAIAPIVersion2 ?? "" },
+                    set: {
+                        config.customOpenAIAPIVersion2 = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
+                    }
+                ))
+                SecureField("API klíč (volitelné)", text: $customKey2)
+                    .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
+                saveButton(for: .customOpenAI2, key: customKey2)
+                testConnectionRow(for: .customOpenAI2)
             }
         }
         .formStyle(.grouped)
@@ -454,6 +482,7 @@ struct SettingsView: View {
         azureKey = (try? KeychainStore.load(for: .azureOpenai)) ?? ""
         azureKey2 = (try? KeychainStore.load(for: .azureOpenai2)) ?? ""
         customKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
+        customKey2 = (try? KeychainStore.load(for: .customOpenAI2)) ?? ""
     }
 }
 
@@ -709,7 +738,8 @@ extension ProviderType {
         case .azureOpenai:   "Azure AI (slot 1)"
         case .azureOpenai2:  "Azure AI (slot 2)"
         case .anthropic:     "Anthropic"
-        case .customOpenAI:  "Vlastní"
+        case .customOpenAI:  "Vlastní API (slot 1)"
+        case .customOpenAI2: "Vlastní API (slot 2)"
         }
     }
 
@@ -738,7 +768,7 @@ extension ProviderType {
                 .init(id: "claude-opus-4-7",            displayName: "claude-opus-4.7"),
                 .init(id: "claude-haiku-4-5-20251001",  displayName: "claude-haiku-4.5")
             ]
-        case .customOpenAI:
+        case .customOpenAI, .customOpenAI2:
             []
         }
     }

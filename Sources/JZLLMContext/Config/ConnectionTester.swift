@@ -7,7 +7,8 @@ enum ConnectionTester {
         case .anthropic:    try await pingAnthropic()
         case .azureOpenai:  try await pingAzure(slot: 1)
         case .azureOpenai2: try await pingAzure(slot: 2)
-        case .customOpenAI: try await pingCustom()
+        case .customOpenAI:  try await pingCustom(slot: 1)
+        case .customOpenAI2: try await pingCustom(slot: 2)
         }
     }
 
@@ -59,14 +60,22 @@ enum ConnectionTester {
 
     // MARK: - Custom OpenAI-compatible
 
-    private static func pingCustom() async throws {
-        let key = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
+    private static func pingCustom(slot: Int) async throws {
+        let providerType: ProviderType = slot == 1 ? .customOpenAI : .customOpenAI2
+        let key = (try? KeychainStore.load(for: providerType)) ?? ""
         let config = ConfigStore.shared.config
-        guard let urlStr = config.customOpenAIBaseURL, !urlStr.isEmpty,
-              let baseURL = URL(string: urlStr) else {
-            throw LLMError.missingAPIKey(.customOpenAI)
+        let urlStr = slot == 1 ? config.customOpenAIBaseURL : config.customOpenAIBaseURL2
+        guard let urlStr, !urlStr.isEmpty else {
+            throw LLMError.missingAPIKey(providerType)
         }
-        var req = URLRequest(url: baseURL.appendingPathComponent("models"))
+        var base = urlStr.hasSuffix("/") ? String(urlStr.dropLast()) : urlStr
+        if base.hasSuffix("/chat/completions") {
+            base = String(base.dropLast("/chat/completions".count))
+        }
+        guard let modelsURL = URL(string: "\(base)/models") else {
+            throw LLMError.missingAPIKey(providerType)
+        }
+        var req = URLRequest(url: modelsURL)
         if !key.isEmpty { req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
         req.timeoutInterval = 10
         let (data, response) = try await URLSession.shared.data(for: req)
