@@ -174,7 +174,7 @@ Aktuální zkratka je zobrazena i v hlavičce dropdown menu v menu baru.
 
 Správa akcí, které se zobrazují v overlay panelu.
 
-- **Přidání akce** — tlačítko „Přidat akci" přidá novou akci s výchozím názvem, prázdným promptem a modelem gpt-4o
+- **Přidání akce** — tlačítko „Přidat akci" přidá novou akci s výchozím názvem, prázdným promptem a modelem gpt-5.5
 - **Zapnutí/vypnutí** — přepínač vlevo od názvu; vypnuté akce se nezobrazují v overlay panelu
 - **Název** — textové pole s názvem zobrazeným na tlačítku v overlay panelu
 - **Výchozí akce** — tlačítko ↩ vpravo od názvu; označí akci jako výchozí pro spuštění stiskem Enter v poli doplňkového kontextu; označit lze vždy jen jednu akci
@@ -186,7 +186,7 @@ Správa akcí, které se zobrazují v overlay panelu.
   - *Dle nastavení* — řídí se globálním přepínačem v Obecných nastaveních (výchozí)
   - *Vždy* — po dokončení akce vždy zkopíruje a zavře, bez ohledu na globální nastavení
   - *Nikdy* — nikdy nezavře automaticky, i když je globální přepínač zapnutý
-- **Max. tokenů** — stepper 256–32 000 (krok 256); výchozí 4 096
+- **Max. tokenů** — stepper 256–32 000 (krok 256); výchozí 2048 
 - **Přesouvání** — drag & drop pro změnu pořadí akcí
 - **Mazání** — tlačítko koše otevře potvrzovací dialog; akce se nedá vrátit zpět
 - **Importovat akce…** — načte akce ze JSON souboru; nabídne možnost přidat k existujícím, nebo nahradit vše
@@ -247,7 +247,7 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 
 | Provider | Předdefinované modely |
 |----------|----------------------|
-| OpenAI | gpt-4o, gpt-4o-mini, o4-mini, o3, o3-mini, o1, o1-mini |
+| OpenAI | gpt-5.5 ★, gpt-5.4-mini, o4-mini, o3, o3-mini (legacy), gpt-4o, gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
 | Azure AI (slot 1 / slot 2) | — (jen ruční zadání; model určuje deployment v nastavení) |
 | Vlastní API (slot 1 / slot 2) | — (jen ruční zadání) |
@@ -397,7 +397,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext` s t
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "isDefault": false,
       "maxTokens": 4096,
-      "model": "gpt-4o",
+      "model": "gpt-5.5",
       "name": "Název akce",
       "provider": "openai",
       "systemPrompt": "Systémový prompt…",

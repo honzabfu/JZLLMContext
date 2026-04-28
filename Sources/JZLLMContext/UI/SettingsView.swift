@@ -163,7 +163,7 @@ struct SettingsView: View {
                         name: "Nová akce",
                         systemPrompt: "",
                         provider: .openai,
-                        model: "gpt-4o",
+                        model: "gpt-5.5",
                         enabled: true
                     ))
                     ConfigStore.shared.update { $0.actions = config.actions }
@@ -768,13 +768,13 @@ extension ProviderType {
         switch self {
         case .openai:
             [
-                .init(id: "gpt-4o",       displayName: "gpt-4o",       isRecommended: true),
-                .init(id: "gpt-4o-mini",  displayName: "gpt-4o-mini"),
-                .init(id: "o4-mini",      displayName: "o4-mini"),
-                .init(id: "o3",           displayName: "o3"),
-                .init(id: "o3-mini",      displayName: "o3-mini"),
-                .init(id: "o1",           displayName: "o1"),
-                .init(id: "o1-mini",      displayName: "o1-mini")
+                .init(id: "gpt-5.5",      displayName: "gpt-5.5",             isRecommended: true),
+                .init(id: "gpt-5.4-mini", displayName: "gpt-5.4-mini"),
+                .init(id: "o4-mini",      displayName: "o4-mini (legacy)"),
+                .init(id: "o3",           displayName: "o3 (legacy)"),
+                .init(id: "o3-mini",      displayName: "o3-mini (legacy)"),
+                .init(id: "gpt-4o",       displayName: "gpt-4o (legacy)"),
+                .init(id: "gpt-4o-mini",  displayName: "gpt-4o-mini (legacy)")
             ]
         case .azureOpenai, .azureOpenai2:
             []

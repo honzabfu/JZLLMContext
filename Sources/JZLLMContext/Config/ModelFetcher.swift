@@ -22,7 +22,7 @@ enum ModelFetchError: LocalizedError {
 
 enum ModelFetcher {
     private static let recommendedIDs: [ProviderType: String] = [
-        .openai:    "gpt-4o",
+        .openai:    "gpt-5.5",
         .anthropic: "claude-sonnet-4-6"
     ]
 
