@@ -21,6 +21,7 @@ struct OverlayView: View {
     @FocusState private var userContextFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
+    private var defaultAction: Action? { actions.first(where: \.isDefault) ?? actions.first }
     private var displayedResult: String? {
         shownHistoryResult ?? (engine.result.isEmpty ? nil : engine.result)
     }
@@ -174,6 +175,14 @@ struct OverlayView: View {
                 .font(.caption)
                 .lineLimit(1...3)
                 .frame(maxWidth: .infinity)
+                .onKeyPress(.return, phases: .down) { press in
+                    guard press.modifiers.isEmpty,
+                          let action = defaultAction,
+                          !engine.isLoading,
+                          ignoreClipboard || contextText != nil else { return .ignored }
+                    runAction(action)
+                    return .handled
+                }
         }
         .padding(8)
         .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
@@ -233,7 +242,8 @@ struct OverlayView: View {
                     title: action.name,
                     missingKey: !KeychainStore.hasKey(for: action.provider),
                     isRunning: engine.isLoading && lastAction == action,
-                    keyHint: index < 9 ? String(index + 1) : nil
+                    keyHint: index < 9 ? String(index + 1) : nil,
+                    isDefaultAction: action.id == defaultAction?.id
                 ) { runAction(action) }
             }
             if engine.isLoading {
@@ -246,7 +256,7 @@ struct OverlayView: View {
         }
     }
 
-    private func actionButton(actionModel: Action? = nil, title: String, missingKey: Bool, isRunning: Bool, keyHint: String? = nil, action: @escaping () -> Void) -> some View {
+    private func actionButton(actionModel: Action? = nil, title: String, missingKey: Bool, isRunning: Bool, keyHint: String? = nil, isDefaultAction: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Text(title)
@@ -257,14 +267,21 @@ struct OverlayView: View {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.orange)
                         .font(.caption)
-                } else if let hint = keyHint {
-                    Text(hint)
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.tertiary)
                 } else {
-                    Image(systemName: "arrow.right")
-                        .foregroundStyle(.tertiary)
-                        .font(.caption)
+                    if isDefaultAction {
+                        Image(systemName: "return")
+                            .foregroundStyle(.secondary)
+                            .font(.caption)
+                    }
+                    if let hint = keyHint {
+                        Text(hint)
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.tertiary)
+                    } else if !isDefaultAction {
+                        Image(systemName: "arrow.right")
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
+                    }
                 }
             }
             .padding(.vertical, 2)

@@ -140,7 +140,13 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 0) {
             List {
                 ForEach($config.actions) { $action in
-                    ActionRow(action: $action, onDelete: {
+                    ActionRow(action: $action, onSetDefault: {
+                        let targetID = action.id
+                        for i in config.actions.indices {
+                            config.actions[i].isDefault = config.actions[i].id == targetID
+                        }
+                        ConfigStore.shared.update { $0.actions = config.actions }
+                    }, onDelete: {
                         config.actions.removeAll { $0.id == action.id }
                         ConfigStore.shared.update { $0.actions = config.actions }
                     })
@@ -561,6 +567,7 @@ private struct ModelReviewSheet: View {
 
 private struct ActionRow: View {
     @Binding var action: Action
+    var onSetDefault: () -> Void
     var onDelete: () -> Void
     @State private var pickerModel: String = ""
     @State private var customModelText: String = ""
@@ -578,6 +585,15 @@ private struct ActionRow: View {
                 TextField("Název akce", text: $action.name)
                     .font(.headline)
                 Spacer()
+                Button {
+                    onSetDefault()
+                } label: {
+                    Image(systemName: action.isDefault ? "return.left" : "return.left")
+                        .foregroundStyle(action.isDefault ? Color.accentColor : Color.secondary.opacity(0.4))
+                        .fontWeight(action.isDefault ? .semibold : .regular)
+                }
+                .buttonStyle(.plain)
+                .help(action.isDefault ? "Výchozí akce (spustí se stiskem Enter)" : "Nastavit jako výchozí akci pro Enter")
                 Button {
                     confirmDelete = true
                 } label: {

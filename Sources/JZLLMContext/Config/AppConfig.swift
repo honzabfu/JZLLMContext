@@ -139,6 +139,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
     var temperature: Double
     var maxTokens: Int
     var autoCopyClose: AutoCopyClose
+    var isDefault: Bool
 
     init(
         name: String,
@@ -148,7 +149,8 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         enabled: Bool,
         temperature: Double = 0.7,
         maxTokens: Int = 4096,
-        autoCopyClose: AutoCopyClose = .useGlobal
+        autoCopyClose: AutoCopyClose = .useGlobal,
+        isDefault: Bool = false
     ) {
         self.id = UUID()
         self.name = name
@@ -159,6 +161,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         self.temperature = temperature
         self.maxTokens = maxTokens
         self.autoCopyClose = autoCopyClose
+        self.isDefault = isDefault
     }
 
     init(from decoder: Decoder) throws {
@@ -172,6 +175,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         temperature = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
         maxTokens = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 4096
         autoCopyClose = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
+        isDefault = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
     }
 }
 
