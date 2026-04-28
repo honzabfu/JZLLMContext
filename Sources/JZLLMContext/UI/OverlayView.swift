@@ -17,6 +17,7 @@ struct OverlayView: View {
     @State private var ignoreClipboard: Bool = false
     @State private var showHistory = false
     @State private var shownHistoryResult: String?
+    @State private var actionDetailMode: ActionDetailMode? = nil
     @FocusState private var userContextFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
@@ -82,6 +83,9 @@ struct OverlayView: View {
             runAction(actions[digit - 1])
             return .handled
         }
+        .sheet(item: $actionDetailMode) { mode in
+            ActionDetailSheet(mode: mode, onOpenSettings: onOpenSettings)
+        }
     }
 
     private var headerBar: some View {
@@ -93,18 +97,24 @@ struct OverlayView: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
             Spacer()
+            Button(action: onOpenSettings) {
+                Image(systemName: "gearshape")
+                    .foregroundStyle(.secondary)
+            }
+            .iconButton()
+            .help("Nastavení")
             if ConfigStore.shared.config.historyLimit > 0 {
                 Button { showHistory.toggle() } label: {
                     Image(systemName: showHistory ? "clock.fill" : "clock")
                         .foregroundStyle(showHistory ? .primary : .secondary)
                 }
-                .buttonStyle(.plain)
+                .iconButton()
             }
             Button(action: onClose) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.secondary)
             }
-            .buttonStyle(.plain)
+            .iconButton()
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -201,7 +211,7 @@ struct OverlayView: View {
                     .foregroundStyle(ignoreClipboard ? .primary : .secondary)
                     .font(.caption)
             }
-            .buttonStyle(.plain)
+            .iconButton()
             .help(ignoreClipboard ? "Použít schránku" : "Ignorovat schránku")
         }
         .padding(8)
@@ -219,6 +229,7 @@ struct OverlayView: View {
             }
             ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
                 actionButton(
+                    actionModel: action,
                     title: action.name,
                     missingKey: !KeychainStore.hasKey(for: action.provider),
                     isRunning: engine.isLoading && lastAction == action,
@@ -235,7 +246,7 @@ struct OverlayView: View {
         }
     }
 
-    private func actionButton(title: String, missingKey: Bool, isRunning: Bool, keyHint: String? = nil, action: @escaping () -> Void) -> some View {
+    private func actionButton(actionModel: Action? = nil, title: String, missingKey: Bool, isRunning: Bool, keyHint: String? = nil, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Text(title)
@@ -260,6 +271,18 @@ struct OverlayView: View {
         }
         .buttonStyle(.bordered)
         .disabled(engine.isLoading || (!ignoreClipboard && contextText == nil))
+        .help({
+            guard let a = actionModel else { return "" }
+            return a.systemPrompt.count > 200 ? String(a.systemPrompt.prefix(200)) + "…" : a.systemPrompt
+        }())
+        .contextMenu {
+            if let item = actionModel {
+                Button("Spustit") { action() }
+                Divider()
+                Button("Zobrazit prompt") { actionDetailMode = .view(item) }
+                Button("Upravit") { actionDetailMode = .edit(item) }
+            }
+        }
     }
 
     private var resultArea: some View {
@@ -368,5 +391,11 @@ struct OverlayView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
         didCopy = true
+    }
+}
+
+private extension View {
+    func iconButton() -> some View {
+        self.buttonStyle(.plain).focusEffectDisabled()
     }
 }

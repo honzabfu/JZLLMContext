@@ -2,7 +2,16 @@ import ServiceManagement
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum SettingsTab: String, Hashable { case general, actions, providers }
+
+@MainActor
+class SettingsNavigation: ObservableObject {
+    static let shared = SettingsNavigation()
+    @Published var selectedTab: SettingsTab = .general
+}
+
 struct SettingsView: View {
+    @ObservedObject private var nav = SettingsNavigation.shared
     @State private var config = ConfigStore.shared.config
     @State private var openaiKey = ""
     @State private var anthropicKey = ""
@@ -22,13 +31,16 @@ struct SettingsView: View {
     @State private var reviewingProvider: ProviderType? = nil
 
     var body: some View {
-        TabView {
+        TabView(selection: $nav.selectedTab) {
             generalTab
                 .tabItem { Label("Obecné", systemImage: "gearshape") }
+                .tag(SettingsTab.general)
             actionsTab
                 .tabItem { Label("Akce", systemImage: "list.bullet") }
+                .tag(SettingsTab.actions)
             providersTab
                 .tabItem { Label("Providery", systemImage: "key") }
+                .tag(SettingsTab.providers)
         }
         .frame(width: 620, height: 520)
         .onAppear {

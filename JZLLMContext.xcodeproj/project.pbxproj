@@ -23,6 +23,7 @@
 		9663B7E3F4E9E183B640A3A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3712CADC923FA76F06AD0828 /* AppDelegate.swift */; };
 		970E06E15E4CBB1D8EF21A98 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22902D0B71BC3BDCD04276DE /* AppConfig.swift */; };
 		9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */; };
+		9D41BB47989D4EB3CB398C20 /* ActionDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF630DCA11A63BCB84D42DD2 /* ActionDetailSheet.swift */; };
 		A02FDD4035E09CBEE0817476 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84778605AF88F656C97B010D /* Assets.xcassets */; };
 		A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */; };
 		BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */; };
@@ -54,6 +55,7 @@
 		D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JZLLMContext.entitlements; sourceTree = "<group>"; };
 		D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
 		EB65AD326E16BF2E0137AABE /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
+		EF630DCA11A63BCB84D42DD2 /* ActionDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDetailSheet.swift; sourceTree = "<group>"; };
 		F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -78,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				43A0987C8886320AB4C42709 /* AboutView.swift */,
+				EF630DCA11A63BCB84D42DD2 /* ActionDetailSheet.swift */,
 				299358F7A9CBA63430E341F7 /* HotkeyRecorderView.swift */,
 				35D70E3B5C8380F38DF3181F /* OverlayView.swift */,
 				115B55BB48331930264A2987 /* OverlayWindowController.swift */,
@@ -231,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55A7384824E1E417674390AE /* AboutView.swift in Sources */,
+				9D41BB47989D4EB3CB398C20 /* ActionDetailSheet.swift in Sources */,
 				4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */,
 				0C6B418CF3F45A62A78C1956 /* AnthropicProvider.swift in Sources */,
 				CEA7BC87270AC61BA80F47CE /* App.swift in Sources */,
