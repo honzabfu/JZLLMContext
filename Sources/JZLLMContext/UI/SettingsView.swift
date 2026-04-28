@@ -22,6 +22,8 @@ struct SettingsView: View {
     @State private var launchAtLogin = false
     @State private var importedActions: [Action] = []
     @State private var showImportAlert = false
+    @State private var importedConfig: AppConfig? = nil
+    @State private var showConfigImportAlert = false
     @State private var isFetching: ProviderType? = nil
     @State private var fetchError: [ProviderType: String] = [:]
     @State private var isTesting: ProviderType? = nil
@@ -87,6 +89,15 @@ struct SettingsView: View {
                         HistoryStore.shared.trim(to: val)
                     }
             }
+            Section("Záloha konfigurace") {
+                Text("Zahrnuje: akce, globální zkratku, nastavení Azure endpointů, výběr modelů a ostatní volby. Nezahrnuje API klíče (ty zůstávají v Keychainu).")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 12) {
+                    Button("Exportovat konfiguraci…") { exportConfig() }
+                    Button("Importovat konfiguraci…") { importConfig() }
+                }
+            }
             Section("Globální zkratka") {
                 HStack {
                     Text("Zkratka")
@@ -103,6 +114,17 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .padding()
+        .alert("Importovat konfiguraci", isPresented: $showConfigImportAlert) {
+            Button("Nahradit vše", role: .destructive) {
+                guard let imported = importedConfig else { return }
+                ConfigStore.shared.update { $0 = imported }
+                config = ConfigStore.shared.config
+                importedConfig = nil
+            }
+            Button("Zrušit", role: .cancel) { importedConfig = nil }
+        } message: {
+            Text("Importovaná konfigurace nahradí všechny akce, zkratku i ostatní nastavení. API klíče zůstanou beze změny.")
+        }
     }
 
     private func saveHotkey() {
@@ -140,8 +162,8 @@ struct SettingsView: View {
                     ConfigStore.shared.update { $0.actions = config.actions }
                 }
                 Spacer()
-                Button("Importovat…") { importActions() }
-                Button("Exportovat…") { exportActions() }
+                Button("Importovat akce…") { importActions() }
+                Button("Exportovat akce…") { exportActions() }
                     .disabled(config.actions.isEmpty)
             }
             .padding(12)
@@ -190,6 +212,36 @@ struct SettingsView: View {
             DispatchQueue.main.async {
                 importedActions = actions
                 showImportAlert = true
+            }
+        }
+    }
+
+    private func exportConfig() {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(ConfigStore.shared.config) else { return }
+        let panel = NSSavePanel()
+        panel.title = "Exportovat konfiguraci"
+        panel.nameFieldStringValue = "JZLLMContext-config.json"
+        panel.allowedContentTypes = [.json]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    private func importConfig() {
+        let panel = NSOpenPanel()
+        panel.title = "Importovat konfiguraci"
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url,
+                  let data = try? Data(contentsOf: url),
+                  let cfg = try? JSONDecoder().decode(AppConfig.self, from: data) else { return }
+            DispatchQueue.main.async {
+                importedConfig = cfg
+                showConfigImportAlert = true
             }
         }
     }
