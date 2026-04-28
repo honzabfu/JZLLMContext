@@ -84,6 +84,10 @@ struct SettingsView: View {
                     .onChange(of: config.autoCopyAndClose) { _, val in
                         ConfigStore.shared.update { $0.autoCopyAndClose = val }
                     }
+                Toggle("Zobrazit výsledek jako Markdown", isOn: $config.markdownOutput)
+                    .onChange(of: config.markdownOutput) { _, val in
+                        ConfigStore.shared.update { $0.markdownOutput = val }
+                    }
                 Stepper("Historie výsledků: \(config.historyLimit == 0 ? "vypnuto" : "\(config.historyLimit)")",
                         value: $config.historyLimit, in: 0...10)
                     .onChange(of: config.historyLimit) { _, val in

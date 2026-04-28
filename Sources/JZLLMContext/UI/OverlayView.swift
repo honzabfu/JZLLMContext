@@ -184,6 +184,15 @@ struct OverlayView: View {
                     runAction(action)
                     return .handled
                 }
+            if !userContext.isEmpty {
+                Button { userContext = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                        .font(.caption)
+                }
+                .iconButton()
+                .help("Vymazat kontext")
+            }
         }
         .padding(8)
         .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
@@ -323,10 +332,18 @@ struct OverlayView: View {
                 Spacer()
             } else if let result = displayedResult {
                 ScrollView {
-                    Markdown(result)
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
+                    if ConfigStore.shared.config.markdownOutput {
+                        Markdown(result)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                    } else {
+                        Text(result)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                            .font(.body)
+                    }
                 }
                 .frame(maxHeight: .infinity)
                 .background(Color(nsColor: .textBackgroundColor))
