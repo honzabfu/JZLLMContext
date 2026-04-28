@@ -5,13 +5,14 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var hotkeyManager: HotkeyManager?
     private var overlayWindowController: OverlayWindowController?
-    private var settingsWindowController: NSWindowController?
-    private var aboutWindowController: NSWindowController?
+    private var settingsWindow: NSWindow?
+    private var aboutWindow: NSWindow?
     private var statusItem: NSStatusItem?
     private var statusMenu: NSMenu?
     private var hotkeyState = HotkeyState.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
         setupStatusBarItem()
         hotkeyManager = HotkeyManager { [weak self] in
             Task { @MainActor in self?.showOverlay() }
@@ -77,7 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openAbout() {
-        if aboutWindowController == nil {
+        if aboutWindow == nil {
             let window = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 280, height: 300),
                 styleMask: [.titled, .closable],
@@ -86,34 +87,48 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             window.title = "O aplikaci"
             window.isRestorable = false
-            window.contentView = NSHostingView(rootView: AboutView())
+            window.isReleasedWhenClosed = false
+            window.contentViewController = NSHostingController(rootView: AboutView())
             window.center()
-            aboutWindowController = NSWindowController(window: window)
+            aboutWindow = window
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification,
+                object: window,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in self?.aboutWindow = nil }
+            }
         }
         NSApp.activate(ignoringOtherApps: true)
-        aboutWindowController?.showWindow(nil)
-        aboutWindowController?.window?.makeKeyAndOrderFront(nil)
+        aboutWindow?.makeKeyAndOrderFront(nil)
     }
 
     @objc private func openSettings() {
         overlayWindowController?.hideOverlay()
-        if settingsWindowController == nil {
+        if settingsWindow == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 640, height: 480),
+                contentRect: NSRect(x: 0, y: 0, width: 640, height: 520),
                 styleMask: [.titled, .closable, .resizable, .miniaturizable],
                 backing: .buffered,
                 defer: false
             )
             window.title = "JZLLMContext"
             window.isRestorable = false
+            window.isReleasedWhenClosed = false
             window.minSize = NSSize(width: 620, height: 520)
-            window.contentView = NSHostingView(rootView: SettingsView())
+            window.contentViewController = NSHostingController(rootView: SettingsView())
             window.center()
-            settingsWindowController = NSWindowController(window: window)
+            settingsWindow = window
+            NotificationCenter.default.addObserver(
+                forName: NSWindow.willCloseNotification,
+                object: window,
+                queue: .main
+            ) { [weak self] _ in
+                Task { @MainActor in self?.settingsWindow = nil }
+            }
         }
         NSApp.activate(ignoringOtherApps: true)
-        settingsWindowController?.showWindow(nil)
-        settingsWindowController?.window?.makeKeyAndOrderFront(nil)
+        settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
     @MainActor
