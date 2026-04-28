@@ -94,35 +94,40 @@ struct AppConfig: Codable {
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
                     provider: .anthropic,
                     model: "claude-sonnet-4-6",
-                    enabled: true
+                    enabled: true,
+                    temperature: 0.1
                 ),
                 Action(
                     name: "Přepsat + gramatika",
                     systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem. Nepřidávej žádné další informace navíc.",
                     provider: .openai,
                     model: "gpt-4o",
-                    enabled: true
+                    enabled: true,
+                    temperature: 0.2
                 ),
                 Action(
                     name: "Zjednoduš a vysvětli",
                     systemPrompt: "Vysvětli následující text jednoduše pro zaneprázdněného profesionála.\nBuď stručný a zaměř se na praktické pochopení.",
                     provider: .openai,
                     model: "gpt-4o",
-                    enabled: true
+                    enabled: true,
+                    temperature: 0.5
                 ),
                 Action(
                     name: "Shrň do odrážek",
                     systemPrompt: "Shrň následující text do:\n- 3 hlavních bodů\n- 1 krátké shrnující věty\n- důležitých entit (pokud existují)\nNepřidávej žádné další informace navíc.",
                     provider: .openai,
                     model: "gpt-4o",
-                    enabled: true
+                    enabled: true,
+                    temperature: 0.2
                 ),
                 Action(
                     name: "Připrav odpověď",
                     systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý  \nDélka: krátká",
                     provider: .openai,
                     model: "gpt-4o",
-                    enabled: true
+                    enabled: true,
+                    temperature: 0.5
                 )
             ]
         )
@@ -148,7 +153,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         model: String,
         enabled: Bool,
         temperature: Double = 0.7,
-        maxTokens: Int = 4096,
+        maxTokens: Int = 2048,
         autoCopyClose: AutoCopyClose = .useGlobal,
         isDefault: Bool = false
     ) {
@@ -173,7 +178,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         model = try c.decode(String.self, forKey: .model)
         enabled = try c.decode(Bool.self, forKey: .enabled)
         temperature = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
-        maxTokens = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 4096
+        maxTokens = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 2048
         autoCopyClose = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
         isDefault = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
     }

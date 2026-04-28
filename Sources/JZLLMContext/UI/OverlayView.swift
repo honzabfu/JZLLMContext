@@ -1,4 +1,5 @@
 import SwiftUI
+import MarkdownUI
 
 struct OverlayView: View {
     @ObservedObject var state: OverlayState
@@ -322,7 +323,7 @@ struct OverlayView: View {
                 Spacer()
             } else if let result = displayedResult {
                 ScrollView {
-                    Text(result)
+                    Markdown(result)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(8)
