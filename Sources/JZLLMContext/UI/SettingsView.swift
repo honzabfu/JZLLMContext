@@ -44,7 +44,7 @@ struct SettingsView: View {
                 .tabItem { Label("Providery", systemImage: "key") }
                 .tag(SettingsTab.providers)
         }
-        .frame(width: 620, height: 520)
+        .frame(minWidth: 620, minHeight: 520)
         .onAppear {
             loadKeys()
             launchAtLogin = SMAppService.mainApp.status == .enabled

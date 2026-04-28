@@ -106,6 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             )
             window.title = "JZLLMContext"
             window.isRestorable = false
+            window.minSize = NSSize(width: 620, height: 520)
             window.contentView = NSHostingView(rootView: SettingsView())
             window.center()
             settingsWindowController = NSWindowController(window: window)
