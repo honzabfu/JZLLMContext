@@ -80,7 +80,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openAbout() {
         if aboutWindow == nil {
             let window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 280, height: 300),
+                contentRect: NSRect(x: 0, y: 0, width: 420, height: 580),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false
@@ -88,6 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.title = "O aplikaci"
             window.isRestorable = false
             window.isReleasedWhenClosed = false
+            window.level = .floating
             window.contentViewController = NSHostingController(rootView: AboutView())
             window.center()
             aboutWindow = window
