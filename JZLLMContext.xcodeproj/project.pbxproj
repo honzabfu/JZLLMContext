@@ -12,6 +12,7 @@
 		107E3F54587858A4B2D73F27 /* OpenAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */; };
 		1548F1816AF1565C5FFBB2FD /* ProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442548DEA3D00387E384367A /* ProviderFactory.swift */; };
 		1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299358F7A9CBA63430E341F7 /* HotkeyRecorderView.swift */; };
+		22887C026E9224A0D2923C8A /* ConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4788917E973F02208D6DAB08 /* ConnectionTester.swift */; };
 		29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB65AD326E16BF2E0137AABE /* HistoryStore.swift */; };
 		450734B8BB48675A75765886 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D70E3B5C8380F38DF3181F /* OverlayView.swift */; };
 		4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */; };
@@ -41,6 +42,7 @@
 		3712CADC923FA76F06AD0828 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		43A0987C8886320AB4C42709 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		442548DEA3D00387E384367A /* ProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderFactory.swift; sourceTree = "<group>"; };
+		4788917E973F02208D6DAB08 /* ConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTester.swift; sourceTree = "<group>"; };
 		4CDCAE340BBEAC5C27AA845F /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
 		7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEngine.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 			children = (
 				22902D0B71BC3BDCD04276DE /* AppConfig.swift */,
 				62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */,
+				4788917E973F02208D6DAB08 /* ConnectionTester.swift */,
 				EB65AD326E16BF2E0137AABE /* HistoryStore.swift */,
 				D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */,
 				0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */,
@@ -234,6 +237,7 @@
 				970E06E15E4CBB1D8EF21A98 /* AppConfig.swift in Sources */,
 				9663B7E3F4E9E183B640A3A1 /* AppDelegate.swift in Sources */,
 				A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */,
+				22887C026E9224A0D2923C8A /* ConnectionTester.swift in Sources */,
 				0C3A306A2EAF3CCD2796ACC4 /* ContextResolver.swift in Sources */,
 				29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */,
 				7C7F7BE7E9C1F5004DA1382B /* HotkeyManager.swift in Sources */,

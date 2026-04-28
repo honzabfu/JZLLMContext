@@ -15,6 +15,9 @@ struct SettingsView: View {
     @State private var showImportAlert = false
     @State private var isFetching: ProviderType? = nil
     @State private var fetchError: [ProviderType: String] = [:]
+    @State private var isTesting: ProviderType? = nil
+    @State private var testResult: [ProviderType: Bool] = [:]
+    @State private var testError: [ProviderType: String] = [:]
     @State private var reviewModels: [FetchedModel] = []
     @State private var reviewingProvider: ProviderType? = nil
 
@@ -186,12 +189,14 @@ struct SettingsView: View {
                     .onSubmit { saveKey(openaiKey, for: .openai) }
                 saveButton(for: .openai, key: openaiKey)
                 fetchModelsRow(for: .openai)
+                testConnectionRow(for: .openai)
             }
             Section("Anthropic") {
                 SecureField("API klíč", text: $anthropicKey)
                     .onSubmit { saveKey(anthropicKey, for: .anthropic) }
                 saveButton(for: .anthropic, key: anthropicKey)
                 fetchModelsRow(for: .anthropic)
+                testConnectionRow(for: .anthropic)
             }
             Section("Azure AI (slot 1)") {
                 Text("Zadej celou URL deployment (vč. cesty /openai/deployments/…), nebo jen resource URL + deployment name zvlášť. Aplikace přidá /chat/completions a ?api-version automaticky.")
@@ -221,6 +226,7 @@ struct SettingsView: View {
                     }
                 ))
                 saveButton(for: .azureOpenai, key: azureKey)
+                testConnectionRow(for: .azureOpenai)
             }
             Section("Azure AI (slot 2)") {
                 SecureField("API klíč", text: $azureKey2)
@@ -247,6 +253,7 @@ struct SettingsView: View {
                     }
                 ))
                 saveButton(for: .azureOpenai2, key: azureKey2)
+                testConnectionRow(for: .azureOpenai2)
             }
             Section("Vlastní OpenAI-compatible") {
                 TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
@@ -259,6 +266,7 @@ struct SettingsView: View {
                 SecureField("API klíč (volitelné)", text: $customKey)
                     .onSubmit { saveKey(customKey, for: .customOpenAI) }
                 saveButton(for: .customOpenAI, key: customKey)
+                testConnectionRow(for: .customOpenAI)
             }
         }
         .formStyle(.grouped)
@@ -306,6 +314,54 @@ struct SettingsView: View {
             fetchError[provider] = error.localizedDescription
         }
         isFetching = nil
+    }
+
+    @ViewBuilder
+    private func testConnectionRow(for provider: ProviderType) -> some View {
+        HStack(spacing: 8) {
+            Button {
+                Task { await testConnection(for: provider) }
+            } label: {
+                if isTesting == provider {
+                    HStack(spacing: 6) {
+                        ProgressView().scaleEffect(0.7)
+                        Text("Testuji…")
+                    }
+                } else {
+                    Label("Ověřit připojení", systemImage: "network")
+                }
+            }
+            .disabled(isTesting != nil)
+
+            if let success = testResult[provider] {
+                Image(systemName: success ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    .foregroundStyle(success ? .green : .red)
+                if success {
+                    Text("OK")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        if let error = testError[provider] {
+            Text(error)
+                .font(.caption)
+                .foregroundStyle(.red)
+        }
+    }
+
+    private func testConnection(for provider: ProviderType) async {
+        isTesting = provider
+        testResult.removeValue(forKey: provider)
+        testError.removeValue(forKey: provider)
+        do {
+            try await ConnectionTester.test(for: provider)
+            testResult[provider] = true
+        } catch {
+            testResult[provider] = false
+            testError[provider] = error.localizedDescription
+        }
+        isTesting = nil
     }
 
     private func saveButton(for provider: ProviderType, key: String) -> some View {

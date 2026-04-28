@@ -14,6 +14,7 @@ struct OverlayView: View {
     @State private var lastAction: Action?
     @State private var didCopy = false
     @State private var userContext: String = ""
+    @State private var ignoreClipboard: Bool = false
     @State private var showHistory = false
     @State private var shownHistoryResult: String?
     @FocusState private var userContextFocused: Bool
@@ -171,12 +172,16 @@ struct OverlayView: View {
 
     private var contextPreview: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: contextIsFromOCR ? "doc.viewfinder" : "doc.on.clipboard")
-                .foregroundStyle(.secondary)
+            Image(systemName: contextIsFromOCR && !ignoreClipboard ? "doc.viewfinder" : "doc.on.clipboard")
+                .foregroundStyle(ignoreClipboard ? .tertiary : .secondary)
                 .font(.caption)
                 .padding(.top, 1)
             Group {
-                if isResolvingContext {
+                if ignoreClipboard {
+                    Text("Schránka ignorována")
+                        .foregroundStyle(.tertiary)
+                        .italic()
+                } else if isResolvingContext {
                     Text(contextIsFromOCR ? "Rozpoznávám text z obrázku…" : "Čtu schránku…")
                         .foregroundStyle(.secondary)
                 } else if let text = contextText {
@@ -189,9 +194,18 @@ struct OverlayView: View {
             .font(.caption)
             .lineLimit(4)
             .frame(maxWidth: .infinity, alignment: .leading)
+            Button {
+                ignoreClipboard.toggle()
+            } label: {
+                Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
+                    .foregroundStyle(ignoreClipboard ? .primary : .secondary)
+                    .font(.caption)
+            }
+            .buttonStyle(.plain)
+            .help(ignoreClipboard ? "Použít schránku" : "Ignorovat schránku")
         }
         .padding(8)
-        .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
+        .background(Color(nsColor: .textBackgroundColor).opacity(ignoreClipboard ? 0.3 : 0.6))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
@@ -245,7 +259,7 @@ struct OverlayView: View {
             .padding(.vertical, 2)
         }
         .buttonStyle(.bordered)
-        .disabled(engine.isLoading || contextText == nil)
+        .disabled(engine.isLoading || (!ignoreClipboard && contextText == nil))
     }
 
     private var resultArea: some View {
@@ -309,6 +323,7 @@ struct OverlayView: View {
         contextError = nil
         didCopy = false
         userContext = ""
+        ignoreClipboard = false
         shownHistoryResult = nil
         showHistory = false
         let pb = NSPasteboard.general
@@ -328,7 +343,6 @@ struct OverlayView: View {
     }
 
     private func runAction(_ action: Action) {
-        guard let text = contextText else { return }
         userContextFocused = false
         lastAction = action
         didCopy = false
@@ -336,10 +350,15 @@ struct OverlayView: View {
         var resolved = action
         resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
         let input: String
-        if !userContext.isEmpty && !action.systemPrompt.contains("{{kontext}}") {
-            input = text + "\n\n---\nDoplňkový kontext: " + userContext
+        if ignoreClipboard {
+            input = userContext
         } else {
-            input = text
+            guard let text = contextText else { return }
+            if !userContext.isEmpty && !action.systemPrompt.contains("{{kontext}}") {
+                input = text + "\n\n---\nDoplňkový kontext: " + userContext
+            } else {
+                input = text
+            }
         }
         engine.run(action: resolved, input: input)
     }
