@@ -84,7 +84,7 @@ struct SettingsView: View {
                     .onChange(of: config.autoCopyAndClose) { _, val in
                         ConfigStore.shared.update { $0.autoCopyAndClose = val }
                     }
-                Toggle("Zobrazit výsledek jako Markdown", isOn: $config.markdownOutput)
+                Toggle("Zobrazovat výsledek s formátováním", isOn: $config.markdownOutput)
                     .onChange(of: config.markdownOutput) { _, val in
                         ConfigStore.shared.update { $0.markdownOutput = val }
                     }
@@ -364,6 +364,14 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
                     }
                 ))
+                Picker("Parametr max. tokenů", selection: $config.customOpenAITokenParam) {
+                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .onChange(of: config.customOpenAITokenParam) { _, val in
+                    ConfigStore.shared.update { $0.customOpenAITokenParam = val }
+                }
                 SecureField("API klíč (volitelné)", text: $customKey)
                     .onSubmit { saveKey(customKey, for: .customOpenAI) }
                 saveButton(for: .customOpenAI, key: customKey)
@@ -384,6 +392,14 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
                     }
                 ))
+                Picker("Parametr max. tokenů", selection: $config.customOpenAITokenParam2) {
+                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .onChange(of: config.customOpenAITokenParam2) { _, val in
+                    ConfigStore.shared.update { $0.customOpenAITokenParam2 = val }
+                }
                 SecureField("API klíč (volitelné)", text: $customKey2)
                     .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
                 saveButton(for: .customOpenAI2, key: customKey2)

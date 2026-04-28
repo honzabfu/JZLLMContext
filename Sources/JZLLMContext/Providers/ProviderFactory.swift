@@ -7,7 +7,8 @@ enum ProviderFactory {
             guard let apiKey = try? KeychainStore.load(for: .openai) else {
                 throw LLMError.missingAPIKey(.openai)
             }
-            return OpenAIProvider(model: action.model, apiKey: apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
+            return OpenAIProvider(model: action.model, apiKey: apiKey, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         case .azureOpenai:
             guard let apiKey = try? KeychainStore.load(for: .azureOpenai) else {
@@ -21,7 +22,8 @@ enum ProviderFactory {
                                            legacyDeployment: config.azureDeploymentName,
                                            apiVersion: config.azureAPIVersion ?? AppConfig.defaultAzureAPIVersion)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
+                                  authStyle: .apiKey, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         case .azureOpenai2:
             guard let apiKey = try? KeychainStore.load(for: .azureOpenai2) else {
@@ -35,7 +37,8 @@ enum ProviderFactory {
                                             legacyDeployment: config.azureDeploymentName2,
                                             apiVersion: config.azureAPIVersion2 ?? AppConfig.defaultAzureAPIVersion)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL2,
-                                  authStyle: .apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
+                                  authStyle: .apiKey, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         case .anthropic:
             guard let apiKey = try? KeychainStore.load(for: .anthropic) else {
@@ -51,7 +54,8 @@ enum ProviderFactory {
             }
             let chatURL = try customChatURL(baseURLStr: urlStr, apiVersion: config.customOpenAIAPIVersion, slot: .customOpenAI)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .bearer, temperature: action.temperature, maxTokens: action.maxTokens, useMaxCompletionTokens: false)
+                                  authStyle: .bearer, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: config.customOpenAITokenParam)
 
         case .customOpenAI2:
             let apiKey = (try? KeychainStore.load(for: .customOpenAI2)) ?? ""
@@ -61,7 +65,8 @@ enum ProviderFactory {
             }
             let chatURL2 = try customChatURL(baseURLStr: urlStr, apiVersion: config.customOpenAIAPIVersion2, slot: .customOpenAI2)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL2,
-                                  authStyle: .bearer, temperature: action.temperature, maxTokens: action.maxTokens, useMaxCompletionTokens: false)
+                                  authStyle: .bearer, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: config.customOpenAITokenParam2)
         }
     }
 

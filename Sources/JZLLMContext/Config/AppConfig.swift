@@ -1,6 +1,31 @@
 import Carbon
 import Foundation
 
+enum TokenParamStyle: String, Codable, CaseIterable {
+    case maxCompletionTokens
+    case maxTokens
+    case maxOutputTokens
+    case maxNewTokens
+
+    var parameterName: String {
+        switch self {
+        case .maxCompletionTokens: "max_completion_tokens"
+        case .maxTokens:           "max_tokens"
+        case .maxOutputTokens:     "max_output_tokens"
+        case .maxNewTokens:        "max_new_tokens"
+        }
+    }
+
+    var displayName: String {
+        switch self {
+        case .maxCompletionTokens: "max_completion_tokens (OpenAI)"
+        case .maxTokens:           "max_tokens (universální)"
+        case .maxOutputTokens:     "max_output_tokens (Gemini)"
+        case .maxNewTokens:        "max_new_tokens (HuggingFace)"
+        }
+    }
+}
+
 struct ModelPreset: Identifiable, Codable, Equatable {
     let id: String
     var displayName: String
@@ -28,8 +53,10 @@ struct AppConfig: Codable {
     var azureAPIVersion2: String?
     var customOpenAIBaseURL: String?
     var customOpenAIAPIVersion: String?
+    var customOpenAITokenParam: TokenParamStyle = .maxTokens
     var customOpenAIBaseURL2: String?
     var customOpenAIAPIVersion2: String?
+    var customOpenAITokenParam2: TokenParamStyle = .maxTokens
     var autoCopyAndClose: Bool = false
     var historyLimit: Int = 5
     var markdownOutput: Bool = true
@@ -40,8 +67,8 @@ struct AppConfig: Codable {
     init(schemaVersion: Int, hotkeyKeyCode: Int, hotkeyModifiers: Int, actions: [Action],
          azureEndpoint: String? = nil, azureDeploymentName: String? = nil, azureAPIVersion: String? = nil,
          azureEndpoint2: String? = nil, azureDeploymentName2: String? = nil, azureAPIVersion2: String? = nil,
-         customOpenAIBaseURL: String? = nil, customOpenAIAPIVersion: String? = nil,
-         customOpenAIBaseURL2: String? = nil, customOpenAIAPIVersion2: String? = nil,
+         customOpenAIBaseURL: String? = nil, customOpenAIAPIVersion: String? = nil, customOpenAITokenParam: TokenParamStyle = .maxTokens,
+         customOpenAIBaseURL2: String? = nil, customOpenAIAPIVersion2: String? = nil, customOpenAITokenParam2: TokenParamStyle = .maxTokens,
          autoCopyAndClose: Bool = false, historyLimit: Int = 5, markdownOutput: Bool = true,
          modelPresets: [String: [ModelPreset]] = [:]) {
         self.schemaVersion = schemaVersion
@@ -56,8 +83,10 @@ struct AppConfig: Codable {
         self.azureAPIVersion2 = azureAPIVersion2
         self.customOpenAIBaseURL = customOpenAIBaseURL
         self.customOpenAIAPIVersion = customOpenAIAPIVersion
+        self.customOpenAITokenParam = customOpenAITokenParam
         self.customOpenAIBaseURL2 = customOpenAIBaseURL2
         self.customOpenAIAPIVersion2 = customOpenAIAPIVersion2
+        self.customOpenAITokenParam2 = customOpenAITokenParam2
         self.autoCopyAndClose = autoCopyAndClose
         self.historyLimit = historyLimit
         self.markdownOutput = markdownOutput
@@ -78,8 +107,10 @@ struct AppConfig: Codable {
         azureAPIVersion2 = try c.decodeIfPresent(String.self, forKey: .azureAPIVersion2)
         customOpenAIBaseURL = try c.decodeIfPresent(String.self, forKey: .customOpenAIBaseURL)
         customOpenAIAPIVersion = try c.decodeIfPresent(String.self, forKey: .customOpenAIAPIVersion)
+        customOpenAITokenParam = try c.decodeIfPresent(TokenParamStyle.self, forKey: .customOpenAITokenParam) ?? .maxTokens
         customOpenAIBaseURL2 = try c.decodeIfPresent(String.self, forKey: .customOpenAIBaseURL2)
         customOpenAIAPIVersion2 = try c.decodeIfPresent(String.self, forKey: .customOpenAIAPIVersion2)
+        customOpenAITokenParam2 = try c.decodeIfPresent(TokenParamStyle.self, forKey: .customOpenAITokenParam2) ?? .maxTokens
         autoCopyAndClose = try c.decodeIfPresent(Bool.self, forKey: .autoCopyAndClose) ?? false
         historyLimit = try c.decodeIfPresent(Int.self, forKey: .historyLimit) ?? 5
         markdownOutput = try c.decodeIfPresent(Bool.self, forKey: .markdownOutput) ?? true

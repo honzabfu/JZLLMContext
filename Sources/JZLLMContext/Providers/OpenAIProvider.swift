@@ -12,21 +12,21 @@ struct OpenAIProvider: LLMProvider {
     let authStyle: OpenAIAuthStyle
     let temperature: Double
     let maxTokens: Int
-    let useMaxCompletionTokens: Bool
+    let tokenParamStyle: TokenParamStyle
 
     init(model: String, apiKey: String,
          baseURL: URL = URL(string: "https://api.openai.com/v1")!,
          chatURL: URL? = nil,
          authStyle: OpenAIAuthStyle = .bearer,
          temperature: Double = 0.7, maxTokens: Int = 4096,
-         useMaxCompletionTokens: Bool = true) {
+         tokenParamStyle: TokenParamStyle = .maxCompletionTokens) {
         self.model = model
         self.apiKey = apiKey
         self.chatURL = chatURL ?? baseURL.appendingPathComponent("chat/completions")
         self.authStyle = authStyle
         self.temperature = temperature
         self.maxTokens = maxTokens
-        self.useMaxCompletionTokens = useMaxCompletionTokens
+        self.tokenParamStyle = tokenParamStyle
     }
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
@@ -50,7 +50,7 @@ struct OpenAIProvider: LLMProvider {
                         ],
                         temperature: temperature,
                         maxTokens: maxTokens,
-                        useMaxCompletionTokens: useMaxCompletionTokens
+                        tokenParamStyle: tokenParamStyle
                     )
                     request.httpBody = try JSONEncoder().encode(body)
 
@@ -98,7 +98,7 @@ private struct OpenAIChatRequest: Encodable {
     let messages: [Message]
     let temperature: Double
     let maxTokens: Int
-    let useMaxCompletionTokens: Bool
+    let tokenParamStyle: TokenParamStyle
     let stream: Bool = true
     struct Message: Encodable {
         let role: String
@@ -110,8 +110,7 @@ private struct OpenAIChatRequest: Encodable {
         try c.encode(messages,    forKey: .init("messages"))
         try c.encode(temperature, forKey: .init("temperature"))
         try c.encode(stream,      forKey: .init("stream"))
-        let tokenKey = useMaxCompletionTokens ? "max_completion_tokens" : "max_tokens"
-        try c.encode(maxTokens,   forKey: .init(tokenKey))
+        try c.encode(maxTokens,   forKey: .init(tokenParamStyle.parameterName))
     }
 }
 
