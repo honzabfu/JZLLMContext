@@ -31,6 +31,12 @@ final class ConfigStore: @unchecked Sendable {
         try? save()
     }
 
+    func reset() {
+        config = AppConfig.default
+        try? FileManager.default.removeItem(at: fileURL)
+        try? save()
+    }
+
     private static func load(from url: URL) throws -> AppConfig {
         let data = try Data(contentsOf: url)
         return try JSONDecoder().decode(AppConfig.self, from: data)

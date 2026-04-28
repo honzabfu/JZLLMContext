@@ -32,6 +32,7 @@ struct SettingsView: View {
     @State private var testError: [ProviderType: String] = [:]
     @State private var reviewModels: [FetchedModel] = []
     @State private var reviewingProvider: ProviderType? = nil
+    @State private var showResetAlert = false
 
     var body: some View {
         TabView(selection: $nav.selectedTab) {
@@ -112,6 +113,14 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            Section("Resetovat nastavení") {
+                Text("Odstraní všechna nastavení, akce a poskytovatele. API klíče zůstanou v Keychainu zachovány.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Button("Smazat konfiguraci…", role: .destructive) {
+                    showResetAlert = true
+                }
+            }
         }
         .formStyle(.grouped)
         .padding()
@@ -125,6 +134,16 @@ struct SettingsView: View {
             Button("Zrušit", role: .cancel) { importedConfig = nil }
         } message: {
             Text("Importovaná konfigurace nahradí všechny akce, zkratku i ostatní nastavení. API klíče zůstanou beze změny.")
+        }
+        .alert("Smazat konfiguraci?", isPresented: $showResetAlert) {
+            Button("Smazat vše", role: .destructive) {
+                ConfigStore.shared.reset()
+                config = ConfigStore.shared.config
+                NotificationCenter.default.post(name: .hotkeyDidChange, object: nil)
+            }
+            Button("Zrušit", role: .cancel) {}
+        } message: {
+            Text("Tato akce odstraní všechny akce, globální zkratku, nastavení providerů a ostatní volby. API klíče v Keychainu zůstanou zachovány. Akci nelze vrátit zpět.")
         }
     }
 
