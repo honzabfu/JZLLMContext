@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var openaiKey = ""
     @State private var anthropicKey = ""
     @State private var azureKey = ""
+    @State private var azureKey2 = ""
     @State private var customKey = ""
     @State private var keySaveStatus: [ProviderType: Bool] = [:]
     @State private var launchAtLogin = false
@@ -192,24 +193,60 @@ struct SettingsView: View {
                 saveButton(for: .anthropic, key: anthropicKey)
                 fetchModelsRow(for: .anthropic)
             }
-            Section("Azure OpenAI") {
+            Section("Azure AI (slot 1)") {
+                Text("Zadej celou URL deployment (vč. cesty /openai/deployments/…), nebo jen resource URL + deployment name zvlášť. Aplikace přidá /chat/completions a ?api-version automaticky.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 SecureField("API klíč", text: $azureKey)
                     .onSubmit { saveKey(azureKey, for: .azureOpenai) }
-                TextField("Endpoint URL", text: Binding(
+                TextField("Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)", text: Binding(
                     get: { config.azureEndpoint ?? "" },
                     set: {
                         config.azureEndpoint = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
                     }
                 ))
-                TextField("Deployment name", text: Binding(
+                TextField("Deployment name (jen pokud výše zadáváš pouze resource URL)", text: Binding(
                     get: { config.azureDeploymentName ?? "" },
                     set: {
                         config.azureDeploymentName = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
                     }
                 ))
+                TextField("API verze (výchozí: \(AppConfig.defaultAzureAPIVersion))", text: Binding(
+                    get: { config.azureAPIVersion ?? "" },
+                    set: {
+                        config.azureAPIVersion = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.azureAPIVersion = config.azureAPIVersion }
+                    }
+                ))
                 saveButton(for: .azureOpenai, key: azureKey)
+            }
+            Section("Azure AI (slot 2)") {
+                SecureField("API klíč", text: $azureKey2)
+                    .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
+                TextField("Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)", text: Binding(
+                    get: { config.azureEndpoint2 ?? "" },
+                    set: {
+                        config.azureEndpoint2 = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
+                    }
+                ))
+                TextField("Deployment name (jen pokud výše zadáváš pouze resource URL)", text: Binding(
+                    get: { config.azureDeploymentName2 ?? "" },
+                    set: {
+                        config.azureDeploymentName2 = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
+                    }
+                ))
+                TextField("API verze (výchozí: \(AppConfig.defaultAzureAPIVersion))", text: Binding(
+                    get: { config.azureAPIVersion2 ?? "" },
+                    set: {
+                        config.azureAPIVersion2 = $0.isEmpty ? nil : $0
+                        ConfigStore.shared.update { $0.azureAPIVersion2 = config.azureAPIVersion2 }
+                    }
+                ))
+                saveButton(for: .azureOpenai2, key: azureKey2)
             }
             Section("Vlastní OpenAI-compatible") {
                 TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
@@ -295,6 +332,7 @@ struct SettingsView: View {
         openaiKey = (try? KeychainStore.load(for: .openai)) ?? ""
         anthropicKey = (try? KeychainStore.load(for: .anthropic)) ?? ""
         azureKey = (try? KeychainStore.load(for: .azureOpenai)) ?? ""
+        azureKey2 = (try? KeychainStore.load(for: .azureOpenai2)) ?? ""
         customKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
     }
 }
@@ -547,10 +585,11 @@ extension ProviderType: Identifiable {
 extension ProviderType {
     var displayName: String {
         switch self {
-        case .openai:       "OpenAI"
-        case .azureOpenai:  "Azure OpenAI"
-        case .anthropic:    "Anthropic"
-        case .customOpenAI: "Vlastní"
+        case .openai:        "OpenAI"
+        case .azureOpenai:   "Azure AI (slot 1)"
+        case .azureOpenai2:  "Azure AI (slot 2)"
+        case .anthropic:     "Anthropic"
+        case .customOpenAI:  "Vlastní"
         }
     }
 
@@ -571,8 +610,8 @@ extension ProviderType {
                 .init(id: "o1",           displayName: "o1"),
                 .init(id: "o1-mini",      displayName: "o1-mini")
             ]
-        case .azureOpenai:
-            [.init(id: "gpt-4o", displayName: "gpt-4o", isRecommended: true)]
+        case .azureOpenai, .azureOpenai2:
+            []
         case .anthropic:
             [
                 .init(id: "claude-sonnet-4-6",         displayName: "claude-sonnet-4.6", isRecommended: true),

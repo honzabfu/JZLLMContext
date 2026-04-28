@@ -1,28 +1,44 @@
 import Foundation
 
+enum OpenAIAuthStyle {
+    case bearer   // Authorization: Bearer {key}  — OpenAI, custom
+    case apiKey   // api-key: {key}               — Azure OpenAI
+}
+
 struct OpenAIProvider: LLMProvider {
     let model: String
     let apiKey: String
-    let baseURL: URL
+    let chatURL: URL
+    let authStyle: OpenAIAuthStyle
     let temperature: Double
     let maxTokens: Int
+    let useMaxCompletionTokens: Bool
 
-    init(model: String, apiKey: String, baseURL: URL = URL(string: "https://api.openai.com/v1")!, temperature: Double = 0.7, maxTokens: Int = 4096) {
+    init(model: String, apiKey: String,
+         baseURL: URL = URL(string: "https://api.openai.com/v1")!,
+         chatURL: URL? = nil,
+         authStyle: OpenAIAuthStyle = .bearer,
+         temperature: Double = 0.7, maxTokens: Int = 4096,
+         useMaxCompletionTokens: Bool = true) {
         self.model = model
         self.apiKey = apiKey
-        self.baseURL = baseURL
+        self.chatURL = chatURL ?? baseURL.appendingPathComponent("chat/completions")
+        self.authStyle = authStyle
         self.temperature = temperature
         self.maxTokens = maxTokens
+        self.useMaxCompletionTokens = useMaxCompletionTokens
     }
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             let task = Task.detached {
                 do {
-                    let url = baseURL.appendingPathComponent("chat/completions")
-                    var request = URLRequest(url: url)
+                    var request = URLRequest(url: chatURL)
                     request.httpMethod = "POST"
-                    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                    switch authStyle {
+                    case .bearer: request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                    case .apiKey: request.setValue(apiKey, forHTTPHeaderField: "api-key")
+                    }
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     request.timeoutInterval = 60
 
@@ -33,7 +49,8 @@ struct OpenAIProvider: LLMProvider {
                             .init(role: "user", content: userContent)
                         ],
                         temperature: temperature,
-                        maxTokens: maxTokens
+                        maxTokens: maxTokens,
+                        useMaxCompletionTokens: useMaxCompletionTokens
                     )
                     request.httpBody = try JSONEncoder().encode(body)
 
@@ -81,15 +98,29 @@ private struct OpenAIChatRequest: Encodable {
     let messages: [Message]
     let temperature: Double
     let maxTokens: Int
+    let useMaxCompletionTokens: Bool
     let stream: Bool = true
     struct Message: Encodable {
         let role: String
         let content: String
     }
-    enum CodingKeys: String, CodingKey {
-        case model, messages, temperature, stream
-        case maxTokens = "max_tokens"
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: DynamicKey.self)
+        try c.encode(model,       forKey: .init("model"))
+        try c.encode(messages,    forKey: .init("messages"))
+        try c.encode(temperature, forKey: .init("temperature"))
+        try c.encode(stream,      forKey: .init("stream"))
+        let tokenKey = useMaxCompletionTokens ? "max_completion_tokens" : "max_tokens"
+        try c.encode(maxTokens,   forKey: .init(tokenKey))
     }
+}
+
+private struct DynamicKey: CodingKey {
+    var stringValue: String
+    var intValue: Int? { nil }
+    init(_ string: String) { self.stringValue = string }
+    init?(stringValue: String) { self.stringValue = stringValue }
+    init?(intValue: Int) { return nil }
 }
 
 private struct OpenAIStreamChunk: Decodable {

@@ -18,15 +18,24 @@ struct AppConfig: Codable {
     var hotkeyKeyCode: Int
     var hotkeyModifiers: Int
     var actions: [Action]
+    // Azure AI – slot 1
     var azureEndpoint: String?
     var azureDeploymentName: String?
+    var azureAPIVersion: String?
+    // Azure AI – slot 2
+    var azureEndpoint2: String?
+    var azureDeploymentName2: String?
+    var azureAPIVersion2: String?
     var customOpenAIBaseURL: String?
     var autoCopyAndClose: Bool = false
     var historyLimit: Int = 5
     var modelPresets: [String: [ModelPreset]] = [:]
 
+    static let defaultAzureAPIVersion = "2024-10-21"
+
     init(schemaVersion: Int, hotkeyKeyCode: Int, hotkeyModifiers: Int, actions: [Action],
-         azureEndpoint: String? = nil, azureDeploymentName: String? = nil,
+         azureEndpoint: String? = nil, azureDeploymentName: String? = nil, azureAPIVersion: String? = nil,
+         azureEndpoint2: String? = nil, azureDeploymentName2: String? = nil, azureAPIVersion2: String? = nil,
          customOpenAIBaseURL: String? = nil, autoCopyAndClose: Bool = false, historyLimit: Int = 5,
          modelPresets: [String: [ModelPreset]] = [:]) {
         self.schemaVersion = schemaVersion
@@ -35,6 +44,10 @@ struct AppConfig: Codable {
         self.actions = actions
         self.azureEndpoint = azureEndpoint
         self.azureDeploymentName = azureDeploymentName
+        self.azureAPIVersion = azureAPIVersion
+        self.azureEndpoint2 = azureEndpoint2
+        self.azureDeploymentName2 = azureDeploymentName2
+        self.azureAPIVersion2 = azureAPIVersion2
         self.customOpenAIBaseURL = customOpenAIBaseURL
         self.autoCopyAndClose = autoCopyAndClose
         self.historyLimit = historyLimit
@@ -49,6 +62,10 @@ struct AppConfig: Codable {
         actions = try c.decode([Action].self, forKey: .actions)
         azureEndpoint = try c.decodeIfPresent(String.self, forKey: .azureEndpoint)
         azureDeploymentName = try c.decodeIfPresent(String.self, forKey: .azureDeploymentName)
+        azureAPIVersion = try c.decodeIfPresent(String.self, forKey: .azureAPIVersion)
+        azureEndpoint2 = try c.decodeIfPresent(String.self, forKey: .azureEndpoint2)
+        azureDeploymentName2 = try c.decodeIfPresent(String.self, forKey: .azureDeploymentName2)
+        azureAPIVersion2 = try c.decodeIfPresent(String.self, forKey: .azureAPIVersion2)
         customOpenAIBaseURL = try c.decodeIfPresent(String.self, forKey: .customOpenAIBaseURL)
         autoCopyAndClose = try c.decodeIfPresent(Bool.self, forKey: .autoCopyAndClose) ?? false
         historyLimit = try c.decodeIfPresent(Int.self, forKey: .historyLimit) ?? 5
@@ -164,6 +181,7 @@ enum AutoCopyClose: String, Codable, CaseIterable {
 enum ProviderType: String, Codable, CaseIterable {
     case openai
     case azureOpenai = "azure_openai"
+    case azureOpenai2 = "azure_openai_2"
     case anthropic
     case customOpenAI = "custom_openai"
 }
