@@ -66,6 +66,8 @@ Aplikace žije v menu baru a nevytváří ikonu v Docku.
 
 V hlavičce dropdown menu je zobrazena aktuální globální zkratka.
 
+Pokud je při spuštění nebo ruční kontrole zjištěna nová verze, zobrazí se v dropdown menu položka **⬆ Dostupná verze X.Y…** — kliknutím se otevře stránka GitHub Releases.
+
 ### Overlay panel
 
 Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na všech plochách i ve fullscreen režimu.
@@ -95,6 +97,7 @@ Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a 
 - **Zobrazovat výsledek s formátováním** — výsledek se renderuje jako Markdown; při vypnutí jako prostý text
 - **Historie výsledků** — počet záznamů uchovávaných do zavření aplikace (0 = vypnuto, max. 10)
 - **Zkontrolovat aktualizace** — ověří, zda je dostupná novější verze
+- **Automaticky kontrolovat aktualizace při spuštění** — zapíná/vypíná automatickou kontrolu nové verze při každém spuštění aplikace
 - **Záloha konfigurace** — export/import celé konfigurace jako JSON; API klíče nejsou zahrnuty
 - **Resetovat nastavení** — obnoví výchozí konfiguraci; API klíče v Keychainu zůstanou zachovány
 
@@ -130,7 +133,7 @@ Všechny změny se ukládají okamžitě.
 
 **Azure AI (slot 1 a slot 2)** — každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
-**Vlastní OpenAI-compatible (slot 1 a slot 2)** — libovolný server kompatibilní s OpenAI Chat Completions API. Zadej Base URL a volitelně API klíč (pro lokální modely lze nechat prázdné).
+**Vlastní OpenAI-compatible (slot 1 a slot 2)** — libovolný server kompatibilní s OpenAI Chat Completions API. Zadej Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verze** (přidá parametr `api-version` do URL) a **Parametr max. tokenů** — výběr názvu parametru pro limit tokenů (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) podle toho, co daný server očekává.
 
 Tlačítko **Ověřit připojení** u každého providera odešle testovací požadavek a zobrazí výsledek.
 
@@ -142,7 +145,7 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 
 | Provider | Předdefinované modely |
 |----------|----------------------|
-| OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini, o3, o3-mini (legacy), gpt-4o, gpt-4o-mini (legacy) |
+| OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
 | Azure AI (slot 1 / slot 2) | — (model určuje deployment v nastavení) |
 | Vlastní API (slot 1 / slot 2) | — (jen ruční zadání) |
@@ -229,7 +232,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Test připojení** — ověří, zda je API klíč a konfigurace funkční
 - **Záloha konfigurace** — export/import celé konfigurace jako JSON; API klíče nejsou exportovány
 - **Reset konfigurace** — obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
-- **Kontrola aktualizací** — ověří dostupnost nové verze přes GitHub Releases API
+- **Kontrola aktualizací** — ruční tlačítko v nastavení i automatická kontrola při spuštění (volitelná); při nalezení nové verze se zobrazí položka v dropdown menu
 - **Bezpečné uložení klíčů** — API klíče jsou v macOS Keychain, nikoli v konfiguračním souboru
 
 ### Požadavky
@@ -343,7 +346,16 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
   "azureDeploymentName": "muj-deployment",
   "azureEndpoint": "https://muj-hub.openai.azure.com/openai/deployments/muj-model",
   "azureAPIVersion": "2024-10-21",
+  "azureDeploymentName2": null,
+  "azureEndpoint2": null,
+  "azureAPIVersion2": null,
   "customOpenAIBaseURL": "http://localhost:11434/v1",
+  "customOpenAIAPIVersion": null,
+  "customOpenAITokenParam": "max_tokens",
+  "customOpenAIBaseURL2": null,
+  "customOpenAIAPIVersion2": null,
+  "customOpenAITokenParam2": "max_tokens",
+  "autoUpdateCheck": true,
   "autoCopyAndClose": false,
   "historyLimit": 5,
   "markdownOutput": true,
