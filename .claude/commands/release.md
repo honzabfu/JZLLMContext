@@ -54,12 +54,42 @@ Steps to execute in order:
    - Run `git push origin main --tags`.
 
 8. **Publish GitHub Release:**
-   - Run:
+   - Write release notes to a temp file, then publish:
      ```
+     cat > /tmp/jzllmcontext-release-notes.md << 'NOTES'
+     > ⚠ **Unsigned application / Nepodepsaná aplikace**
+
+     ---
+
+     🇺🇸 **English**
+
+     The app is not signed with an Apple Developer certificate. macOS may block it on first launch.
+
+     **Terminal (recommended):**
+     ```bash
+     xattr -cr /Applications/JZLLMContext.app
+     ```
+
+     **GUI:** Right-click the `.app` → **Open** → confirm **Open** in the dialog. If there is no Open button: **System Settings → Privacy & Security → Open Anyway**.
+
+     ---
+
+     🇨🇿 **Čeština**
+
+     Aplikace není podepsána vývojářským certifikátem Apple. macOS ji může při prvním spuštění zablokovat.
+
+     **Terminál (doporučeno):**
+     ```bash
+     xattr -cr /Applications/JZLLMContext.app
+     ```
+
+     **GUI:** Pravý klik na `.app` → **Otevřít** → potvrdit **Otevřít**. Pokud tlačítko chybí: **Nastavení systému → Soukromí a zabezpečení → Přesto otevřít**.
+     NOTES
+
      gh release create v{VERSION} \
        /tmp/JZLLMContext-release/Build/Products/Release/JZLLMContext.zip \
        --title "v{VERSION}" \
-       --notes "Sestavení verze {VERSION}. Binárka není podepsána — před spuštěním spusť: xattr -cr JZLLMContext.app"
+       --notes-file /tmp/jzllmcontext-release-notes.md
      ```
 
 9. **Restart local app:**

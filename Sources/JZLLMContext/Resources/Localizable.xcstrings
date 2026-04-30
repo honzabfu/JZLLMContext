@@ -979,9 +979,9 @@
       "comment" : "Markdown bold used for UI element names",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V záložce **Akce** uprav systémové prompty nebo přidej vlastní. 5 akcí je předpřipraveno — tenhle krok je volitelný." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "In the **Actions** tab, edit system prompts or add your own. 5 actions come pre-configured — this step is optional." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "En la pestaña **Acciones**, edita los prompts del sistema o añade los tuyos. Hay 5 acciones preconfiguradas — este paso es opcional." } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "V záložce **Akce** uprav systémové prompty nebo přidej vlastní. 5 akcí je předpřipraveno – tenhle krok je volitelný." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In the **Actions** tab, edit system prompts or add your own. 5 actions come pre-configured – this step is optional." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En la pestaña **Acciones**, edita los prompts del sistema o añade los tuyos. Hay 5 acciones preconfiguradas – este paso es opcional." } }
       }
     },
     "about.flow.copy" : {
@@ -1035,9 +1035,9 @@
     "about.icons.clipboard_ignored" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka ignorována — akce dostane jen doplňkový kontext" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored — action receives only additional context" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles ignorado — la acción solo recibe contexto adicional" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka ignorována – akce dostane jen doplňkový kontext" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored – action receives only additional context" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles ignorado – la acción solo recibe contexto adicional" } }
       }
     },
     "about.icons.missing_key" : {
@@ -1051,17 +1051,17 @@
     "about.icons.keyboard_shortcut" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Klávesová zkratka — stiskni číslici pro spuštění akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keyboard shortcut — press a digit to run the action" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo de teclado — pulsa un dígito para ejecutar la acción" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Klávesová zkratka – stiskni číslici pro spuštění akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keyboard shortcut – press a digit to run the action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo de teclado – pulsa un dígito para ejecutar la acción" } }
       }
     },
     "about.icons.default_action" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce — spustí se také stiskem Enter" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action — also triggered by pressing Enter" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada — también se activa pulsando Enter" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce – spustí se také stiskem Enter" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action – also triggered by pressing Enter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada – también se activa pulsando Enter" } }
       }
     },
     "about.icons.action_running" : {
@@ -1083,9 +1083,9 @@
     "about.icons.history" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků — uložena jen do zavření aplikace, nikam jinam se neukládá" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history — stored only until the app closes, not saved elsewhere" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados — guardado solo hasta cerrar la app, no se guarda en otro lugar" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků – uložena jen do zavření aplikace, nikam jinam se neukládá" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history – stored only until the app closes, not saved elsewhere" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados – guardado solo hasta cerrar la app, no se guarda en otro lugar" } }
       }
     },
     "about.icons.settings" : {
