@@ -69,23 +69,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(updateItem)
         updateMenuItem = updateItem
 
-        let aboutItem = NSMenuItem(title: "O aplikaci JZLLMContext", action: #selector(openAbout), keyEquivalent: "")
+        let aboutItem = NSMenuItem(title: L("menu.about"), action: #selector(openAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
 
-        let settingsItem = NSMenuItem(title: "Nastavení…", action: #selector(openSettings), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: L("menu.settings"), action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
         menu.addItem(settingsItem)
         menu.addItem(.separator())
 
-        let quitItem = NSMenuItem(title: "Ukončit JZLLMContext", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: L("menu.quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quitItem)
         statusMenu = menu
     }
 
     private func showUpdateMenuItem(version: String, url: URL) {
         updateURL = url
-        updateMenuItem?.title = "⬆ Dostupná verze \(version)…"
+        updateMenuItem?.title = String(format: L("menu.update.available"), version)
         updateMenuItem?.isHidden = false
     }
 
@@ -113,7 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 backing: .buffered,
                 defer: false
             )
-            window.title = "O aplikaci"
+            window.title = L("about.window.title")
             window.isRestorable = false
             window.isReleasedWhenClosed = false
             window.level = .floating

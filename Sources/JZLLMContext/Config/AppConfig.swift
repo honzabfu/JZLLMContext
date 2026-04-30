@@ -18,10 +18,34 @@ enum TokenParamStyle: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .maxCompletionTokens: "max_completion_tokens (OpenAI)"
-        case .maxTokens:           "max_tokens (universální)"
-        case .maxOutputTokens:     "max_output_tokens (Gemini)"
-        case .maxNewTokens:        "max_new_tokens (HuggingFace)"
+        case .maxCompletionTokens: L("token_param.max_completion")
+        case .maxTokens:           L("token_param.max_tokens")
+        case .maxOutputTokens:     L("token_param.max_output")
+        case .maxNewTokens:        L("token_param.max_new")
+        }
+    }
+}
+
+enum AppLanguage: String, Codable, CaseIterable {
+    case system
+    case cs
+    case en
+
+    var displayName: String {
+        switch self {
+        case .system: "Systémový"
+        case .cs:     "Čeština"
+        case .en:     "English"
+        }
+    }
+
+    var resolvedLocale: Locale {
+        switch self {
+        case .system:
+            let code = Locale.current.language.languageCode?.identifier ?? "en"
+            return code == "cs" ? Locale(identifier: "cs") : Locale(identifier: "en")
+        case .cs: return Locale(identifier: "cs")
+        case .en: return Locale(identifier: "en")
         }
     }
 }
@@ -62,6 +86,7 @@ struct AppConfig: Codable {
     var markdownOutput: Bool = true
     var modelPresets: [String: [ModelPreset]] = [:]
     var autoUpdateCheck: Bool = true
+    var appLanguage: AppLanguage = .system
 
     static let defaultAzureAPIVersion = "2024-10-21"
 
@@ -72,7 +97,8 @@ struct AppConfig: Codable {
          customOpenAIBaseURL2: String? = nil, customOpenAIAPIVersion2: String? = nil, customOpenAITokenParam2: TokenParamStyle = .maxTokens,
          autoCopyAndClose: Bool = false, historyLimit: Int = 5, markdownOutput: Bool = true,
          modelPresets: [String: [ModelPreset]] = [:],
-         autoUpdateCheck: Bool = true) {
+         autoUpdateCheck: Bool = true,
+         appLanguage: AppLanguage = .system) {
         self.schemaVersion = schemaVersion
         self.hotkeyKeyCode = hotkeyKeyCode
         self.hotkeyModifiers = hotkeyModifiers
@@ -94,6 +120,7 @@ struct AppConfig: Codable {
         self.markdownOutput = markdownOutput
         self.modelPresets = modelPresets
         self.autoUpdateCheck = autoUpdateCheck
+        self.appLanguage = appLanguage
     }
 
     init(from decoder: Decoder) throws {
@@ -119,6 +146,7 @@ struct AppConfig: Codable {
         markdownOutput = try c.decodeIfPresent(Bool.self, forKey: .markdownOutput) ?? true
         modelPresets = try c.decodeIfPresent([String: [ModelPreset]].self, forKey: .modelPresets) ?? [:]
         autoUpdateCheck = try c.decodeIfPresent(Bool.self, forKey: .autoUpdateCheck) ?? true
+        appLanguage = try c.decodeIfPresent(AppLanguage.self, forKey: .appLanguage) ?? .system
     }
 
     static var `default`: AppConfig {
@@ -229,9 +257,9 @@ enum AutoCopyClose: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .useGlobal: "Dle nastavení"
-        case .always:    "Vždy"
-        case .never:     "Nikdy"
+        case .useGlobal: L("autocopy.use_global")
+        case .always:    L("autocopy.always")
+        case .never:     L("autocopy.never")
         }
     }
 }

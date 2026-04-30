@@ -33,6 +33,7 @@ struct SettingsView: View {
     @State private var reviewModels: [FetchedModel] = []
     @State private var reviewingProvider: ProviderType? = nil
     @State private var showResetAlert = false
+    @State private var showRestartAlert = false
     @State private var updateState: UpdateState = .idle
 
     private enum UpdateState: Equatable {
@@ -43,13 +44,13 @@ struct SettingsView: View {
     var body: some View {
         TabView(selection: $nav.selectedTab) {
             generalTab
-                .tabItem { Label("Obecné", systemImage: "gearshape") }
+                .tabItem { Label(L("settings.tab.general"), systemImage: "gearshape") }
                 .tag(SettingsTab.general)
             actionsTab
-                .tabItem { Label("Akce", systemImage: "list.bullet") }
+                .tabItem { Label(L("settings.tab.actions"), systemImage: "list.bullet") }
                 .tag(SettingsTab.actions)
             providersTab
-                .tabItem { Label("Providery", systemImage: "key") }
+                .tabItem { Label(L("settings.tab.providers"), systemImage: "key") }
                 .tag(SettingsTab.providers)
         }
         .frame(minWidth: 620, minHeight: 520)
@@ -74,7 +75,7 @@ struct SettingsView: View {
     private var generalTab: some View {
         Form {
             Section {
-                Toggle("Spustit při přihlášení", isOn: $launchAtLogin)
+                Toggle(L("settings.general.launch_at_login"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in
                         do {
                             if enabled {
@@ -86,46 +87,61 @@ struct SettingsView: View {
                             launchAtLogin = !enabled
                         }
                     }
-                Toggle("Po dokončení akce zkopírovat výsledek a zavřít panel", isOn: $config.autoCopyAndClose)
+                Toggle(L("settings.general.auto_copy_close"), isOn: $config.autoCopyAndClose)
                     .onChange(of: config.autoCopyAndClose) { _, val in
                         ConfigStore.shared.update { $0.autoCopyAndClose = val }
                     }
-                Toggle("Zobrazovat výsledek s formátováním", isOn: $config.markdownOutput)
+                Toggle(L("settings.general.markdown_output"), isOn: $config.markdownOutput)
                     .onChange(of: config.markdownOutput) { _, val in
                         ConfigStore.shared.update { $0.markdownOutput = val }
                     }
-                Stepper("Historie výsledků: \(config.historyLimit == 0 ? "vypnuto" : "\(config.historyLimit)")",
+                Stepper(String(format: L("settings.general.history_limit"),
+                               config.historyLimit == 0 ? L("settings.general.history_off") : "\(config.historyLimit)"),
                         value: $config.historyLimit, in: 0...10)
                     .onChange(of: config.historyLimit) { _, val in
                         ConfigStore.shared.update { $0.historyLimit = val }
                         HistoryStore.shared.trim(to: val)
                     }
             }
-            Section("Záloha konfigurace") {
-                Text("Zahrnuje: akce, globální zkratku, nastavení Azure endpointů, výběr modelů a ostatní volby. Nezahrnuje API klíče (ty zůstávají v Keychainu).")
+            Section(L("settings.general.section.language")) {
+                Picker(L("settings.general.language.picker_label"), selection: $config.appLanguage) {
+                    ForEach(AppLanguage.allCases, id: \.self) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .onChange(of: config.appLanguage) { _, val in
+                    ConfigStore.shared.update { $0.appLanguage = val }
+                    showRestartAlert = true
+                }
+                Text(L("settings.general.language.restart.message"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Section(L("settings.general.section.backup")) {
+                Text(L("settings.general.backup.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack(spacing: 12) {
-                    Button("Exportovat konfiguraci…") { exportConfig() }
-                    Button("Importovat konfiguraci…") { importConfig() }
+                    Button(L("settings.general.export_config")) { exportConfig() }
+                    Button(L("settings.general.import_config")) { importConfig() }
                 }
             }
-            Section("Globální zkratka") {
+            Section(L("settings.general.section.hotkey")) {
                 HStack {
-                    Text("Zkratka")
+                    Text(L("settings.general.hotkey_label"))
                     Spacer()
                     HotkeyRecorderView(keyCode: $config.hotkeyKeyCode, modifiers: $config.hotkeyModifiers)
                         .frame(width: 150, height: 26)
                         .onChange(of: config.hotkeyKeyCode) { saveHotkey() }
                         .onChange(of: config.hotkeyModifiers) { saveHotkey() }
                 }
-                Text("Klikni na pole a stiskni požadovanou kombinaci kláves. Kliknutí znovu zruší záznam.")
+                Text(L("settings.general.hotkey_hint"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Section("Aktualizace") {
+            Section(L("settings.general.section.updates")) {
                 HStack {
-                    Button("Zkontrolovat aktualizace") {
+                    Button(L("settings.general.check_updates")) {
                         updateState = .checking
                         Task {
                             do {
@@ -150,57 +166,72 @@ struct SettingsView: View {
                     case .checking:
                         ProgressView().scaleEffect(0.7)
                     case .upToDate:
-                        Label("Máte aktuální verzi", systemImage: "checkmark.circle.fill")
+                        Label(L("settings.general.update.up_to_date"), systemImage: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                             .font(.callout)
                     case .available(let version, let url):
                         Link(destination: url) {
-                            Label("Dostupná verze \(version)", systemImage: "arrow.down.circle.fill")
+                            Label(String(format: L("settings.general.update.available"), version), systemImage: "arrow.down.circle.fill")
                                 .font(.callout)
                         }
                     case .failed:
-                        Label("Nepodařilo se ověřit", systemImage: "exclamationmark.triangle")
+                        Label(L("settings.general.update.failed"), systemImage: "exclamationmark.triangle")
                             .foregroundStyle(.secondary)
                             .font(.callout)
                     }
                 }
-                Toggle("Automaticky kontrolovat aktualizace při spuštění", isOn: $config.autoUpdateCheck)
+                Toggle(L("settings.general.auto_update"), isOn: $config.autoUpdateCheck)
                     .onChange(of: config.autoUpdateCheck) { _, val in
                         ConfigStore.shared.update { $0.autoUpdateCheck = val }
                     }
             }
-            Section("Resetovat nastavení") {
-                Text("Odstraní všechna nastavení, akce a poskytovatele. API klíče zůstanou v Keychainu zachovány.")
+            Section(L("settings.general.section.reset")) {
+                Text(L("settings.general.reset.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Button("Smazat konfiguraci…", role: .destructive) {
+                Button(L("settings.general.reset.button"), role: .destructive) {
                     showResetAlert = true
                 }
             }
         }
         .formStyle(.grouped)
         .padding()
-        .alert("Importovat konfiguraci", isPresented: $showConfigImportAlert) {
-            Button("Nahradit vše", role: .destructive) {
+        .alert(L("settings.alert.import_config.title"), isPresented: $showConfigImportAlert) {
+            Button(L("settings.alert.import_config.replace"), role: .destructive) {
                 guard let imported = importedConfig else { return }
                 ConfigStore.shared.update { $0 = imported }
                 config = ConfigStore.shared.config
                 importedConfig = nil
             }
-            Button("Zrušit", role: .cancel) { importedConfig = nil }
+            Button(L("common.cancel"), role: .cancel) { importedConfig = nil }
         } message: {
-            Text("Importovaná konfigurace nahradí všechny akce, zkratku i ostatní nastavení. API klíče zůstanou beze změny.")
+            Text(L("settings.alert.import_config.message"))
         }
-        .alert("Smazat konfiguraci?", isPresented: $showResetAlert) {
-            Button("Smazat vše", role: .destructive) {
+        .alert(L("settings.alert.reset.title"), isPresented: $showResetAlert) {
+            Button(L("settings.alert.reset.confirm"), role: .destructive) {
                 ConfigStore.shared.reset()
                 config = ConfigStore.shared.config
                 NotificationCenter.default.post(name: .hotkeyDidChange, object: nil)
             }
-            Button("Zrušit", role: .cancel) {}
+            Button(L("common.cancel"), role: .cancel) {}
         } message: {
-            Text("Tato akce odstraní všechny akce, globální zkratku, nastavení providerů a ostatní volby. API klíče v Keychainu zůstanou zachovány. Akci nelze vrátit zpět.")
+            Text(L("settings.alert.reset.message"))
         }
+        .alert(L("settings.general.language.restart.title"), isPresented: $showRestartAlert) {
+            Button(L("settings.general.language.restart.now")) { relaunchApp() }
+            Button(L("common.later"), role: .cancel) {}
+        } message: {
+            Text(L("settings.general.language.restart.message"))
+        }
+    }
+
+    private func relaunchApp() {
+        let path = Bundle.main.bundleURL.path
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", path]
+        try? task.run()
+        NSApp.terminate(nil)
     }
 
     private func saveHotkey() {
@@ -233,9 +264,9 @@ struct SettingsView: View {
             }
             Divider()
             HStack {
-                Button("Přidat akci") {
+                Button(L("settings.actions.add")) {
                     config.actions.append(Action(
-                        name: "Nová akce",
+                        name: L("settings.actions.new_name"),
                         systemPrompt: "",
                         provider: .openai,
                         model: "gpt-5.5",
@@ -244,26 +275,28 @@ struct SettingsView: View {
                     ConfigStore.shared.update { $0.actions = config.actions }
                 }
                 Spacer()
-                Button("Importovat akce…") { importActions() }
-                Button("Exportovat akce…") { exportActions() }
+                Button(L("settings.actions.import")) { importActions() }
+                Button(L("settings.actions.export")) { exportActions() }
                     .disabled(config.actions.isEmpty)
             }
             .padding(12)
         }
-        .alert("Importovat akce", isPresented: $showImportAlert) {
-            Button("Přidat k existujícím") {
+        .alert(L("settings.alert.import_actions.title"), isPresented: $showImportAlert) {
+            Button(L("settings.alert.import_actions.add")) {
                 let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
                 config.actions.append(contentsOf: fresh)
                 ConfigStore.shared.update { $0.actions = config.actions }
             }
-            Button("Nahradit vše", role: .destructive) {
+            Button(L("settings.alert.import_config.replace"), role: .destructive) {
                 let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
                 config.actions = fresh
                 ConfigStore.shared.update { $0.actions = config.actions }
             }
-            Button("Zrušit", role: .cancel) {}
+            Button(L("common.cancel"), role: .cancel) {}
         } message: {
-            Text("Nalezeno \(importedActions.count) \(importedActions.count == 1 ? "akce" : "akcí"). Přidat k existujícím, nebo nahradit vše?")
+            Text(String(format: L("settings.alert.import_actions.message"),
+                        importedActions.count,
+                        importedActions.count == 1 ? L("settings.alert.import_actions.singular") : L("settings.alert.import_actions.plural")))
         }
     }
 
@@ -331,40 +364,40 @@ struct SettingsView: View {
     private var providersTab: some View {
         Form {
             Section("OpenAI") {
-                SecureField("API klíč", text: $openaiKey)
+                SecureField(L("settings.providers.api_key"), text: $openaiKey)
                     .onSubmit { saveKey(openaiKey, for: .openai) }
                 saveButton(for: .openai, key: openaiKey)
                 fetchModelsRow(for: .openai)
                 testConnectionRow(for: .openai)
             }
             Section("Anthropic") {
-                SecureField("API klíč", text: $anthropicKey)
+                SecureField(L("settings.providers.api_key"), text: $anthropicKey)
                     .onSubmit { saveKey(anthropicKey, for: .anthropic) }
                 saveButton(for: .anthropic, key: anthropicKey)
                 fetchModelsRow(for: .anthropic)
                 testConnectionRow(for: .anthropic)
             }
             Section("Azure AI (slot 1)") {
-                Text("Zadej celou URL deployment (vč. cesty /openai/deployments/…), nebo jen resource URL + deployment name zvlášť. Aplikace přidá /chat/completions a ?api-version automaticky.")
+                Text(L("settings.providers.azure.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                SecureField("API klíč", text: $azureKey)
+                SecureField(L("settings.providers.api_key"), text: $azureKey)
                     .onSubmit { saveKey(azureKey, for: .azureOpenai) }
-                TextField("Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)", text: Binding(
+                TextField(L("settings.providers.azure.deployment_url"), text: Binding(
                     get: { config.azureEndpoint ?? "" },
                     set: {
                         config.azureEndpoint = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
                     }
                 ))
-                TextField("Deployment name (jen pokud výše zadáváš pouze resource URL)", text: Binding(
+                TextField(L("settings.providers.azure.deployment_name"), text: Binding(
                     get: { config.azureDeploymentName ?? "" },
                     set: {
                         config.azureDeploymentName = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
                     }
                 ))
-                TextField("API verze (výchozí: \(AppConfig.defaultAzureAPIVersion))", text: Binding(
+                TextField(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion), text: Binding(
                     get: { config.azureAPIVersion ?? "" },
                     set: {
                         config.azureAPIVersion = $0.isEmpty ? nil : $0
@@ -375,23 +408,23 @@ struct SettingsView: View {
                 testConnectionRow(for: .azureOpenai)
             }
             Section("Azure AI (slot 2)") {
-                SecureField("API klíč", text: $azureKey2)
+                SecureField(L("settings.providers.api_key"), text: $azureKey2)
                     .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
-                TextField("Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)", text: Binding(
+                TextField(L("settings.providers.azure.deployment_url"), text: Binding(
                     get: { config.azureEndpoint2 ?? "" },
                     set: {
                         config.azureEndpoint2 = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
                     }
                 ))
-                TextField("Deployment name (jen pokud výše zadáváš pouze resource URL)", text: Binding(
+                TextField(L("settings.providers.azure.deployment_name"), text: Binding(
                     get: { config.azureDeploymentName2 ?? "" },
                     set: {
                         config.azureDeploymentName2 = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
                     }
                 ))
-                TextField("API verze (výchozí: \(AppConfig.defaultAzureAPIVersion))", text: Binding(
+                TextField(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion), text: Binding(
                     get: { config.azureAPIVersion2 ?? "" },
                     set: {
                         config.azureAPIVersion2 = $0.isEmpty ? nil : $0
@@ -402,21 +435,21 @@ struct SettingsView: View {
                 testConnectionRow(for: .azureOpenai2)
             }
             Section("Vlastní API (slot 1)") {
-                TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
+                TextField(L("settings.providers.custom.base_url"), text: Binding(
                     get: { config.customOpenAIBaseURL ?? "" },
                     set: {
                         config.customOpenAIBaseURL = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.customOpenAIBaseURL = config.customOpenAIBaseURL }
                     }
                 ))
-                TextField("API verze (volitelné, přidá ?api-version=…)", text: Binding(
+                TextField(L("settings.providers.custom.api_version"), text: Binding(
                     get: { config.customOpenAIAPIVersion ?? "" },
                     set: {
                         config.customOpenAIAPIVersion = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
                     }
                 ))
-                Picker("Parametr max. tokenů", selection: $config.customOpenAITokenParam) {
+                Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam) {
                     ForEach(TokenParamStyle.allCases, id: \.self) { style in
                         Text(style.displayName).tag(style)
                     }
@@ -424,27 +457,27 @@ struct SettingsView: View {
                 .onChange(of: config.customOpenAITokenParam) { _, val in
                     ConfigStore.shared.update { $0.customOpenAITokenParam = val }
                 }
-                SecureField("API klíč (volitelné)", text: $customKey)
+                SecureField(L("settings.providers.api_key_optional"), text: $customKey)
                     .onSubmit { saveKey(customKey, for: .customOpenAI) }
                 saveButton(for: .customOpenAI, key: customKey)
                 testConnectionRow(for: .customOpenAI)
             }
             Section("Vlastní API (slot 2)") {
-                TextField("Base URL (např. http://localhost:11434/v1)", text: Binding(
+                TextField(L("settings.providers.custom.base_url"), text: Binding(
                     get: { config.customOpenAIBaseURL2 ?? "" },
                     set: {
                         config.customOpenAIBaseURL2 = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.customOpenAIBaseURL2 = config.customOpenAIBaseURL2 }
                     }
                 ))
-                TextField("API verze (volitelné, přidá ?api-version=…)", text: Binding(
+                TextField(L("settings.providers.custom.api_version"), text: Binding(
                     get: { config.customOpenAIAPIVersion2 ?? "" },
                     set: {
                         config.customOpenAIAPIVersion2 = $0.isEmpty ? nil : $0
                         ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
                     }
                 ))
-                Picker("Parametr max. tokenů", selection: $config.customOpenAITokenParam2) {
+                Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam2) {
                     ForEach(TokenParamStyle.allCases, id: \.self) { style in
                         Text(style.displayName).tag(style)
                     }
@@ -452,7 +485,7 @@ struct SettingsView: View {
                 .onChange(of: config.customOpenAITokenParam2) { _, val in
                     ConfigStore.shared.update { $0.customOpenAITokenParam2 = val }
                 }
-                SecureField("API klíč (volitelné)", text: $customKey2)
+                SecureField(L("settings.providers.api_key_optional"), text: $customKey2)
                     .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
                 saveButton(for: .customOpenAI2, key: customKey2)
                 testConnectionRow(for: .customOpenAI2)
@@ -471,16 +504,16 @@ struct SettingsView: View {
                 if isFetching == provider {
                     HStack(spacing: 6) {
                         ProgressView().scaleEffect(0.7)
-                        Text("Načítám modely…")
+                        Text(L("settings.providers.fetching"))
                     }
                 } else {
-                    Label("Aktualizovat modely", systemImage: "arrow.clockwise")
+                    Label(L("settings.providers.fetch_models"), systemImage: "arrow.clockwise")
                 }
             }
             .disabled(isFetching != nil)
 
             if let stored = config.modelPresets[provider.rawValue] {
-                Text("\(stored.count) modelů uloženo")
+                Text(String(format: L("settings.providers.models_saved"), stored.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -514,10 +547,10 @@ struct SettingsView: View {
                 if isTesting == provider {
                     HStack(spacing: 6) {
                         ProgressView().scaleEffect(0.7)
-                        Text("Testuji…")
+                        Text(L("settings.providers.testing"))
                     }
                 } else {
-                    Label("Ověřit připojení", systemImage: "network")
+                    Label(L("settings.providers.test_connection"), systemImage: "network")
                 }
             }
             .disabled(isTesting != nil)
@@ -555,7 +588,7 @@ struct SettingsView: View {
 
     private func saveButton(for provider: ProviderType, key: String) -> some View {
         HStack {
-            Button("Uložit") { saveKey(key, for: provider) }
+            Button(L("common.save")) { saveKey(key, for: provider) }
                 .disabled(key.isEmpty)
             if let saved = keySaveStatus[provider] {
                 Image(systemName: saved ? "checkmark.circle.fill" : "xmark.circle.fill")
@@ -594,7 +627,7 @@ private struct ModelReviewSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Modely – \(provider.displayName)")
+                Text(String(format: L("settings.models.title"), provider.displayName))
                     .font(.headline)
                 Spacer()
             }
@@ -615,7 +648,7 @@ private struct ModelReviewSheet: View {
                             .strikethrough(!model.isIncluded, color: .secondary)
                             .foregroundStyle(model.isIncluded ? .primary : .secondary)
                         if model.inUseByAction {
-                            Text("Používáno v akci")
+                            Text(L("settings.models.in_use"))
                                 .font(.caption2)
                                 .foregroundStyle(.orange)
                         }
@@ -632,19 +665,19 @@ private struct ModelReviewSheet: View {
                     }
                     .buttonStyle(.plain)
                     .disabled(!model.isIncluded)
-                    .help("Označit jako doporučený model")
+                    .help(L("settings.models.help.recommend"))
                 }
             }
 
             Divider()
             HStack {
-                Button("Zrušit", role: .cancel) { onCancel() }
+                Button(L("common.cancel"), role: .cancel) { onCancel() }
                 Spacer()
-                Text("\(models.filter(\.isIncluded).count) z \(models.count) modelů")
+                Text(String(format: L("settings.models.count"), models.filter(\.isIncluded).count, models.count))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button("Uložit") { onSave(models) }
+                Button(L("common.save")) { onSave(models) }
                     .buttonStyle(.borderedProminent)
                     .disabled(models.filter(\.isIncluded).isEmpty)
             }
@@ -673,7 +706,7 @@ private struct ActionRow: View {
             HStack {
                 Toggle("", isOn: $action.enabled)
                     .labelsHidden()
-                TextField("Název akce", text: $action.name)
+                TextField(L("action.row.name_placeholder"), text: $action.name)
                     .font(.headline)
                 Spacer()
                 Button {
@@ -684,7 +717,7 @@ private struct ActionRow: View {
                         .fontWeight(action.isDefault ? .semibold : .regular)
                 }
                 .buttonStyle(.plain)
-                .help(action.isDefault ? "Výchozí akce (spustí se stiskem Enter)" : "Nastavit jako výchozí akci pro Enter")
+                .help(action.isDefault ? L("action.row.help.is_default") : L("action.row.help.set_default"))
                 Button {
                     confirmDelete = true
                 } label: {
@@ -693,11 +726,11 @@ private struct ActionRow: View {
                 }
                 .buttonStyle(.plain)
                 .confirmationDialog(
-                    "Smazat akci \"\(action.name)\"?",
+                    String(format: L("action.row.delete.confirm"), action.name),
                     isPresented: $confirmDelete,
                     titleVisibility: .visible
                 ) {
-                    Button("Smazat", role: .destructive) { onDelete() }
+                    Button(L("action.row.delete.button"), role: .destructive) { onDelete() }
                 }
             }
 
@@ -756,7 +789,7 @@ private struct ActionRow: View {
             }
 
             if action.provider.effectiveModels().isEmpty {
-                TextField("název modelu", text: $customModelText)
+                TextField(L("action.row.model_placeholder"), text: $customModelText)
                     .frame(width: 260)
                     .onChange(of: customModelText) {
                         if !customModelText.isEmpty { action.model = customModelText }
@@ -764,11 +797,11 @@ private struct ActionRow: View {
             } else {
                 Picker("Model", selection: $pickerModel) {
                     ForEach(action.provider.effectiveModels()) { preset in
-                        Text(preset.isRecommended ? "\(preset.displayName) [Doporučeno]" : preset.displayName)
+                        Text(preset.isRecommended ? "\(preset.displayName) \(L("action.row.recommended"))" : preset.displayName)
                             .tag(preset.id)
                     }
                     Divider()
-                    Text("Vlastní model…").tag(customSentinel)
+                    Text(L("action.row.custom_model")).tag(customSentinel)
                 }
                 .labelsHidden()
                 .frame(width: 200)
@@ -780,7 +813,7 @@ private struct ActionRow: View {
                 }
 
                 if isCustom {
-                    TextField("název modelu", text: $customModelText)
+                    TextField(L("action.row.model_placeholder"), text: $customModelText)
                         .frame(width: 160)
                         .onChange(of: customModelText) {
                             if !customModelText.isEmpty { action.model = customModelText }
@@ -793,7 +826,7 @@ private struct ActionRow: View {
     private var parametersRow: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Teplota: \(action.temperature, specifier: "%.1f")")
+                Text(String(format: L("action.row.temperature"), action.temperature))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
@@ -803,7 +836,7 @@ private struct ActionRow: View {
             Spacer()
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Zkopírovat a zavřít")
+                Text(L("action.row.copy_close"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Picker("", selection: $action.autoCopyClose) {
@@ -817,7 +850,7 @@ private struct ActionRow: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Max. tokenů")
+                Text(L("action.row.max_tokens"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack {
@@ -841,12 +874,12 @@ extension ProviderType: Identifiable {
 extension ProviderType {
     var displayName: String {
         switch self {
-        case .openai:        "OpenAI"
-        case .azureOpenai:   "Azure AI (slot 1)"
-        case .azureOpenai2:  "Azure AI (slot 2)"
-        case .anthropic:     "Anthropic"
-        case .customOpenAI:  "Vlastní API (slot 1)"
-        case .customOpenAI2: "Vlastní API (slot 2)"
+        case .openai:        L("provider.openai")
+        case .azureOpenai:   L("provider.azure1")
+        case .azureOpenai2:  L("provider.azure2")
+        case .anthropic:     L("provider.anthropic")
+        case .customOpenAI:  L("provider.custom1")
+        case .customOpenAI2: L("provider.custom2")
         }
     }
 

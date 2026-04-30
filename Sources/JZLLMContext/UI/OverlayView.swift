@@ -104,7 +104,7 @@ struct OverlayView: View {
                     .foregroundStyle(.secondary)
             }
             .iconButton()
-            .help("Nastavení")
+            .help(L("overlay.help.settings"))
             if ConfigStore.shared.config.historyLimit > 0 {
                 Button { showHistory.toggle() } label: {
                     Image(systemName: showHistory ? "clock.fill" : "clock")
@@ -125,7 +125,7 @@ struct OverlayView: View {
     private var historyPanel: some View {
         Group {
             if history.entries.isEmpty {
-                Text("Žádná historie")
+                Text(L("overlay.history.empty"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(16)
@@ -171,7 +171,7 @@ struct OverlayView: View {
                 .foregroundStyle(.secondary)
                 .font(.caption)
                 .padding(.top, 2)
-            TextField("Doplňkový kontext…", text: $userContext, axis: .vertical)
+            TextField(L("overlay.context.placeholder"), text: $userContext, axis: .vertical)
                 .focused($userContextFocused)
                 .font(.caption)
                 .lineLimit(1...3)
@@ -191,7 +191,7 @@ struct OverlayView: View {
                         .font(.caption)
                 }
                 .iconButton()
-                .help("Vymazat kontext")
+                .help(L("overlay.help.clear_context"))
             }
         }
         .padding(8)
@@ -207,16 +207,16 @@ struct OverlayView: View {
                 .padding(.top, 1)
             Group {
                 if ignoreClipboard {
-                    Text("Schránka ignorována")
+                    Text(L("overlay.clipboard.ignored"))
                         .foregroundStyle(.tertiary)
                         .italic()
                 } else if isResolvingContext {
-                    Text(contextIsFromOCR ? "Rozpoznávám text z obrázku…" : "Čtu schránku…")
+                    Text(contextIsFromOCR ? L("overlay.clipboard.ocr_loading") : L("overlay.clipboard.loading"))
                         .foregroundStyle(.secondary)
                 } else if let text = contextText {
                     Text(text.prefix(300) + (text.count > 300 ? "…" : ""))
                 } else {
-                    Text("Schránka je prázdná")
+                    Text(L("overlay.clipboard.empty"))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -231,7 +231,7 @@ struct OverlayView: View {
                     .font(.caption)
             }
             .iconButton()
-            .help(ignoreClipboard ? "Použít schránku" : "Ignorovat schránku")
+            .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
         }
         .padding(8)
         .background(Color(nsColor: .textBackgroundColor).opacity(ignoreClipboard ? 0.3 : 0.6))
@@ -241,7 +241,7 @@ struct OverlayView: View {
     private var actionButtons: some View {
         VStack(spacing: 6) {
             if contextIsFromOCR {
-                actionButton(title: "Rozpoznat text z obrázku (OCR)", missingKey: false, isRunning: false) {
+                actionButton(title: L("overlay.action.ocr"), missingKey: false, isRunning: false) {
                     if let text = contextText { engine.showText(text) }
                 }
                 Divider()
@@ -259,7 +259,7 @@ struct OverlayView: View {
             if engine.isLoading {
                 HStack {
                     Spacer()
-                    Button("Zrušit") { engine.cancel() }
+                    Button(L("overlay.action.cancel")) { engine.cancel() }
                         .buttonStyle(.bordered)
                 }
             }
@@ -304,10 +304,10 @@ struct OverlayView: View {
         }())
         .contextMenu {
             if let item = actionModel {
-                Button("Spustit") { action() }
+                Button(L("overlay.context.menu.run")) { action() }
                 Divider()
-                Button("Zobrazit prompt") { actionDetailMode = .view(item) }
-                Button("Upravit") { actionDetailMode = .edit(item) }
+                Button(L("overlay.context.menu.view_prompt")) { actionDetailMode = .view(item) }
+                Button(L("overlay.context.menu.edit")) { actionDetailMode = .edit(item) }
             }
         }
     }
@@ -323,10 +323,10 @@ struct OverlayView: View {
                 }
                 HStack(spacing: 8) {
                     if let action = lastAction {
-                        Button("Zkusit znovu") { runAction(action) }
+                        Button(L("overlay.error.retry")) { runAction(action) }
                     }
                     if isMissingKeyError {
-                        Button("Otevřít nastavení") { onOpenSettings() }
+                        Button(L("overlay.error.open_settings")) { onOpenSettings() }
                     }
                 }
                 Spacer()
@@ -350,12 +350,12 @@ struct OverlayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 HStack {
-                    Button(didCopy ? "Zkopírováno ✓" : "Zkopírovat") {
+                    Button(didCopy ? L("overlay.result.copied") : L("overlay.result.copy")) {
                         copyResult()
                     }
                     .keyboardShortcut("c", modifiers: .command)
                     Spacer()
-                    Button("Zavřít") { onClose() }
+                    Button(L("overlay.result.close")) { onClose() }
                 }
             }
         }
@@ -413,7 +413,7 @@ struct OverlayView: View {
         } else {
             guard let text = contextText else { return }
             if !userContext.isEmpty && !action.systemPrompt.contains("{{kontext}}") {
-                input = text + "\n\n---\nDoplňkový kontext: " + userContext
+                input = text + "\n\n---\n" + L("overlay.additional_context_label") + userContext
             } else {
                 input = text
             }

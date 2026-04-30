@@ -37,11 +37,11 @@ struct AboutView: View {
             VStack(spacing: 3) {
                 Text("JZLLMContext")
                     .font(.title2.bold())
-                Text("Verze \(version)")
+                Text(String(format: L("about.version"), version))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            Text("Zpracovává obsah schránky (text i obrázky) pomocí jazykových modelů. Definuj vlastní akce se systémovými prompty a spouštěj je globální klávesovou zkratkou.")
+            Text(L("about.description"))
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -52,29 +52,29 @@ struct AboutView: View {
 
     private var setupSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Před prvním použitím")
+            Text(L("about.setup.title"))
                 .font(.headline)
 
-            step(1, icon: "network", title: "Získej přístup k LLM") {
-                Text("Pro cloudové providery (**OpenAI**, **Anthropic**) si vytvoř účet a vygeneruj API klíč. Vlastní nebo lokální modely (**Ollama**, **LM Studio**) žádný klíč nevyžadují.")
+            step(1, icon: "network", title: L("about.setup.step1.title")) {
+                Text(LMD("about.setup.step1.text"))
             }
 
-            step(2, icon: "key", title: "Nakonfiguruj provider") {
-                Text("Nastavení → záložka **Providery** → zadej adresu endpointu (pokud je potřeba) a API klíč → klikni **Uložit**.")
+            step(2, icon: "key", title: L("about.setup.step2.title")) {
+                Text(LMD("about.setup.step2.text"))
             }
 
-            step(3, icon: "list.bullet", title: "Přizpůsob akce") {
-                Text("V záložce **Akce** uprav systémové prompty nebo přidej vlastní. 5 akcí je předpřipraveno — tenhle krok je volitelný.")
+            step(3, icon: "list.bullet", title: L("about.setup.step3.title")) {
+                Text(LMD("about.setup.step3.text"))
             }
 
             HStack(spacing: 6) {
-                flowStep("Zkopíruj text")
+                flowStep(L("about.flow.copy"))
                 flowArrow
                 flowStep("Cmd+Shift+Space")
                 flowArrow
-                flowStep("Klikni na akci")
+                flowStep(L("about.flow.click"))
                 flowArrow
-                flowStep("Zkopíruj")
+                flowStep(L("about.flow.paste"))
             }
             .padding(.top, 4)
         }
@@ -120,38 +120,38 @@ struct AboutView: View {
 
     private var iconGuide: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Přehled ikon v panelu")
+            Text(L("about.icons.title"))
                 .font(.headline)
 
-            iconRow("doc.on.clipboard",          "Text ze schránky")
-            iconRow("doc.viewfinder",             "Text rozpoznaný z obrázku (OCR)")
-            iconRow("eye.slash",                  "Schránka ignorována — akce dostane jen doplňkový kontext")
+            iconRow("doc.on.clipboard",          L("about.icons.clipboard_text"))
+            iconRow("doc.viewfinder",             L("about.icons.clipboard_ocr"))
+            iconRow("eye.slash",                  L("about.icons.clipboard_ignored"))
 
             Divider().padding(.vertical, 2)
 
-            iconRow("exclamationmark.triangle",   "Chybí API klíč nebo adresa endpointu", color: .orange)
+            iconRow("exclamationmark.triangle",   L("about.icons.missing_key"), color: .orange)
             HStack(alignment: .center, spacing: 12) {
                 Text("1")
                     .font(.caption.monospacedDigit().bold())
                     .foregroundStyle(.secondary)
                     .frame(width: 20)
-                Text("Klávesová zkratka — stiskni číslici pro spuštění akce")
+                Text(L("about.icons.keyboard_shortcut"))
                     .font(.callout)
             }
-            iconRow("return.left",                "Výchozí akce — spustí se také stiskem Enter", color: .accentColor)
+            iconRow("return.left",                L("about.icons.default_action"), color: .accentColor)
             HStack(alignment: .center, spacing: 12) {
                 ProgressView()
                     .scaleEffect(0.6)
                     .frame(width: 20, height: 16)
-                Text("Akce právě běží")
+                Text(L("about.icons.action_running"))
                     .font(.callout)
             }
-            iconRow("arrow.right",                "Akce připravena ke spuštění")
+            iconRow("arrow.right",                L("about.icons.action_ready"))
 
             Divider().padding(.vertical, 2)
 
-            iconRow("clock",                      "Historie výsledků — uložena jen do zavření aplikace, nikam jinam se neukládá")
-            iconRow("gearshape",                  "Otevřít nastavení")
+            iconRow("clock",                      L("about.icons.history"))
+            iconRow("gearshape",                  L("about.icons.settings"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -180,10 +180,10 @@ struct AboutView: View {
             Divider()
 
             VStack(spacing: 6) {
-                Link("Licence: MIT", destination: URL(string: "https://github.com/honzabfu/JZLLMContext/blob/main/LICENSE")!)
+                Link(L("about.footer.license"), destination: URL(string: "https://github.com/honzabfu/JZLLMContext/blob/main/LICENSE")!)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text("Software je poskytován \"tak jak je\", bez záruky jakéhokoliv druhu. Používáte jej na vlastní riziko. Autor neodpovídá za žádné škody vzniklé jeho použitím. Software může obsahovat chyby.")
+                Text(L("about.footer.disclaimer"))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
                     .multilineTextAlignment(.center)

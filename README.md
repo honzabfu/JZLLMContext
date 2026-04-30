@@ -1,6 +1,6 @@
 # JZLLMContext
 
-Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí jazykových modelů. Je určena pro každého, kdo při práci pravidelně používá LLM — překladatele, vývojáře, copywritery i běžné uživatele — a chce mít přístup k AI přímo z klávesnice bez přepínání aplikací.
+Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí různých jazykových modelů. Je určena pro každého, kdo při práci pravidelně používá LLM — překladatele, vývojáře, copywritery i běžné uživatele — a chce mít přístup k AI přímo z klávesnice bez přepínání aplikací.
 
 Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce pošle obsah do LLM a vrátí výsledek. Každá akce má vlastní systémový prompt, provider a model. Funguje s OpenAI, Anthropic, Azure AI i lokálními modely (Ollama, LM Studio). Všechny akce jsou uživatelsky konfigurovatelné v přirozeném jazyce.
 

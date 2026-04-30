@@ -55,7 +55,7 @@ struct ActionDetailSheet: View {
 
     private var headerRow: some View {
         HStack {
-            Text(isEditing ? "Upravit akci" : "Detail akce")
+            Text(isEditing ? L("action.detail.title.edit") : L("action.detail.title.view"))
                 .font(.headline)
             Spacer()
             Button { dismiss() } label: {
@@ -67,9 +67,9 @@ struct ActionDetailSheet: View {
 
     private var nameRow: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Název").font(.caption).foregroundStyle(.secondary)
+            Text(L("action.detail.label.name")).font(.caption).foregroundStyle(.secondary)
             if isEditing {
-                TextField("Název akce", text: $name)
+                TextField(L("action.row.name_placeholder"), text: $name)
             } else {
                 Text(action.name).fontWeight(.medium)
             }
@@ -78,10 +78,10 @@ struct ActionDetailSheet: View {
 
     private var metadataRow: some View {
         HStack(spacing: 20) {
-            labeledValue("Provider", action.provider.displayName)
-            labeledValue("Model", action.model)
-            labeledValue("Teplota", String(format: "%.1f", action.temperature))
-            labeledValue("Max. tokenů", "\(action.maxTokens)")
+            labeledValue(L("action.detail.label.provider"), action.provider.displayName)
+            labeledValue(L("action.detail.label.model"), action.model)
+            labeledValue(L("action.detail.label.temperature"), String(format: "%.1f", action.temperature))
+            labeledValue(L("action.detail.label.max_tokens"), "\(action.maxTokens)")
         }
     }
 
@@ -94,7 +94,7 @@ struct ActionDetailSheet: View {
 
     private var promptSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Systémový prompt").font(.caption).foregroundStyle(.secondary)
+            Text(L("action.detail.label.system_prompt")).font(.caption).foregroundStyle(.secondary)
             if isEditing {
                 TextEditor(text: $systemPrompt)
                     .font(.callout)
@@ -118,7 +118,7 @@ struct ActionDetailSheet: View {
     private var footerRow: some View {
         HStack {
             if isEditing {
-                Button("Plné nastavení") {
+                Button(L("action.detail.full_settings")) {
                     SettingsNavigation.shared.selectedTab = .actions
                     dismiss()
                     onOpenSettings()
@@ -126,9 +126,9 @@ struct ActionDetailSheet: View {
                 .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Zavřít") { dismiss() }
+            Button(L("action.detail.close")) { dismiss() }
             if isEditing {
-                Button("Uložit") { saveEdits(); dismiss() }
+                Button(L("action.detail.save")) { saveEdits(); dismiss() }
                     .buttonStyle(.borderedProminent)
             }
         }

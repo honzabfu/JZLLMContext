@@ -27,14 +27,17 @@
 		9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */; };
 		9D41BB47989D4EB3CB398C20 /* ActionDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF630DCA11A63BCB84D42DD2 /* ActionDetailSheet.swift */; };
 		A02FDD4035E09CBEE0817476 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 84778605AF88F656C97B010D /* Assets.xcassets */; };
+		A36AD38134BF915B05860880 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092AF1601119489B61B615A0 /* Localization.swift */; };
 		A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */; };
 		BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */; };
 		CEA7BC87270AC61BA80F47CE /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDCAE340BBEAC5C27AA845F /* App.swift */; };
+		E378D7A12751D40FCA58B14B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A398B617F293D69A2F4DE271 /* Localizable.xcstrings */; };
 		E59EB23A8F4F48E658F183C4 /* OverlayWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115B55BB48331930264A2987 /* OverlayWindowController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		018CB417B49F176AFD1DC7E4 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
+		092AF1601119489B61B615A0 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		09441EAAD72AD462864F9B2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelFetcher.swift; sourceTree = "<group>"; };
 		0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMProvider.swift; sourceTree = "<group>"; };
@@ -53,6 +56,7 @@
 		84778605AF88F656C97B010D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8A1B77ACB12636472CE78D41 /* JZLLMContext.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JZLLMContext.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EEB15BFF1A234C902698B41 /* AnthropicProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnthropicProvider.swift; sourceTree = "<group>"; };
+		A398B617F293D69A2F4DE271 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		CC7788BE265D802DAD645314 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		CF007160F929203C6C07C38F /* ContextResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextResolver.swift; sourceTree = "<group>"; };
 		D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JZLLMContext.entitlements; sourceTree = "<group>"; };
@@ -109,6 +113,7 @@
 				84778605AF88F656C97B010D /* Assets.xcassets */,
 				09441EAAD72AD462864F9B2F /* Info.plist */,
 				D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */,
+				A398B617F293D69A2F4DE271 /* Localizable.xcstrings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -135,6 +140,7 @@
 				4CDCAE340BBEAC5C27AA845F /* App.swift */,
 				3712CADC923FA76F06AD0828 /* AppDelegate.swift */,
 				CC7788BE265D802DAD645314 /* HotkeyManager.swift */,
+				092AF1601119489B61B615A0 /* Localization.swift */,
 				EC220C3994F500842554EEFF /* Config */,
 				2FCC534B033C3D03A572CD65 /* Context */,
 				97D272CB3B3203A44B69AACF /* Engine */,
@@ -220,6 +226,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
+				cs,
 				en,
 			);
 			mainGroup = A07FF79AF12DA12FB072396E;
@@ -243,6 +250,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A02FDD4035E09CBEE0817476 /* Assets.xcassets in Resources */,
+				E378D7A12751D40FCA58B14B /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +276,7 @@
 				1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */,
 				64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */,
 				BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */,
+				A36AD38134BF915B05860880 /* Localization.swift in Sources */,
 				9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */,
 				107E3F54587858A4B2D73F27 /* OpenAIProvider.swift in Sources */,
 				450734B8BB48675A75765886 /* OverlayView.swift in Sources */,
