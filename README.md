@@ -207,6 +207,8 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`. D
 ```bash
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.anthropic.apikey"
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.gemini.apikey"
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.grok.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai_2.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai.apikey"
@@ -626,6 +628,8 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`. Sm
 ```bash
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.anthropic.apikey"
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.gemini.apikey"
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.grok.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai_2.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai.apikey"
