@@ -13,6 +13,8 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
     PRODUCT_BUNDLE_IDENTIFIER: com.jz.JZLLMContext
+    MARKETING_VERSION: "0.4"
+    CURRENT_PROJECT_VERSION: 1
 
 packages:
   MarkdownUI:

@@ -33,6 +33,12 @@ struct SettingsView: View {
     @State private var reviewModels: [FetchedModel] = []
     @State private var reviewingProvider: ProviderType? = nil
     @State private var showResetAlert = false
+    @State private var updateState: UpdateState = .idle
+
+    private enum UpdateState: Equatable {
+        case idle, checking, upToDate, failed
+        case available(version: String, url: URL)
+    }
 
     var body: some View {
         TabView(selection: $nav.selectedTab) {
@@ -116,6 +122,48 @@ struct SettingsView: View {
                 Text("Klikni na pole a stiskni požadovanou kombinaci kláves. Kliknutí znovu zruší záznam.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            Section("Aktualizace") {
+                HStack {
+                    Button("Zkontrolovat aktualizace") {
+                        updateState = .checking
+                        Task {
+                            do {
+                                let release = try await UpdateChecker.fetchLatest()
+                                if release.version == UpdateChecker.currentVersion {
+                                    updateState = .upToDate
+                                } else if let url = URL(string: release.html_url) {
+                                    updateState = .available(version: release.version, url: url)
+                                } else {
+                                    updateState = .failed
+                                }
+                            } catch {
+                                updateState = .failed
+                            }
+                        }
+                    }
+                    .disabled(updateState == .checking)
+
+                    switch updateState {
+                    case .idle:
+                        EmptyView()
+                    case .checking:
+                        ProgressView().scaleEffect(0.7)
+                    case .upToDate:
+                        Label("Máte aktuální verzi", systemImage: "checkmark.circle.fill")
+                            .foregroundStyle(.green)
+                            .font(.callout)
+                    case .available(let version, let url):
+                        Link(destination: url) {
+                            Label("Dostupná verze \(version)", systemImage: "arrow.down.circle.fill")
+                                .font(.callout)
+                        }
+                    case .failed:
+                        Label("Nepodařilo se ověřit", systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.secondary)
+                            .font(.callout)
+                    }
+                }
             }
             Section("Resetovat nastavení") {
                 Text("Odstraní všechna nastavení, akce a poskytovatele. API klíče zůstanou v Keychainu zachovány.")

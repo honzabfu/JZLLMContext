@@ -21,7 +21,7 @@ struct AboutView: View {
                     .padding(20)
             }
         }
-        .frame(width: 420, height: 580)
+        .frame(width: 420, height: 650)
     }
 
     // MARK: - Header
@@ -169,11 +169,25 @@ struct AboutView: View {
     // MARK: - Footer
 
     private var footer: some View {
-        VStack(spacing: 5) {
-            Text("Autor: Jan Žák")
-                .font(.callout)
-            Link("jan-zak.cz", destination: URL(string: "https://jan-zak.cz")!)
-                .font(.callout)
+        VStack(spacing: 10) {
+            VStack(spacing: 4) {
+                Text("Autor: Jan Žák")
+                    .font(.callout)
+                Link("jan-zak.cz", destination: URL(string: "https://jan-zak.cz")!)
+                    .font(.callout)
+            }
+
+            Divider()
+
+            VStack(spacing: 6) {
+                Link("Licence: MIT", destination: URL(string: "https://github.com/honzabfu/JZLLMContext/blob/main/LICENSE")!)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Software je poskytován \"tak jak je\", bez záruky jakéhokoliv druhu. Používáte jej na vlastní riziko. Autor neodpovídá za žádné škody vzniklé jeho použitím. Software může obsahovat chyby.")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 }
