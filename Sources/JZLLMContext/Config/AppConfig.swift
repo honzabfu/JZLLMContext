@@ -30,12 +30,14 @@ enum AppLanguage: String, Codable, CaseIterable {
     case system
     case cs
     case en
+    case es
 
     var displayName: String {
         switch self {
         case .system: "Systémový"
         case .cs:     "Čeština"
         case .en:     "English"
+        case .es:     "Español"
         }
     }
 
@@ -43,9 +45,14 @@ enum AppLanguage: String, Codable, CaseIterable {
         switch self {
         case .system:
             let code = Locale.current.language.languageCode?.identifier ?? "en"
-            return code == "cs" ? Locale(identifier: "cs") : Locale(identifier: "en")
+            switch code {
+            case "cs": return Locale(identifier: "cs")
+            case "es": return Locale(identifier: "es")
+            default:   return Locale(identifier: "en")
+            }
         case .cs: return Locale(identifier: "cs")
         case .en: return Locale(identifier: "en")
+        case .es: return Locale(identifier: "es")
         }
     }
 }
@@ -149,54 +156,116 @@ struct AppConfig: Codable {
         appLanguage = try c.decodeIfPresent(AppLanguage.self, forKey: .appLanguage) ?? .system
     }
 
-    static var `default`: AppConfig {
-        AppConfig(
+    static var `default`: AppConfig { makeDefault() }
+
+    static func makeDefault(language: AppLanguage = .system) -> AppConfig {
+        let code: String
+        switch language {
+        case .system:
+            let sys = Locale.current.language.languageCode?.identifier ?? "en"
+            code = ["cs", "es"].contains(sys) ? sys : "en"
+        case .cs: code = "cs"
+        case .en: code = "en"
+        case .es: code = "es"
+        }
+        return AppConfig(
             schemaVersion: 1,
             hotkeyKeyCode: Int(kVK_Space),
             hotkeyModifiers: Int(cmdKey | shiftKey),
-            actions: [
+            actions: defaultActions(forLang: code),
+            appLanguage: language
+        )
+    }
+
+    private static func defaultActions(forLang lang: String) -> [Action] {
+        switch lang {
+        case "es":
+            return [
+                Action(
+                    name: "Traducir al español",
+                    systemPrompt: "Traduce el siguiente texto al español. Responde solo con la traducción.",
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
+                ),
+                Action(
+                    name: "Reescribir + gramática",
+                    systemPrompt: "Reescribe el siguiente texto para que sea más claro y gramaticalmente correcto. Mantén el idioma original. Responde solo con el texto reescrito. No añadas información adicional.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                ),
+                Action(
+                    name: "Simplificar y explicar",
+                    systemPrompt: "Explica el siguiente texto de forma sencilla para un profesional ocupado.\nSé conciso y céntrate en la comprensión práctica.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
+                ),
+                Action(
+                    name: "Resumir en puntos",
+                    systemPrompt: "Resume el siguiente texto en:\n- 3 puntos principales\n- 1 frase resumen corta\n- entidades clave (si las hay)\nNo añadas información adicional.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                ),
+                Action(
+                    name: "Preparar respuesta",
+                    systemPrompt: "Escribe una respuesta breve y profesional al siguiente mensaje.\nEstilo: neutral, cortés\nLongitud: corta",
+                    provider: .openai, model: "gpt-5.5", enabled: true, temperature: 0.5
+                )
+            ]
+        case "en":
+            return [
+                Action(
+                    name: "Translate to English",
+                    systemPrompt: "Translate the following text to English. Reply with the translation only.",
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
+                ),
+                Action(
+                    name: "Rewrite + Grammar",
+                    systemPrompt: "Rewrite the following text to be clearer and grammatically correct. Keep the original language. Reply with the rewritten text only. Do not add any extra information.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                ),
+                Action(
+                    name: "Simplify & Explain",
+                    systemPrompt: "Explain the following text simply for a busy professional.\nBe concise and focus on practical understanding.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
+                ),
+                Action(
+                    name: "Summarize to Bullets",
+                    systemPrompt: "Summarize the following text into:\n- 3 main points\n- 1 short summary sentence\n- key entities (if any)\nDo not add any extra information.",
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                ),
+                Action(
+                    name: "Draft a Reply",
+                    systemPrompt: "Write a brief and professional reply to the following message.\nStyle: neutral, polite\nLength: short",
+                    provider: .openai, model: "gpt-5.5", enabled: true, temperature: 0.5
+                )
+            ]
+        default: // cs
+            return [
                 Action(
                     name: "Přeložit do češtiny",
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
-                    provider: .anthropic,
-                    model: "claude-sonnet-4-6",
-                    enabled: true,
-                    temperature: 0.1
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
                 ),
                 Action(
                     name: "Přepsat + gramatika",
                     systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem. Nepřidávej žádné další informace navíc.",
-                    provider: .openai,
-                    model: "gpt-5.4-mini",
-                    enabled: true,
-                    temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
                 ),
                 Action(
                     name: "Zjednoduš a vysvětli",
                     systemPrompt: "Vysvětli následující text jednoduše pro zaneprázdněného profesionála.\nBuď stručný a zaměř se na praktické pochopení.",
-                    provider: .openai,
-                    model: "gpt-5.4-mini",
-                    enabled: true,
-                    temperature: 0.5
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
                 ),
                 Action(
                     name: "Shrň do odrážek",
                     systemPrompt: "Shrň následující text do:\n- 3 hlavních bodů\n- 1 krátké shrnující věty\n- důležitých entit (pokud existují)\nNepřidávej žádné další informace navíc.",
-                    provider: .openai,
-                    model: "gpt-5.4-mini",
-                    enabled: true,
-                    temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
                 ),
                 Action(
                     name: "Připrav odpověď",
-                    systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý  \nDélka: krátká",
-                    provider: .openai,
-                    model: "gpt-5.5",
+                    systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý\nDélka: krátká",
+                    provider: .openai, model: "gpt-5.5",
                     enabled: true,
                     temperature: 0.5
                 )
             ]
-        )
+        }
     }
 }
 

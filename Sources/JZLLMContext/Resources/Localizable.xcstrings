@@ -7,7 +7,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "O aplikaci JZLLMContext" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About JZLLMContext" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About JZLLMContext" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acerca de JZLLMContext" } }
       }
     },
     "menu.settings" : {
@@ -15,7 +16,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias…" } }
       }
     },
     "menu.quit" : {
@@ -23,7 +25,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ukončit JZLLMContext" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit JZLLMContext" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Quit JZLLMContext" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Salir de JZLLMContext" } }
       }
     },
     "menu.update.available" : {
@@ -31,7 +34,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "⬆ Dostupná verze %@…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "⬆ Version %@ available…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "⬆ Version %@ available…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "⬆ Versión %@ disponible…" } }
       }
     },
     "about.window.title" : {
@@ -39,7 +43,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "O aplikaci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acerca de" } }
       }
     },
 
@@ -47,21 +52,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obecné" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "General" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "General" } }
       }
     },
     "settings.tab.actions" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Actions" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acciones" } }
       }
     },
     "settings.tab.providers" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Providery" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Providers" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Providers" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedores" } }
       }
     },
 
@@ -69,21 +77,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spustit při přihlášení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Launch at Login" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar al iniciar sesión" } }
       }
     },
     "settings.general.auto_copy_close" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Po dokončení akce zkopírovat výsledek a zavřít panel" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy result and close panel after action completes" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy result and close panel after action completes" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar resultado y cerrar panel al completar la acción" } }
       }
     },
     "settings.general.markdown_output" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazovat výsledek s formátováním" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show result with formatting" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show result with formatting" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar resultado con formato" } }
       }
     },
     "settings.general.history_limit" : {
@@ -91,7 +102,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků: %@" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history: %@" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados: %@" } }
       }
     },
     "settings.general.history_off" : {
@@ -99,105 +111,120 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "vypnuto" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "off" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "off" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "desactivado" } }
       }
     },
     "settings.general.section.language" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jazyk aplikace" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Language" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "App Language" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Idioma de la aplicación" } }
       }
     },
     "settings.general.language.restart.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Změna jazyka" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language Change" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language Change" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cambio de idioma" } }
       }
     },
     "settings.general.language.restart.message" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Změna se projeví po restartu aplikace." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The change will take effect after restarting the app." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The change will take effect after restarting the app." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El cambio se aplicará tras reiniciar la aplicación." } }
       }
     },
     "settings.general.language.restart.now" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Restartovat nyní" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restart Now" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restart Now" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar ahora" } }
       }
     },
     "settings.general.section.backup" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Záloha konfigurace" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Configuration Backup" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Configuration Backup" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copia de seguridad de configuración" } }
       }
     },
     "settings.general.backup.description" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zahrnuje: akce, globální zkratku, nastavení Azure endpointů, výběr modelů a ostatní volby. Nezahrnuje API klíče (ty zůstávají v Keychainu)." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Includes: actions, global shortcut, Azure endpoint settings, model selection, and other options. Does not include API keys (those remain in the Keychain)." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Includes: actions, global shortcut, Azure endpoint settings, model selection, and other options. Does not include API keys (those remain in the Keychain)." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Incluye: acciones, atajo global, configuración de endpoints de Azure, selección de modelos y otras opciones. No incluye claves API (permanecen en el Llavero)." } }
       }
     },
     "settings.general.export_config" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat konfiguraci…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Configuration…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Configuration…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar configuración…" } }
       }
     },
     "settings.general.import_config" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat konfiguraci…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar configuración…" } }
       }
     },
     "settings.general.section.hotkey" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Globální zkratka" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Global Shortcut" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Global Shortcut" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo global" } }
       }
     },
     "settings.general.hotkey_label" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkratka" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shortcut" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo" } }
       }
     },
     "settings.general.hotkey_hint" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Klikni na pole a stiskni požadovanou kombinaci kláves. Kliknutí znovu zruší záznam." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Click the field and press the desired key combination. Click again to cancel recording." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Click the field and press the desired key combination. Click again to cancel recording." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Haz clic en el campo y pulsa la combinación de teclas deseada. Haz clic de nuevo para cancelar la grabación." } }
       }
     },
     "settings.general.section.updates" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktualizace" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Updates" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Updates" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizaciones" } }
       }
     },
     "settings.general.check_updates" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkontrolovat aktualizace" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check for Updates" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar actualizaciones" } }
       }
     },
     "settings.general.update.up_to_date" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Máte aktuální verzi" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "You’re up to date" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You're up to date" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estás al día" } }
       }
     },
     "settings.general.update.available" : {
@@ -205,42 +232,48 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dostupná verze %@" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@ available" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@ available" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión %@ disponible" } }
       }
     },
     "settings.general.update.failed" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nepodařilo se ověřit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to check" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to check" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error al comprobar" } }
       }
     },
     "settings.general.auto_update" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Automaticky kontrolovat aktualizace při spuštění" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Automatically check for updates at launch" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Automatically check for updates at launch" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar actualizaciones automáticamente al iniciar" } }
       }
     },
     "settings.general.section.reset" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Resetovat nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Settings" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Restablecer ajustes" } }
       }
     },
     "settings.general.reset.description" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odstraní všechna nastavení, akce a poskytovatele. API klíče zůstanou v Keychainu zachovány." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Removes all settings, actions, and providers. API keys will remain in the Keychain." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Removes all settings, actions, and providers. API keys will remain in the Keychain." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Elimina todas las configuraciones, acciones y proveedores. Las claves API permanecerán en el Llavero." } }
       }
     },
     "settings.general.reset.button" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat konfiguraci…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Configuration…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Configuration…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar configuración…" } }
       }
     },
 
@@ -248,42 +281,48 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat konfiguraci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar configuración" } }
       }
     },
     "settings.alert.import_config.replace" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nahradit vše" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replace All" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Replace All" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reemplazar todo" } }
       }
     },
     "settings.alert.import_config.message" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovaná konfigurace nahradí všechny akce, zkratku i ostatní nastavení. API klíče zůstanou beze změny." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The imported configuration will replace all actions, the shortcut, and other settings. API keys will remain unchanged." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The imported configuration will replace all actions, the shortcut, and other settings. API keys will remain unchanged." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La configuración importada reemplazará todas las acciones, el atajo y otros ajustes. Las claves API no cambiarán." } }
       }
     },
     "settings.alert.reset.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat konfiguraci?" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Configuration?" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Configuration?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Eliminar configuración?" } }
       }
     },
     "settings.alert.reset.confirm" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat vše" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete All" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete All" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar todo" } }
       }
     },
     "settings.alert.reset.message" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tato akce odstraní všechny akce, globální zkratku, nastavení providerů a ostatní volby. API klíče v Keychainu zůstanou zachovány. Akci nelze vrátit zpět." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This action will remove all actions, the global shortcut, provider settings, and other options. API keys in the Keychain will remain. This cannot be undone." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This action will remove all actions, the global shortcut, provider settings, and other options. API keys in the Keychain will remain. This cannot be undone." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esta acción eliminará todas las acciones, el atajo global, la configuración de proveedores y otras opciones. Las claves API en el Llavero se conservarán. Esta acción no se puede deshacer." } }
       }
     },
 
@@ -291,7 +330,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat akci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir acción" } }
       }
     },
     "settings.actions.new_name" : {
@@ -299,35 +339,40 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nová akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nueva acción" } }
       }
     },
     "settings.actions.import" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat akce…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Actions…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Actions…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar acciones…" } }
       }
     },
     "settings.actions.export" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat akce…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Actions…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Actions…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar acciones…" } }
       }
     },
     "settings.alert.import_actions.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Actions" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar acciones" } }
       }
     },
     "settings.alert.import_actions.add" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat k existujícím" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Existing" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Existing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir a existentes" } }
       }
     },
     "settings.alert.import_actions.message" : {
@@ -335,7 +380,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nalezeno %d %@. Přidat k existujícím, nebo nahradit vše?" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Found %d %@. Add to existing or replace all?" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Found %d %@. Add to existing or replace all?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se encontraron %d %@. ¿Añadir a existentes o reemplazar todo?" } }
       }
     },
     "settings.alert.import_actions.singular" : {
@@ -343,7 +389,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "acción" } }
       }
     },
     "settings.alert.import_actions.plural" : {
@@ -351,7 +398,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "akcí" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "actions" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "acciones" } }
       }
     },
 
@@ -359,21 +407,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Název akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action name" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre de la acción" } }
       }
     },
     "action.row.help.set_default" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavit jako výchozí akci pro Enter" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set as default action for Enter" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set as default action for Enter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Establecer como acción predeterminada para Enter" } }
       }
     },
     "action.row.help.is_default" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce (spustí se stiskem Enter)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action (triggered by Enter)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action (triggered by Enter)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada (activada con Enter)" } }
       }
     },
     "action.row.delete.confirm" : {
@@ -381,14 +432,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat akci \"%@\"?" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete action \"%@\"?" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete action \"%@\"?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Eliminar la acción \"%@\"?" } }
       }
     },
     "action.row.delete.button" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } }
       }
     },
     "action.row.temperature" : {
@@ -396,42 +449,48 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Teplota: %.1f" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature: %.1f" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature: %.1f" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Temperatura: %.1f" } }
       }
     },
     "action.row.copy_close" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopírovat a zavřít" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy & Close" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy & Close" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar y cerrar" } }
       }
     },
     "action.row.max_tokens" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokenů" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokens" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokens" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Máx. tokens" } }
       }
     },
     "action.row.model_placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "název modelu" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "model name" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "model name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "nombre del modelo" } }
       }
     },
     "action.row.custom_model" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní model…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom model…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom model…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modelo personalizado…" } }
       }
     },
     "action.row.recommended" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "[Doporučeno]" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "[Recommended]" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "[Recommended]" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "[Recomendado]" } }
       }
     },
 
@@ -439,21 +498,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "API klíč" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API Key" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API Key" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Clave API" } }
       }
     },
     "settings.providers.api_key_optional" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "API klíč (volitelné)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API Key (optional)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API Key (optional)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Clave API (opcional)" } }
       }
     },
     "settings.providers.azure.description" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zadej celou URL deployment (vč. cesty /openai/deployments/…), nebo jen resource URL + deployment name zvlášť. Aplikace přidá /chat/completions a ?api-version automaticky." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the full deployment URL (including path /openai/deployments/…), or just the resource URL and deployment name separately. The app will add /chat/completions and ?api-version automatically." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter the full deployment URL (including path /openai/deployments/…), or just the resource URL and deployment name separately. The app will add /chat/completions and ?api-version automatically." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Introduce la URL completa del deployment (incluyendo la ruta /openai/deployments/…), o solo la URL del recurso y el nombre del deployment por separado. La app añadirá /chat/completions y ?api-version automáticamente." } }
       }
     },
     "settings.providers.azure.deployment_url" : {
@@ -461,7 +523,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL (e.g. https://hub.openai.azure.com/openai/deployments/my-model)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL (e.g. https://hub.openai.azure.com/openai/deployments/my-model)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL del deployment (ej. https://hub.openai.azure.com/openai/deployments/mi-modelo)" } }
       }
     },
     "settings.providers.azure.deployment_name" : {
@@ -469,7 +532,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name (jen pokud výše zadáváš pouze resource URL)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name (only if entering resource URL above)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name (only if entering resource URL above)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del deployment (solo si introduces la URL del recurso arriba)" } }
       }
     },
     "settings.providers.azure.api_version" : {
@@ -477,7 +541,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze (výchozí: %@)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (default: %@)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (default: %@)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API (predeterminada: %@)" } }
       }
     },
     "settings.providers.custom.base_url" : {
@@ -485,7 +550,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Base URL (např. http://localhost:11434/v1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Base URL (e.g. http://localhost:11434/v1)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Base URL (e.g. http://localhost:11434/v1)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL base (ej. http://localhost:11434/v1)" } }
       }
     },
     "settings.providers.custom.api_version" : {
@@ -493,28 +559,32 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze (volitelné, přidá ?api-version=…)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (optional, adds ?api-version=…)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (optional, adds ?api-version=…)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API (opcional, añade ?api-version=…)" } }
       }
     },
     "settings.providers.token_param" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Parametr max. tokenů" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max tokens parameter" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max tokens parameter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Parámetro de máx. tokens" } }
       }
     },
     "settings.providers.fetching" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načítám modely…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading models…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading models…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando modelos…" } }
       }
     },
     "settings.providers.fetch_models" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktualizovat modely" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Models" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Models" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizar modelos" } }
       }
     },
     "settings.providers.models_saved" : {
@@ -522,21 +592,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "%d modelů uloženo" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d models saved" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d models saved" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%d modelos guardados" } }
       }
     },
     "settings.providers.testing" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Testuji…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Testing…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Testing…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Probando…" } }
       }
     },
     "settings.providers.test_connection" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ověřit připojení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Verify Connection" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Verify Connection" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Verificar conexión" } }
       }
     },
 
@@ -545,21 +618,24 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Modely – %@" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Models – %@" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Models – %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modelos – %@" } }
       }
     },
     "settings.models.in_use" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Používáno v akci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used by action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Used by action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Usado por acción" } }
       }
     },
     "settings.models.help.recommend" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Označit jako doporučený model" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mark as recommended model" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mark as recommended model" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Marcar como modelo recomendado" } }
       }
     },
     "settings.models.count" : {
@@ -567,7 +643,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "%d z %d modelů" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d of %d models" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%d of %d models" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%d de %d modelos" } }
       }
     },
 
@@ -576,140 +653,160 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias" } }
       }
     },
     "overlay.history.empty" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Žádná historie" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No history" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No history" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin historial" } }
       }
     },
     "overlay.context.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Doplňkový kontext…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Additional context…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Additional context…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contexto adicional…" } }
       }
     },
     "overlay.help.clear_context" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vymazat kontext" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear context" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clear context" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Borrar contexto" } }
       }
     },
     "overlay.clipboard.ignored" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka ignorována" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles ignorado" } }
       }
     },
     "overlay.clipboard.ocr_loading" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rozpoznávám text z obrázku…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recognizing text from image…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recognizing text from image…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reconociendo texto de la imagen…" } }
       }
     },
     "overlay.clipboard.loading" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Čtu schránku…" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading clipboard…" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reading clipboard…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Leyendo portapapeles…" } }
       }
     },
     "overlay.clipboard.empty" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka je prázdná" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard is empty" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard is empty" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles está vacío" } }
       }
     },
     "overlay.help.use_clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Použít schránku" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use clipboard" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Usar portapapeles" } }
       }
     },
     "overlay.help.ignore_clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ignorovat schránku" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ignore clipboard" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ignore clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ignorar portapapeles" } }
       }
     },
     "overlay.action.ocr" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Rozpoznat text z obrázku (OCR)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recognize text from image (OCR)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recognize text from image (OCR)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reconocer texto de la imagen (OCR)" } }
       }
     },
     "overlay.action.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zrušit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
       }
     },
     "overlay.error.retry" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkusit znovu" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Retry" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reintentar" } }
       }
     },
     "overlay.error.open_settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir preferencias" } }
       }
     },
     "overlay.result.copied" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopírováno ✓" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copied ✓" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copied ✓" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiado ✓" } }
       }
     },
     "overlay.result.copy" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopírovat" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar" } }
       }
     },
     "overlay.result.close" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zavřít" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar" } }
       }
     },
     "overlay.context.menu.run" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Spustit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Run" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Run" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ejecutar" } }
       }
     },
     "overlay.context.menu.view_prompt" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit prompt" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Prompt" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Prompt" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver prompt" } }
       }
     },
     "overlay.context.menu.edit" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Upravit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Editar" } }
       }
     },
     "overlay.additional_context_label" : {
@@ -717,7 +814,8 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Doplňkový kontext: " } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Additional context: " } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Additional context: " } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contexto adicional: " } }
       }
     },
 
@@ -725,77 +823,88 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detail akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action Detail" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action Detail" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Detalle de la acción" } }
       }
     },
     "action.detail.title.edit" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Upravit akci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Editar acción" } }
       }
     },
     "action.detail.label.name" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Název" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre" } }
       }
     },
     "action.detail.label.provider" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Provider" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Provider" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedor" } }
       }
     },
     "action.detail.label.model" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Model" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Modelo" } }
       }
     },
     "action.detail.label.temperature" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Teplota" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Temperature" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Temperatura" } }
       }
     },
     "action.detail.label.max_tokens" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokenů" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokens" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Max. tokens" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Máx. tokens" } }
       }
     },
     "action.detail.label.system_prompt" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Systémový prompt" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Prompt" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System Prompt" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Prompt del sistema" } }
       }
     },
     "action.detail.full_settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Plné nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Settings" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Full Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ajustes completos" } }
       }
     },
     "action.detail.close" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zavřít" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar" } }
       }
     },
     "action.detail.save" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uložit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar" } }
       }
     },
 
@@ -804,28 +913,32 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Verze %@" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión %@" } }
       }
     },
     "about.description" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zpracovává obsah schránky (text i obrázky) pomocí jazykových modelů. Definuj vlastní akce se systémovými prompty a spouštěj je globální klávesovou zkratkou." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Processes clipboard content (text and images) using language models. Define custom actions with system prompts and trigger them with a global keyboard shortcut." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Processes clipboard content (text and images) using language models. Define custom actions with system prompts and trigger them with a global keyboard shortcut." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Procesa el contenido del portapapeles (texto e imágenes) con modelos de lenguaje. Define acciones personalizadas con prompts del sistema y actívalas con un atajo de teclado global." } }
       }
     },
     "about.setup.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Před prvním použitím" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Getting Started" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Getting Started" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Primeros pasos" } }
       }
     },
     "about.setup.step1.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Získej přístup k LLM" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get access to an LLM" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get access to an LLM" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Obtén acceso a un LLM" } }
       }
     },
     "about.setup.step1.text" : {
@@ -833,14 +946,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pro cloudové providery (**OpenAI**, **Anthropic**) si vytvoř účet a vygeneruj API klíč. Vlastní nebo lokální modely (**Ollama**, **LM Studio**) žádný klíč nevyžadují." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "For cloud providers (**OpenAI**, **Anthropic**), create an account and generate an API key. Custom or local models (**Ollama**, **LM Studio**) don’t require a key." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "For cloud providers (**OpenAI**, **Anthropic**), create an account and generate an API key. Custom or local models (**Ollama**, **LM Studio**) don't require a key." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Para proveedores en la nube (**OpenAI**, **Anthropic**), crea una cuenta y genera una clave API. Los modelos locales o personalizados (**Ollama**, **LM Studio**) no requieren clave." } }
       }
     },
     "about.setup.step2.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nakonfiguruj provider" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Configure a provider" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Configure a provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configura un proveedor" } }
       }
     },
     "about.setup.step2.text" : {
@@ -848,14 +963,16 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení → záložka **Providery** → zadej adresu endpointu (pokud je potřeba) a API klíč → klikni **Uložit**." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings → **Providers** tab → enter endpoint URL (if needed) and API key → click **Save**." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings → **Providers** tab → enter endpoint URL (if needed) and API key → click **Save**." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias → pestaña **Proveedores** → introduce la URL del endpoint (si es necesario) y la clave API → haz clic en **Guardar**." } }
       }
     },
     "about.setup.step3.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přizpůsob akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customize actions" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Customize actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Personaliza las acciones" } }
       }
     },
     "about.setup.step3.text" : {
@@ -863,119 +980,136 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "V záložce **Akce** uprav systémové prompty nebo přidej vlastní. 5 akcí je předpřipraveno — tenhle krok je volitelný." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "In the **Actions** tab, edit system prompts or add your own. 5 actions come pre-configured — this step is optional." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "In the **Actions** tab, edit system prompts or add your own. 5 actions come pre-configured — this step is optional." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En la pestaña **Acciones**, edita los prompts del sistema o añade los tuyos. Hay 5 acciones preconfiguradas — este paso es opcional." } }
       }
     },
     "about.flow.copy" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopíruj text" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy text" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy text" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copia el texto" } }
       }
     },
     "about.flow.click" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Klikni na akci" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Click an action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Click an action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Haz clic en la acción" } }
       }
     },
-    "about.flow.paste" : {
+    "about.flow.copy_result" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopíruj" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copia" } }
       }
     },
     "about.icons.title" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přehled ikon v panelu" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Panel Icon Guide" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Panel Icon Guide" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guía de iconos del panel" } }
       }
     },
     "about.icons.clipboard_text" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Text ze schránky" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text from clipboard" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text from clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Texto del portapapeles" } }
       }
     },
     "about.icons.clipboard_ocr" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Text rozpoznaný z obrázku (OCR)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text recognized from image (OCR)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text recognized from image (OCR)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Texto reconocido de imagen (OCR)" } }
       }
     },
     "about.icons.clipboard_ignored" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka ignorována — akce dostane jen doplňkový kontext" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored — action receives only additional context" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored — action receives only additional context" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles ignorado — la acción solo recibe contexto adicional" } }
       }
     },
     "about.icons.missing_key" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí API klíč nebo adresa endpointu" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing API key or endpoint URL" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Missing API key or endpoint URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta la clave API o la URL del endpoint" } }
       }
     },
     "about.icons.keyboard_shortcut" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Klávesová zkratka — stiskni číslici pro spuštění akce" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keyboard shortcut — press a digit to run the action" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Keyboard shortcut — press a digit to run the action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atajo de teclado — pulsa un dígito para ejecutar la acción" } }
       }
     },
     "about.icons.default_action" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce — spustí se také stiskem Enter" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action — also triggered by pressing Enter" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action — also triggered by pressing Enter" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada — también se activa pulsando Enter" } }
       }
     },
     "about.icons.action_running" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akce právě běží" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action is running" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action is running" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "La acción está en curso" } }
       }
     },
     "about.icons.action_ready" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Akce připravena ke spuštění" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action ready to run" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Action ready to run" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción lista para ejecutarse" } }
       }
     },
     "about.icons.history" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků — uložena jen do zavření aplikace, nikam jinam se neukládá" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history — stored only until the app closes, not saved elsewhere" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history — stored only until the app closes, not saved elsewhere" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados — guardado solo hasta cerrar la app, no se guarda en otro lugar" } }
       }
     },
     "about.icons.settings" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir preferencias" } }
       }
     },
     "about.footer.license" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Licence: MIT" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "License: MIT" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "License: MIT" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Licencia: MIT" } }
       }
     },
     "about.footer.disclaimer" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Software je poskytován \"tak jak je\", bez záruky jakéhokoliv druhu. Používáte jej na vlastní riziko. Autor neodpovídá za žádné škody vzniklé jeho použitím. Software může obsahovat chyby." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Software is provided \"as is\", without warranty of any kind. Use at your own risk. The author is not responsible for any damages caused by its use. Software may contain bugs." } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Software is provided \"as is\", without warranty of any kind. Use at your own risk. The author is not responsible for any damages caused by its use. Software may contain bugs." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El software se proporciona \"tal cual\", sin garantía de ningún tipo. Úsalo bajo tu propio riesgo. El autor no se responsabiliza de los daños causados por su uso. El software puede contener errores." } }
       }
     },
 
@@ -983,64 +1117,73 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } }
       }
     },
     "provider.azure1" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } }
       }
     },
     "provider.azure2" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } }
       }
     },
     "provider.anthropic" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } }
       }
     },
     "provider.custom1" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní API (slot 1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 1)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 1)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "API personalizada (slot 1)" } }
       }
     },
     "provider.custom2" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní API (slot 2)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 2)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 2)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "API personalizada (slot 2)" } }
       }
     },
 
     "autocopy.use_global" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dle nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use Global Setting" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dle globálního nastavení" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use global setting" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Según configuración global" } }
       }
     },
     "autocopy.always" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vždy" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Always" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Always" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Siempre" } }
       }
     },
     "autocopy.never" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nikdy" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Never" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Never" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nunca" } }
       }
     },
 
@@ -1048,28 +1191,32 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } }
       }
     },
     "token_param.max_tokens" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (univerzální)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (universal)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (universal)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (universal)" } }
       }
     },
     "token_param.max_output" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } }
       }
     },
     "token_param.max_new" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } }
       }
     },
 
@@ -1077,129 +1224,32 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zrušit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
       }
     },
     "common.save" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uložit" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } }
-      }
-    },
-    "common.close" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zavřít" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Close" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar" } }
       }
     },
     "common.later" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Potom" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Later" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Later" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Después" } }
       }
     },
     "settings.general.language.picker_label" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jazyk" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } }
-      }
-    },
-
-    "autocopy.use_global" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dle nastavení" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Use global setting" } }
-      }
-    },
-    "autocopy.always" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vždy" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Always" } }
-      }
-    },
-    "autocopy.never" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nikdy" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Never" } }
-      }
-    },
-
-    "token_param.max_completion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_completion_tokens (OpenAI)" } }
-      }
-    },
-    "token_param.max_tokens" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (universální)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_tokens (universal)" } }
-      }
-    },
-    "token_param.max_output" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_output_tokens (Gemini)" } }
-      }
-    },
-    "token_param.max_new" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "max_new_tokens (HuggingFace)" } }
-      }
-    },
-
-    "provider.openai" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "OpenAI" } }
-      }
-    },
-    "provider.azure1" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 1)" } }
-      }
-    },
-    "provider.azure2" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Azure AI (slot 2)" } }
-      }
-    },
-    "provider.anthropic" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } }
-      }
-    },
-    "provider.custom1" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní API (slot 1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 1)" } }
-      }
-    },
-    "provider.custom2" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní API (slot 2)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom API (slot 2)" } }
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Idioma" } }
       }
     }
 

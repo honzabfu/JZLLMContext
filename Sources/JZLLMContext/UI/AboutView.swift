@@ -74,7 +74,7 @@ struct AboutView: View {
                 flowArrow
                 flowStep(L("about.flow.click"))
                 flowArrow
-                flowStep(L("about.flow.paste"))
+                flowStep(L("about.flow.copy_result"))
             }
             .padding(.top, 4)
         }

@@ -32,7 +32,8 @@ final class ConfigStore: @unchecked Sendable {
     }
 
     func reset() {
-        config = AppConfig.default
+        let language = config.appLanguage
+        config = AppConfig.makeDefault(language: language)
         try? FileManager.default.removeItem(at: fileURL)
         try? save()
     }
