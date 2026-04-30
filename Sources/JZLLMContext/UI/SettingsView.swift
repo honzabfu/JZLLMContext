@@ -450,7 +450,7 @@ struct SettingsView: View {
                 saveButton(for: .azureOpenai2, key: azureKey2)
                 testConnectionRow(for: .azureOpenai2)
             }
-            Section("Vlastní API (slot 1)") {
+            Section(L("provider.custom1")) {
                 TextField(L("settings.providers.custom.base_url"), text: Binding(
                     get: { config.customOpenAIBaseURL ?? "" },
                     set: {
@@ -478,7 +478,7 @@ struct SettingsView: View {
                 saveButton(for: .customOpenAI, key: customKey)
                 testConnectionRow(for: .customOpenAI)
             }
-            Section("Vlastní API (slot 2)") {
+            Section(L("provider.custom2")) {
                 TextField(L("settings.providers.custom.base_url"), text: Binding(
                     get: { config.customOpenAIBaseURL2 ?? "" },
                     set: {
