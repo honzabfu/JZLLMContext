@@ -1,5 +1,4 @@
 # Specific files to ignore
-Entra ID/AuthenticationMethods/SourceData.csv
 
 # OS
 .DS_Store
@@ -41,5 +40,3 @@ __pycache__/
 # *.bak
 *.swp
 
-# JZEntra modul
-Entra ID/JZEntra/output/
