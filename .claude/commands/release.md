@@ -4,14 +4,17 @@ If $ARGUMENTS is provided, use it as the version number (e.g. `0.5`). Otherwise 
 
 Steps to execute in order:
 
-1. **Determine version:**
-   - If $ARGUMENTS is non-empty, use it as VERSION.
-   - Otherwise run `grep 'MARKETING_VERSION' project.yml | head -1 | grep -oE '[0-9]+\.[0-9]+'` to extract VERSION.
-   - If $ARGUMENTS was provided, update project.yml: replace the existing `MARKETING_VERSION: "..."` value with the new version. Also reset `CURRENT_PROJECT_VERSION` to 1 if bumping major/minor.
+1. **Determine version and update project.yml:**
+   - If $ARGUMENTS is non-empty, use it as VERSION. Update project.yml:
+     - Replace `MARKETING_VERSION: "..."` with the new version.
+     - Reset `CURRENT_PROJECT_VERSION` to 1.
+   - Otherwise extract VERSION: `grep 'MARKETING_VERSION' project.yml | head -1 | grep -oE '[0-9]+\.[0-9]+'`
+     - Increment `CURRENT_PROJECT_VERSION` by 1 in project.yml.
+   - project.yml is always modified in this step.
 
 2. **Check for uncommitted changes:**
    - Run `git status --porcelain`.
-   - If there are uncommitted changes (besides project.yml which may have just been edited), warn the user and stop.
+   - If there are uncommitted changes besides project.yml, warn the user and stop.
 
 3. **Generate Xcode project:**
    - Run `xcodegen generate` in the project root.
@@ -37,8 +40,8 @@ Steps to execute in order:
      zip -r --symlinks JZLLMContext.zip JZLLMContext.app
      ```
 
-6. **Commit version bump (only if project.yml was modified):**
-   - Run `git diff --name-only` — if project.yml appears, stage and commit it:
+6. **Commit version bump:**
+   - Stage and commit project.yml:
      ```
      git add project.yml
      git commit -m "Bump version to {VERSION}"
