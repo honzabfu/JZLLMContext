@@ -61,6 +61,7 @@ struct AppConfig: Codable {
     var historyLimit: Int = 5
     var markdownOutput: Bool = true
     var modelPresets: [String: [ModelPreset]] = [:]
+    var autoUpdateCheck: Bool = true
 
     static let defaultAzureAPIVersion = "2024-10-21"
 
@@ -70,7 +71,8 @@ struct AppConfig: Codable {
          customOpenAIBaseURL: String? = nil, customOpenAIAPIVersion: String? = nil, customOpenAITokenParam: TokenParamStyle = .maxTokens,
          customOpenAIBaseURL2: String? = nil, customOpenAIAPIVersion2: String? = nil, customOpenAITokenParam2: TokenParamStyle = .maxTokens,
          autoCopyAndClose: Bool = false, historyLimit: Int = 5, markdownOutput: Bool = true,
-         modelPresets: [String: [ModelPreset]] = [:]) {
+         modelPresets: [String: [ModelPreset]] = [:],
+         autoUpdateCheck: Bool = true) {
         self.schemaVersion = schemaVersion
         self.hotkeyKeyCode = hotkeyKeyCode
         self.hotkeyModifiers = hotkeyModifiers
@@ -91,6 +93,7 @@ struct AppConfig: Codable {
         self.historyLimit = historyLimit
         self.markdownOutput = markdownOutput
         self.modelPresets = modelPresets
+        self.autoUpdateCheck = autoUpdateCheck
     }
 
     init(from decoder: Decoder) throws {
@@ -115,6 +118,7 @@ struct AppConfig: Codable {
         historyLimit = try c.decodeIfPresent(Int.self, forKey: .historyLimit) ?? 5
         markdownOutput = try c.decodeIfPresent(Bool.self, forKey: .markdownOutput) ?? true
         modelPresets = try c.decodeIfPresent([String: [ModelPreset]].self, forKey: .modelPresets) ?? [:]
+        autoUpdateCheck = try c.decodeIfPresent(Bool.self, forKey: .autoUpdateCheck) ?? true
     }
 
     static var `default`: AppConfig {

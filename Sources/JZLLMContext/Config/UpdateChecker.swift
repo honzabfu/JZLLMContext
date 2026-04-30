@@ -24,4 +24,22 @@ enum UpdateChecker {
     static var currentVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     }
+
+    static func checkOnLaunch() async {
+        guard ConfigStore.shared.config.autoUpdateCheck else { return }
+        guard let release = try? await fetchLatest(),
+              release.version != currentVersion,
+              let url = URL(string: release.html_url) else { return }
+        await MainActor.run {
+            NotificationCenter.default.post(
+                name: .updateAvailable,
+                object: nil,
+                userInfo: ["version": release.version, "url": url]
+            )
+        }
+    }
+}
+
+extension Notification.Name {
+    static let updateAvailable = Notification.Name("JZLLMContextUpdateAvailable")
 }

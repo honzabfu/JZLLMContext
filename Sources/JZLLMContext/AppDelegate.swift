@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UserNotifications
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -23,6 +24,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             self?.hotkeyManager?.reregister()
         }
+        NotificationCenter.default.addObserver(
+            forName: .updateAvailable, object: nil, queue: .main
+        ) { notification in
+            guard let version = notification.userInfo?["version"] as? String,
+                  let url = notification.userInfo?["url"] as? URL else { return }
+            Task { @MainActor in
+                await self.showUpdateNotification(version: version, url: url)
+            }
+        }
+        UNUserNotificationCenter.current().delegate = self
+        Task { await UpdateChecker.checkOnLaunch() }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -132,6 +144,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindow?.makeKeyAndOrderFront(nil)
     }
 
+    private func showUpdateNotification(version: String, url: URL) async {
+        let center = UNUserNotificationCenter.current()
+        let status = await center.notificationSettings().authorizationStatus
+        if status == .notDetermined {
+            guard (try? await center.requestAuthorization(options: [.alert])) == true else { return }
+        } else if status != .authorized {
+            return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = "Dostupná aktualizace JZLLMContext"
+        content.body = "Verze \(version) je připravena ke stažení."
+        content.userInfo = ["url": url.absoluteString]
+        let request = UNNotificationRequest(identifier: "update-\(version)", content: content, trigger: nil)
+        try? await center.add(request)
+    }
+
     @MainActor
     func showOverlay() {
         if overlayWindowController == nil {
@@ -140,6 +168,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             overlayWindowController = controller
         }
         overlayWindowController?.showOverlay()
+    }
+}
+
+extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        if let urlString = response.notification.request.content.userInfo["url"] as? String,
+           let url = URL(string: urlString) {
+            NSWorkspace.shared.open(url)
+        }
+        completionHandler()
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner])
     }
 }
 

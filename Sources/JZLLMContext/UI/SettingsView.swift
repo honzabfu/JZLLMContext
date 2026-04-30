@@ -164,6 +164,10 @@ struct SettingsView: View {
                             .font(.callout)
                     }
                 }
+                Toggle("Automaticky kontrolovat aktualizace při spuštění", isOn: $config.autoUpdateCheck)
+                    .onChange(of: config.autoUpdateCheck) { _, val in
+                        ConfigStore.shared.update { $0.autoUpdateCheck = val }
+                    }
             }
             Section("Resetovat nastavení") {
                 Text("Odstraní všechna nastavení, akce a poskytovatele. API klíče zůstanou v Keychainu zachovány.")
