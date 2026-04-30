@@ -1,15 +1,17 @@
 Build JZLLMContext in Release configuration and publish a new GitHub Release.
 
-If $ARGUMENTS is provided, use it as the version number (e.g. `0.5`). Otherwise read MARKETING_VERSION from project.yml.
+If $ARGUMENTS is provided, use it as the version number (e.g. `0.6`). Otherwise auto-increment from project.yml.
 
 Steps to execute in order:
 
 1. **Determine version and update project.yml:**
-   - If $ARGUMENTS is non-empty, use it as VERSION. Update project.yml:
-     - Replace `MARKETING_VERSION: "..."` with the new version.
-     - Reset `CURRENT_PROJECT_VERSION` to 1.
-   - Otherwise extract VERSION: `grep 'MARKETING_VERSION' project.yml | head -1 | grep -oE '[0-9]+\.[0-9]+'`
-     - Increment `CURRENT_PROJECT_VERSION` by 1 in project.yml.
+   - If $ARGUMENTS is non-empty, use it as VERSION.
+   - Otherwise auto-increment: read current MARKETING_VERSION, then compute new VERSION:
+     - Split on the last `.` → prefix (e.g. `0`) and last (e.g. `5` or `51`)
+     - If last is a single digit (e.g. `5`): new last = last + "1" → `51`
+     - If last is multiple digits (e.g. `51`): new last = last + 1 → `52`
+     - VERSION = prefix + "." + new last (e.g. `0.51`)
+   - Update project.yml: replace `MARKETING_VERSION: "..."` with VERSION, reset `CURRENT_PROJECT_VERSION` to 1.
    - project.yml is always modified in this step.
 
 2. **Check for uncommitted changes:**
