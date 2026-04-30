@@ -23,15 +23,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(
             forName: .hotkeyDidChange, object: nil, queue: .main
         ) { [weak self] _ in
-            self?.hotkeyManager?.reregister()
+            MainActor.assumeIsolated { self?.hotkeyManager?.reregister() }
         }
         NotificationCenter.default.addObserver(
             forName: .updateAvailable, object: nil, queue: .main
         ) { [weak self] notification in
-            guard let self,
-                  let version = notification.userInfo?["version"] as? String,
+            guard let version = notification.userInfo?["version"] as? String,
                   let url = notification.userInfo?["url"] as? URL else { return }
-            self.showUpdateMenuItem(version: version, url: url)
+            MainActor.assumeIsolated { self?.showUpdateMenuItem(version: version, url: url) }
         }
         Task { await UpdateChecker.checkOnLaunch() }
     }
