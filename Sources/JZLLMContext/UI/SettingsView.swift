@@ -54,8 +54,8 @@ struct SettingsView: View {
         }
         .frame(minWidth: 620, minHeight: 520)
         .onAppear {
-            loadKeys()
             launchAtLogin = SMAppService.mainApp.status == .enabled
+            Task { @MainActor in loadKeys() }
         }
         .sheet(item: $reviewingProvider) { provider in
             ModelReviewSheet(provider: provider, models: $reviewModels) { saved in
