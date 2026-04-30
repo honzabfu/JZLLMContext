@@ -8,7 +8,7 @@
 
 A macOS menu bar utility that processes clipboard content using language models. Designed for anyone who regularly uses LLMs while working – translators, developers, copywriters, and everyday users – who want AI accessible directly from the keyboard without switching apps.
 
-Copy text or an image, press the global shortcut, and the selected action sends the content to an LLM and returns the result. Each action has its own system prompt, provider, and model. Works with OpenAI, Anthropic, Azure AI, and local models (Ollama, LM Studio). All actions are fully configurable.
+Copy text or an image, press the global shortcut, and the selected action sends the content to an LLM and returns the result. Each action has its own system prompt, provider, and model. Works with OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI, and local models (Ollama, LM Studio). All actions are fully configurable.
 
 ![JZLLMContext – overlay panel](docs/en/screenshot.png)
 
@@ -135,7 +135,7 @@ All changes are saved immediately.
 
 ![Settings – Providers](docs/en/screenshot-settings-providers.png)
 
-**OpenAI and Anthropic** – API key field, Save button, and **Update Models** to fetch the current model list directly from the API.
+**OpenAI, Anthropic, Google Gemini, xAI Grok** – API key field, Save button, and **Update Models** to fetch the current model list directly from the API.
 
 **Azure AI (slot 1 and slot 2)** – each slot represents one deployment in Azure AI Foundry. Enter the API key, Deployment URL, and API version.
 
@@ -153,6 +153,8 @@ Each provider offers a predefined model list and the option to enter any model m
 |----------|------------------|
 | OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
+| Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
+| xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model is determined by the deployment configuration) |
 | Custom API (slot 1 / slot 2) | – (manual entry only) |
 
@@ -221,7 +223,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 - **Global shortcut** – opens the overlay panel with clipboard content from anywhere (default: Cmd+Shift+Space)
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
-- **Multiple providers** – OpenAI, Anthropic, Azure AI (2 slots), custom OpenAI-compatible endpoint – 2 slots (Ollama, LM Studio, …)
+- **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), custom OpenAI-compatible endpoint – 2 slots (Ollama, LM Studio, …)
 - **Custom actions** – any number of actions with system prompts; each has its own provider, model, temperature, and token limit
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
 - **Custom models** – each provider supports entering any model beyond the predefined list
@@ -328,6 +330,8 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
 |----------|-----------------|
 | OpenAI | `jzllmcontext.openai.apikey` |
 | Anthropic | `jzllmcontext.anthropic.apikey` |
+| Google Gemini | `jzllmcontext.gemini.apikey` |
+| xAI Grok | `jzllmcontext.grok.apikey` |
 | Azure AI slot 1 | `jzllmcontext.azure_openai.apikey` |
 | Azure AI slot 2 | `jzllmcontext.azure_openai_2.apikey` |
 | Custom API slot 1 | `jzllmcontext.custom_openai.apikey` |
@@ -376,7 +380,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
 
 `hotkeyKeyCode` and `hotkeyModifiers` are Carbon API codes. The default shortcut Cmd+Shift+Space corresponds to `keyCode: 49`, `modifiers: 768`.
 
-Provider is stored as a string: `"openai"`, `"anthropic"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
+Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
 
 #### Providers and Their Details
 
@@ -384,6 +388,8 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"azure_openai"`, `"a
 |----------|----------|-------------|-------|
 | OpenAI | `https://api.openai.com/v1/chat/completions` | 0.0–2.0 | Standard Bearer auth |
 | Anthropic | `https://api.anthropic.com/v1/messages` | 0.0–1.0 | Temperature capped at 1.0; `x-api-key` header + `anthropic-version: 2023-06-01` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
+| xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
 | Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | `api-key: {key}` header; model in body is ignored – model is determined by the deployment |
 | Azure AI (slot 2) | same as slot 1, different config | 0.0–2.0 | Independent slot for a second deployment |
 | Custom API (slot 1) | `{customBaseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protocol; API key and API version are optional |
@@ -421,7 +427,7 @@ This software is provided **"as is"**, without warranty of any kind – express 
 
 Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí různých jazykových modelů. Je určena pro každého, kdo při práci pravidelně používá LLM – překladatele, vývojáře, copywritery i běžné uživatele – a chce mít přístup k AI přímo z klávesnice bez přepínání aplikací.
 
-Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce pošle obsah do LLM a vrátí výsledek. Každá akce má vlastní systémový prompt, provider a model. Funguje s OpenAI, Anthropic, Azure AI i lokálními modely (Ollama, LM Studio). Všechny akce jsou uživatelsky konfigurovatelné.
+Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce pošle obsah do LLM a vrátí výsledek. Každá akce má vlastní systémový prompt, provider a model. Funguje s OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI i lokálními modely (Ollama, LM Studio). Všechny akce jsou uživatelsky konfigurovatelné.
 
 ![JZLLMContext – overlay panel](docs/cs/screenshot.png)
 
@@ -548,7 +554,7 @@ Všechny změny se ukládají okamžitě.
 
 ![Nastavení – Providery](docs/cs/screenshot-settings-providers.png)
 
-**OpenAI a Anthropic** – pole pro API klíč, tlačítko Uložit a **Aktualizovat modely** pro načtení aktuálního seznamu přímo z API.
+**OpenAI, Anthropic, Google Gemini, xAI Grok** – pole pro API klíč, tlačítko Uložit a **Aktualizovat modely** pro načtení aktuálního seznamu přímo z API.
 
 **Azure AI (slot 1 a slot 2)** – každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
@@ -566,6 +572,8 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 |----------|----------------------|
 | OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
+| Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
+| xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
 | Vlastní API (slot 1 / slot 2) | – (jen ruční zadání) |
 
@@ -634,7 +642,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
-- **Více providerů** – OpenAI, Anthropic, Azure AI (2 sloty), vlastní OpenAI-compatible endpoint – 2 sloty (Ollama, LM Studio, …)
+- **Více providerů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), vlastní OpenAI-compatible endpoint – 2 sloty (Ollama, LM Studio, …)
 - **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastní provider, model, teplotu a limit tokenů
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
 - **Vlastní modely** – každý provider podporuje zadání libovolného modelu mimo předdefinovaný seznam
@@ -739,6 +747,8 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 |----------|-----------------|
 | OpenAI | `jzllmcontext.openai.apikey` |
 | Anthropic | `jzllmcontext.anthropic.apikey` |
+| Google Gemini | `jzllmcontext.gemini.apikey` |
+| xAI Grok | `jzllmcontext.grok.apikey` |
 | Azure AI slot 1 | `jzllmcontext.azure_openai.apikey` |
 | Azure AI slot 2 | `jzllmcontext.azure_openai_2.apikey` |
 | Vlastní API slot 1 | `jzllmcontext.custom_openai.apikey` |
@@ -787,7 +797,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 
 Hodnoty `hotkeyKeyCode` a `hotkeyModifiers` jsou kódy Carbon API. Výchozí zkratka Cmd+Shift+Space odpovídá `keyCode: 49`, `modifiers: 768`.
 
-Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
+Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
 
 #### Providery a jejich limity
 
@@ -795,6 +805,8 @@ Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"azure_openai"`, `
 |----------|----------|---------|----------|
 | OpenAI | `https://api.openai.com/v1/chat/completions` | 0.0–2.0 | Standard Bearer auth |
 | Anthropic | `https://api.anthropic.com/v1/messages` | 0.0–1.0 | Teplota oříznutá na 1.0; header `x-api-key` + `anthropic-version: 2023-06-01` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
+| xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
 | Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | Header `api-key: {key}`; model v body ignorován – model určuje deployment |
 | Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý deployment |
 | Vlastní API (slot 1) | `{customBaseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč i API verze volitelné |

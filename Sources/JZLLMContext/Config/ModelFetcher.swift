@@ -23,13 +23,17 @@ enum ModelFetchError: LocalizedError {
 enum ModelFetcher {
     private static let recommendedIDs: [ProviderType: String] = [
         .openai:    "gpt-5.5",
-        .anthropic: "claude-sonnet-4-6"
+        .anthropic: "claude-sonnet-4-6",
+        .gemini:    "gemini-3.1-pro",
+        .grok:      "grok-4.20"
     ]
 
     static func fetch(for provider: ProviderType) async throws -> [FetchedModel] {
         switch provider {
         case .openai:    return try await fetchOpenAI()
         case .anthropic: return try await fetchAnthropic()
+        case .gemini:    return try await fetchGemini()
+        case .grok:      return try await fetchGrok()
         default:         throw ModelFetchError.invalidResponse
         }
     }
@@ -113,6 +117,74 @@ enum ModelFetcher {
                          isRecommended: m.id == recommended, inUseByAction: inUse.contains(m.id))
         }
 
+        appendMissingInUse(inUse, recommended: recommended, into: &models)
+        return models
+    }
+
+    // MARK: - Gemini
+
+    private static func fetchGemini() async throws -> [FetchedModel] {
+        guard let key = try? KeychainStore.load(for: .gemini), !key.isEmpty else {
+            throw ModelFetchError.missingAPIKey
+        }
+        var request = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/openai/models")!)
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 15
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        struct Response: Decodable {
+            struct Model: Decodable { let id: String }
+            let data: [Model]
+        }
+        guard let decoded = try? JSONDecoder().decode(Response.self, from: data) else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        let inUse = inUseIDs(for: .gemini)
+        let recommended = recommendedIDs[.gemini]
+
+        var models = decoded.data.map { m in
+            FetchedModel(id: m.id, displayName: m.id, isIncluded: true,
+                         isRecommended: m.id == recommended, inUseByAction: inUse.contains(m.id))
+        }
+        appendMissingInUse(inUse, recommended: recommended, into: &models)
+        return models
+    }
+
+    // MARK: - Grok
+
+    private static func fetchGrok() async throws -> [FetchedModel] {
+        guard let key = try? KeychainStore.load(for: .grok), !key.isEmpty else {
+            throw ModelFetchError.missingAPIKey
+        }
+        var request = URLRequest(url: URL(string: "https://api.x.ai/v1/models")!)
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 15
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        struct Response: Decodable {
+            struct Model: Decodable { let id: String }
+            let data: [Model]
+        }
+        guard let decoded = try? JSONDecoder().decode(Response.self, from: data) else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        let inUse = inUseIDs(for: .grok)
+        let recommended = recommendedIDs[.grok]
+
+        var models = decoded.data.map { m in
+            FetchedModel(id: m.id, displayName: m.id, isIncluded: true,
+                         isRecommended: m.id == recommended, inUseByAction: inUse.contains(m.id))
+        }
         appendMissingInUse(inUse, recommended: recommended, into: &models)
         return models
     }

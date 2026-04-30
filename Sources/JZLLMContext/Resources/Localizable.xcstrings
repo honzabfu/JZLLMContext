@@ -1145,6 +1145,22 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Anthropic" } }
       }
     },
+    "provider.gemini" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Google Gemini" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Google Gemini" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Google Gemini" } }
+      }
+    },
+    "provider.grok" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "xAI Grok" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "xAI Grok" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "xAI Grok" } }
+      }
+    },
     "provider.custom1" : {
       "extractionState" : "manual",
       "localizations" : {

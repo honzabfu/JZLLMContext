@@ -338,6 +338,8 @@ enum ProviderType: String, Codable, CaseIterable {
     case azureOpenai = "azure_openai"
     case azureOpenai2 = "azure_openai_2"
     case anthropic
+    case gemini
+    case grok
     case customOpenAI = "custom_openai"
     case customOpenAI2 = "custom_openai_2"
 }

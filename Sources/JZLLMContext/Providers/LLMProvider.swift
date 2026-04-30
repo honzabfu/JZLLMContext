@@ -20,6 +20,8 @@ enum LLMError: Error, LocalizedError {
             case .azureOpenai:    "Chybí API klíč nebo konfigurace pro Azure AI (slot 1). Přidej ho v Nastavení → Providery."
             case .azureOpenai2:   "Chybí API klíč nebo konfigurace pro Azure AI (slot 2). Přidej ho v Nastavení → Providery."
             case .anthropic:      "Chybí API klíč pro Anthropic. Přidej ho v Nastavení → Providery."
+            case .gemini:         "Chybí API klíč pro Google Gemini. Přidej ho v Nastavení → Providery."
+            case .grok:           "Chybí API klíč pro xAI Grok. Přidej ho v Nastavení → Providery."
             }
         case .httpError(let code, let message): "API chyba \(code): \(message)"
         case .networkError(let error): "Síťová chyba: \(error.localizedDescription)"

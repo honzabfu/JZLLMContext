@@ -5,6 +5,8 @@ enum ConnectionTester {
         switch provider {
         case .openai:       try await pingOpenAI()
         case .anthropic:    try await pingAnthropic()
+        case .gemini:       try await pingGemini()
+        case .grok:         try await pingGrok()
         case .azureOpenai:  try await pingAzure(slot: 1)
         case .azureOpenai2: try await pingAzure(slot: 2)
         case .customOpenAI:  try await pingCustom(slot: 1)
@@ -34,6 +36,32 @@ enum ConnectionTester {
         var req = URLRequest(url: URL(string: "https://api.anthropic.com/v1/models")!)
         req.setValue(key, forHTTPHeaderField: "x-api-key")
         req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        req.timeoutInterval = 10
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try validate(data: data, response: response)
+    }
+
+    // MARK: - Gemini
+
+    private static func pingGemini() async throws {
+        guard let key = try? KeychainStore.load(for: .gemini), !key.isEmpty else {
+            throw LLMError.missingAPIKey(.gemini)
+        }
+        var req = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/openai/models")!)
+        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        req.timeoutInterval = 10
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try validate(data: data, response: response)
+    }
+
+    // MARK: - Grok
+
+    private static func pingGrok() async throws {
+        guard let key = try? KeychainStore.load(for: .grok), !key.isEmpty else {
+            throw LLMError.missingAPIKey(.grok)
+        }
+        var req = URLRequest(url: URL(string: "https://api.x.ai/v1/models")!)
+        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         req.timeoutInterval = 10
         let (data, response) = try await URLSession.shared.data(for: req)
         try validate(data: data, response: response)

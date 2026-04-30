@@ -46,6 +46,24 @@ enum ProviderFactory {
             }
             return AnthropicProvider(model: action.model, apiKey: apiKey, temperature: action.temperature, maxTokens: action.maxTokens)
 
+        case .gemini:
+            guard let apiKey = try? KeychainStore.load(for: .gemini) else {
+                throw LLMError.missingAPIKey(.gemini)
+            }
+            let chatURL = URL(string: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions")!
+            return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
+                                  authStyle: .bearer, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: .maxTokens)
+
+        case .grok:
+            guard let apiKey = try? KeychainStore.load(for: .grok) else {
+                throw LLMError.missingAPIKey(.grok)
+            }
+            let chatURL = URL(string: "https://api.x.ai/v1/chat/completions")!
+            return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
+                                  authStyle: .bearer, temperature: action.temperature,
+                                  maxTokens: action.maxTokens, tokenParamStyle: .maxTokens)
+
         case .customOpenAI:
             let apiKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
             let config = ConfigStore.shared.config

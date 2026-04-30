@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var config = ConfigStore.shared.config
     @State private var openaiKey = ""
     @State private var anthropicKey = ""
+    @State private var geminiKey = ""
+    @State private var grokKey = ""
     @State private var azureKey = ""
     @State private var azureKey2 = ""
     @State private var customKey = ""
@@ -377,6 +379,20 @@ struct SettingsView: View {
                 fetchModelsRow(for: .anthropic)
                 testConnectionRow(for: .anthropic)
             }
+            Section("Google Gemini") {
+                SecureField(L("settings.providers.api_key"), text: $geminiKey)
+                    .onSubmit { saveKey(geminiKey, for: .gemini) }
+                saveButton(for: .gemini, key: geminiKey)
+                fetchModelsRow(for: .gemini)
+                testConnectionRow(for: .gemini)
+            }
+            Section("xAI Grok") {
+                SecureField(L("settings.providers.api_key"), text: $grokKey)
+                    .onSubmit { saveKey(grokKey, for: .grok) }
+                saveButton(for: .grok, key: grokKey)
+                fetchModelsRow(for: .grok)
+                testConnectionRow(for: .grok)
+            }
             Section("Azure AI (slot 1)") {
                 Text(L("settings.providers.azure.description"))
                     .font(.caption)
@@ -609,6 +625,8 @@ struct SettingsView: View {
     private func loadKeys() {
         openaiKey = (try? KeychainStore.load(for: .openai)) ?? ""
         anthropicKey = (try? KeychainStore.load(for: .anthropic)) ?? ""
+        geminiKey = (try? KeychainStore.load(for: .gemini)) ?? ""
+        grokKey = (try? KeychainStore.load(for: .grok)) ?? ""
         azureKey = (try? KeychainStore.load(for: .azureOpenai)) ?? ""
         azureKey2 = (try? KeychainStore.load(for: .azureOpenai2)) ?? ""
         customKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
@@ -878,6 +896,8 @@ extension ProviderType {
         case .azureOpenai:   L("provider.azure1")
         case .azureOpenai2:  L("provider.azure2")
         case .anthropic:     L("provider.anthropic")
+        case .gemini:        L("provider.gemini")
+        case .grok:          L("provider.grok")
         case .customOpenAI:  L("provider.custom1")
         case .customOpenAI2: L("provider.custom2")
         }
@@ -907,6 +927,18 @@ extension ProviderType {
                 .init(id: "claude-sonnet-4-6",         displayName: "claude-sonnet-4.6", isRecommended: true),
                 .init(id: "claude-opus-4-7",            displayName: "claude-opus-4.7"),
                 .init(id: "claude-haiku-4-5-20251001",  displayName: "claude-haiku-4.5")
+            ]
+        case .gemini:
+            [
+                .init(id: "gemini-3.1-pro",        displayName: "gemini-3.1-pro",        isRecommended: true),
+                .init(id: "gemini-3-flash-preview", displayName: "gemini-3-flash-preview"),
+                .init(id: "gemini-3.1-flash-lite",  displayName: "gemini-3.1-flash-lite")
+            ]
+        case .grok:
+            [
+                .init(id: "grok-4.20",              displayName: "grok-4.20",              isRecommended: true),
+                .init(id: "grok-4.20-non-reasoning", displayName: "grok-4.20-non-reasoning"),
+                .init(id: "grok-4-1-fast-reasoning", displayName: "grok-4.1-fast-reasoning")
             ]
         case .customOpenAI, .customOpenAI2:
             []
