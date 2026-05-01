@@ -60,38 +60,12 @@ Steps to execute in order:
      ```
      # Build the notes file
      cat > /tmp/jzllmcontext-release-notes.md << 'NOTES'
-     > ⚠ **Unsigned application / Nepodepsaná aplikace**
-
-     ---
-
-     🇺🇸 **English**
-
-     The app is not signed with an Apple Developer certificate. macOS may block it on first launch.
-
-     **Terminal (recommended):**
-     ```bash
-     xattr -cr /Applications/JZLLMContext.app
-     ```
-
-     **GUI:** Right-click the `.app` → **Open** → confirm **Open** in the dialog. If there is no Open button: **System Settings → Privacy & Security → Open Anyway**.
-
-     ---
-
-     🇨🇿 **Čeština**
-
-     Aplikace není podepsána vývojářským certifikátem Apple. macOS ji může při prvním spuštění zablokovat.
-
-     **Terminál (doporučeno):**
-     ```bash
-     xattr -cr /Applications/JZLLMContext.app
-     ```
-
-     **GUI:** Pravý klik na `.app` → **Otevřít** → potvrdit **Otevřít**. Pokud tlačítko chybí: **Nastavení systému → Soukromí a zabezpečení → Přesto otevřít**.
+     > ⚠ **Unsigned app** — see [Download / Installation](https://github.com/honzabfu/JZLLMContext#download) · [Stažení / Instalace](https://github.com/honzabfu/JZLLMContext#stažení)
      NOTES
 
      # Append What's new section if WHAT_IS_NEW is non-empty
      if [ -n "{WHAT_IS_NEW}" ]; then
-       printf '\n---\n\n## What'\''s new in v{VERSION}\n\n%s\n' "{WHAT_IS_NEW}" >> /tmp/jzllmcontext-release-notes.md
+       printf '\n## What'\''s new in v{VERSION}\n\n%s\n' "{WHAT_IS_NEW}" >> /tmp/jzllmcontext-release-notes.md
      fi
 
      gh release create v{VERSION} \
