@@ -42,10 +42,11 @@ Steps to execute in order:
      zip -r --symlinks JZLLMContext.zip JZLLMContext.app
      ```
 
-6. **Commit version bump:**
-   - Stage and commit project.yml:
+6. **Update RELEASE_NOTES.md and commit:**
+   - In `RELEASE_NOTES.md`, replace the `## Unreleased` heading with `## v{VERSION} – {TODAY}` (where TODAY is the current date in YYYY-MM-DD format), then prepend a new `## Unreleased\n` block at the top of the file (right after the `# Release Notes` heading).
+   - Stage and commit both files:
      ```
-     git add project.yml
+     git add project.yml RELEASE_NOTES.md
      git commit -m "Bump version to {VERSION}"
      ```
 
@@ -54,37 +55,18 @@ Steps to execute in order:
    - Run `git push origin main --tags`.
 
 8. **Publish GitHub Release:**
+   - Extract the release notes for this version from `RELEASE_NOTES.md`: read the lines between `## v{VERSION}` and the next `## ` heading (exclusive). Store them as WHAT_IS_NEW.
    - Write release notes to a temp file, then publish:
      ```
+     # Build the notes file
      cat > /tmp/jzllmcontext-release-notes.md << 'NOTES'
-     > ⚠ **Unsigned application / Nepodepsaná aplikace**
-
-     ---
-
-     🇺🇸 **English**
-
-     The app is not signed with an Apple Developer certificate. macOS may block it on first launch.
-
-     **Terminal (recommended):**
-     ```bash
-     xattr -cr /Applications/JZLLMContext.app
-     ```
-
-     **GUI:** Right-click the `.app` → **Open** → confirm **Open** in the dialog. If there is no Open button: **System Settings → Privacy & Security → Open Anyway**.
-
-     ---
-
-     🇨🇿 **Čeština**
-
-     Aplikace není podepsána vývojářským certifikátem Apple. macOS ji může při prvním spuštění zablokovat.
-
-     **Terminál (doporučeno):**
-     ```bash
-     xattr -cr /Applications/JZLLMContext.app
-     ```
-
-     **GUI:** Pravý klik na `.app` → **Otevřít** → potvrdit **Otevřít**. Pokud tlačítko chybí: **Nastavení systému → Soukromí a zabezpečení → Přesto otevřít**.
+     > ⚠ **Unsigned app** — see [Download / Installation](https://github.com/honzabfu/JZLLMContext#download) · [Stažení / Instalace](https://github.com/honzabfu/JZLLMContext#stažení)
      NOTES
+
+     # Append What's new section if WHAT_IS_NEW is non-empty
+     if [ -n "{WHAT_IS_NEW}" ]; then
+       printf '\n## What'\''s new in v{VERSION}\n\n%s\n' "{WHAT_IS_NEW}" >> /tmp/jzllmcontext-release-notes.md
+     fi
 
      gh release create v{VERSION} \
        /tmp/JZLLMContext-release/Build/Products/Release/JZLLMContext.zip \
