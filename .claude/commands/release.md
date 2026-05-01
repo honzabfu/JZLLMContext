@@ -56,18 +56,19 @@ Steps to execute in order:
 
 8. **Publish GitHub Release:**
    - Extract the release notes for this version from `RELEASE_NOTES.md`: read the lines between `## v{VERSION}` and the next `## ` heading (exclusive). Store them as WHAT_IS_NEW.
-   - Write release notes to a temp file, then publish:
+   - Write the header line to `/tmp/jzllmcontext-release-notes.md` using the Write tool (not via shell) with this content:
      ```
-     # Build the notes file
-     cat > /tmp/jzllmcontext-release-notes.md << 'NOTES'
      > ⚠ **Unsigned app** — see [Download / Installation](https://github.com/honzabfu/JZLLMContext#download) · [Stažení / Instalace](https://github.com/honzabfu/JZLLMContext#stažení)
-     NOTES
-
-     # Append What's new section if WHAT_IS_NEW is non-empty
-     if [ -n "{WHAT_IS_NEW}" ]; then
-       printf '\n## What'\''s new in v{VERSION}\n\n%s\n' "{WHAT_IS_NEW}" >> /tmp/jzllmcontext-release-notes.md
-     fi
-
+     ```
+   - If WHAT_IS_NEW is non-empty, append the following to the same file using the Write tool (appending, not overwriting):
+     ```
+     
+     ## What's new in v{VERSION}
+     
+     {WHAT_IS_NEW}
+     ```
+   - Publish:
+     ```
      gh release create v{VERSION} \
        /tmp/JZLLMContext-release/Build/Products/Release/JZLLMContext.zip \
        --title "v{VERSION}" \
