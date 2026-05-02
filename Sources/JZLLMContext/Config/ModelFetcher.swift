@@ -10,11 +10,13 @@ struct FetchedModel: Identifiable {
 
 enum ModelFetchError: LocalizedError {
     case missingAPIKey
+    case missingBaseURL
     case invalidResponse
 
     var errorDescription: String? {
         switch self {
         case .missingAPIKey:    "Chybí API klíč pro daného providera"
+        case .missingBaseURL:   "Není zadána Base URL pro vlastního providera"
         case .invalidResponse:  "Neplatná odpověď ze serveru"
         }
     }
@@ -30,11 +32,12 @@ enum ModelFetcher {
 
     static func fetch(for provider: ProviderType) async throws -> [FetchedModel] {
         switch provider {
-        case .openai:    return try await fetchOpenAI()
-        case .anthropic: return try await fetchAnthropic()
-        case .gemini:    return try await fetchGemini()
-        case .grok:      return try await fetchGrok()
-        default:         throw ModelFetchError.invalidResponse
+        case .openai:                    return try await fetchOpenAI()
+        case .anthropic:                 return try await fetchAnthropic()
+        case .gemini:                    return try await fetchGemini()
+        case .grok:                      return try await fetchGrok()
+        case .customOpenAI, .customOpenAI2: return try await fetchCustomOpenAI(provider: provider)
+        default:                         throw ModelFetchError.invalidResponse
         }
     }
 
@@ -186,6 +189,46 @@ enum ModelFetcher {
                          isRecommended: m.id == recommended, inUseByAction: inUse.contains(m.id))
         }
         appendMissingInUse(inUse, recommended: recommended, into: &models)
+        return models
+    }
+
+    // MARK: - Custom OpenAI
+
+    private static func fetchCustomOpenAI(provider: ProviderType) async throws -> [FetchedModel] {
+        let cfg = ConfigStore.shared.config
+        let rawURL = provider == .customOpenAI ? cfg.customOpenAIBaseURL : cfg.customOpenAIBaseURL2
+        guard let baseURL = rawURL, !baseURL.isEmpty else {
+            throw ModelFetchError.missingBaseURL
+        }
+        let base = baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL
+        guard let url = URL(string: "\(base)/models") else {
+            throw ModelFetchError.invalidResponse
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 15
+        if let key = try? KeychainStore.load(for: provider), !key.isEmpty {
+            request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        struct Response: Decodable {
+            struct Model: Decodable { let id: String }
+            let data: [Model]
+        }
+        guard let decoded = try? JSONDecoder().decode(Response.self, from: data) else {
+            throw ModelFetchError.invalidResponse
+        }
+
+        let inUse = inUseIDs(for: provider)
+        var models = decoded.data.map { m in
+            FetchedModel(id: m.id, displayName: m.id, isIncluded: true,
+                         isRecommended: false, inUseByAction: inUse.contains(m.id))
+        }
+        appendMissingInUse(inUse, recommended: nil, into: &models)
         return models
     }
 

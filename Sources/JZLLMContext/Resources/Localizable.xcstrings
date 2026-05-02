@@ -745,6 +745,14 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin historial" } }
       }
     },
+    "overlay.history.open_log_dir" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Otevřít složku logů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open log folder" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir carpeta de registros" } }
+      }
+    },
     "overlay.context.placeholder" : {
       "extractionState" : "manual",
       "localizations" : {

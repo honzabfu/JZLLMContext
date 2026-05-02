@@ -92,7 +92,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, a blue refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
-- **History** – the clock button in the header shows recent results from the current session
+- **History** – the clock button in the header shows recent results from the current session; when interaction logging is enabled, an **Open log folder** button appears at the bottom of the history panel
 
 Pressing the shortcut again while the panel is open reloads the clipboard content and resets the result.
 
@@ -143,7 +143,7 @@ All changes are saved immediately.
 
 **Azure AI (slot 1 and slot 2)** – each slot represents one deployment in Azure AI Foundry. Enter the API key, Deployment URL, and API version.
 
-**Custom OpenAI-compatible (slot 1 and slot 2)** – any server compatible with the OpenAI Chat Completions API. Enter the Base URL, optionally an API key (can be left empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), and the **Max tokens parameter** – select the token limit parameter name (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) based on what the server expects.
+**Custom OpenAI-compatible (slot 1 and slot 2)** – any server compatible with the OpenAI Chat Completions API. Enter the Base URL, optionally an API key (can be left empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), and the **Max tokens parameter** – select the token limit parameter name (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) based on what the server expects. **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available.
 
 The **Verify Connection** button for each provider sends a test request and displays the result.
 
@@ -160,7 +160,7 @@ Each provider offers a predefined model list and the option to enter any model m
 | Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
 | xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model is determined by the deployment configuration) |
-| Custom API (slot 1 / slot 2) | – (manual entry only) |
+| Custom API (slot 1 / slot 2) | fetched via Update Models (if server supports `/models`); manual entry always available |
 
 To use a custom model: in the action settings, open the model picker → select "Custom model…" → enter the exact model identifier (e.g. `gpt-4.5-preview`). The value is saved immediately.
 
@@ -245,7 +245,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Launch at Login** – optional Service Management integration
 - **Auto copy and close** – global toggle and per-action override (Always / Never / Use global setting)
 - **Result formatting** – global toggle; result can be shown with Markdown formatting or as plain text
-- **Online model list refresh** – fetch current models directly from the API via the provider settings button
+- **Online model list refresh** – fetch current models directly from the API via the provider settings button; custom OpenAI-compatible providers query the server's `/models` endpoint
 - **Connection test** – verifies that the API key and configuration are working
 - **Configuration backup** – export/import the full configuration as JSON; API keys are not exported
 - **Configuration reset** – restore default settings with one click; API keys in the Keychain are preserved
@@ -522,7 +522,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí modrá ikona obnovení; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
-- **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session
+- **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session; pokud je zapnuto logování interakcí, zobrazí se na konci panelu tlačítko **Otevřít složku logů**
 
 Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a resetuje výsledek.
 
@@ -573,7 +573,7 @@ Všechny změny se ukládají okamžitě.
 
 **Azure AI (slot 1 a slot 2)** – každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
-**Vlastní OpenAI-compatible (slot 1 a slot 2)** – libovolný server kompatibilní s OpenAI Chat Completions API. Zadej Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `api-version` do URL) a **Parametr max. tokenů** – výběr názvu parametru pro limit tokenů (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) podle toho, co daný server očekává.
+**Vlastní OpenAI-compatible (slot 1 a slot 2)** – libovolný server kompatibilní s OpenAI Chat Completions API. Zadej Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `api-version` do URL) a **Parametr max. tokenů** – výběr názvu parametru pro limit tokenů (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) podle toho, co daný server očekává. **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné.
 
 Tlačítko **Ověřit připojení** u každého providera odešle testovací požadavek a zobrazí výsledek.
 
@@ -590,7 +590,7 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 | Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
 | xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
-| Vlastní API (slot 1 / slot 2) | – (jen ruční zadání) |
+| Vlastní API (slot 1 / slot 2) | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
 
 Výběr vlastního modelu: v nastavení akce otevři výběr modelu → vyber „Vlastní model…" → zadej přesný identifikátor (např. `gpt-4.5-preview`). Hodnota se uloží okamžitě.
 
@@ -675,7 +675,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Spuštění při přihlášení** – volitelná integrace se Service Management
 - **Automatické zkopírování a zavření** – globální přepínač i per-akce přepis (Vždy / Nikdy / Dle globálního nastavení)
 - **Formátování výsledku** – globální přepínač; výsledek lze zobrazit s Markdown formátováním nebo jako prostý text
-- **Aktualizace seznamu modelů online** – tlačítkem v nastavení providerů lze načíst aktuální modely přímo z API
+- **Aktualizace seznamu modelů online** – tlačítkem v nastavení providerů lze načíst aktuální modely přímo z API; vlastní OpenAI-compatible providery načítají modely z endpointu `/models` na daném serveru
 - **Test připojení** – ověří, zda je API klíč a konfigurace funkční
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou

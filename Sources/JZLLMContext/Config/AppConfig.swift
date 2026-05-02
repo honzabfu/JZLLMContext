@@ -366,4 +366,11 @@ enum ProviderType: String, Codable, CaseIterable {
     case grok
     case customOpenAI = "custom_openai"
     case customOpenAI2 = "custom_openai_2"
+
+    var requiresApiKey: Bool {
+        switch self {
+        case .customOpenAI, .customOpenAI2: return false
+        default: return true
+        }
+    }
 }

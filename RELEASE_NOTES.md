@@ -1,5 +1,10 @@
 # Release Notes
 
+## v0.58 – 2026-05-02
+- Fix: warning triangle no longer shown for custom OpenAI-compatible providers (local models do not require an API key)
+- History panel: "Open log folder" button added at the bottom — visible when interaction logging is enabled
+- Custom OpenAI-compatible providers now support "Update Models" to fetch the available model list from the server's `/models` endpoint (works with Ollama, LM Studio, and other OpenAI-compatible servers)
+
 ## v0.57 – 2026-05-02
 - Update indicator: when a new version is detected automatically, an info icon (ⓘ) appears in the overlay header bar next to the version number; clicking it opens the GitHub release page directly
 

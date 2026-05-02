@@ -665,6 +665,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .customOpenAI, key: customKey)
                 testConnectionRow(for: .customOpenAI)
+                fetchModelsRow(for: .customOpenAI)
             }
             Section(L("provider.custom2")) {
                 LabeledContent(L("settings.providers.custom.base_url")) {
@@ -699,6 +700,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .customOpenAI2, key: customKey2)
                 testConnectionRow(for: .customOpenAI2)
+                fetchModelsRow(for: .customOpenAI2)
             }
         }
         .formStyle(.grouped)

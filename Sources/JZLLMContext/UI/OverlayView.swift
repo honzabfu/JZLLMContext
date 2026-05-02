@@ -149,7 +149,7 @@ struct OverlayView: View {
     }
 
     private var historyPanel: some View {
-        Group {
+        VStack(spacing: 0) {
             if history.entries.isEmpty {
                 Text(L("overlay.history.empty"))
                     .font(.caption)
@@ -187,6 +187,21 @@ struct OverlayView: View {
                     }
                 }
                 .frame(maxHeight: 180)
+            }
+            let cfg = ConfigStore.shared.config
+            if cfg.historyLogEnabled, let dir = cfg.historyLogDirectory {
+                Divider()
+                Button {
+                    NSWorkspace.shared.open(URL(fileURLWithPath: dir))
+                } label: {
+                    Label(L("overlay.history.open_log_dir"), systemImage: "folder")
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
             }
         }
     }
@@ -289,7 +304,7 @@ struct OverlayView: View {
                 actionButton(
                     actionModel: action,
                     title: action.name,
-                    missingKey: !KeychainStore.hasKey(for: action.provider),
+                    missingKey: action.provider.requiresApiKey && !KeychainStore.hasKey(for: action.provider),
                     isRunning: engine.isLoading && lastAction == action,
                     keyHint: index < 9 ? String(index + 1) : nil,
                     isDefaultAction: action.id == defaultAction?.id
