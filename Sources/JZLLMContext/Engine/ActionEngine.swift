@@ -22,6 +22,11 @@ final class ActionEngine: ObservableObject {
                 for try await chunk in provider.stream(systemPrompt: action.systemPrompt, userContent: input) {
                     result += chunk
                 }
+                let finalResult = result
+                let language = ConfigStore.shared.config.appLanguage
+                Task.detached {
+                    await HistoryLogger.shared.log(action: action, input: input, response: finalResult, language: language)
+                }
             } catch is CancellationError {
                 return
             } catch let urlError as URLError where urlError.code == .cancelled {

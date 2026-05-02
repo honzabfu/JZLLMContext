@@ -147,6 +147,86 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Reiniciar ahora" } }
       }
     },
+    "settings.general.section.logging" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Logování do souborů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History Logging" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Registro de historial" } }
+      }
+    },
+    "settings.general.logging.toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ukládat interakce do Markdown souborů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Log interactions to Markdown files" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Registrar interacciones en archivos Markdown" } }
+      }
+    },
+    "settings.general.logging.directory_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Adresář pro logy:" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Log directory:" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Directorio de registro:" } }
+      }
+    },
+    "settings.general.logging.no_directory" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nevybráno" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not selected" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No seleccionado" } }
+      }
+    },
+    "settings.general.logging.choose_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vybrat…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Choose…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Elegir…" } }
+      }
+    },
+    "settings.general.logging.prefix_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Prefix názvu souboru:" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "File name prefix:" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Prefijo del nombre de archivo:" } }
+      }
+    },
+    "settings.general.logging.caption" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Logy mohou obsahovat obsah schránky a odpovědi LLM." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Logs may contain clipboard content and LLM responses." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los registros pueden contener contenido del portapapeles y respuestas de LLM." } }
+      }
+    },
+    "settings.general.logging.alert.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Upozornění na citlivá data" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sensitive Data Warning" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Advertencia de datos sensibles" } }
+      }
+    },
+    "settings.general.logging.alert.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Povolení zapíše obsah schránky a odpovědi LLM do textových souborů. Ujistěte se, že je cílový adresář zabezpečený." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enabling this will write clipboard content and LLM responses to plain text files on disk. Make sure the log directory is secure." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al activar esto, el contenido del portapapeles y las respuestas de LLM se guardarán en archivos de texto. Asegúrese de que el directorio sea seguro." } }
+      }
+    },
+    "settings.general.logging.alert.enable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Povolit logování" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Logging" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar registro" } }
+      }
+    },
     "settings.general.section.backup" : {
       "extractionState" : "manual",
       "localizations" : {
