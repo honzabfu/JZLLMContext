@@ -141,7 +141,7 @@ struct AboutView: View {
             iconRow("return.left",                L("about.icons.default_action"), color: .accentColor)
             HStack(alignment: .center, spacing: 12) {
                 ProgressView()
-                    .scaleEffect(0.6)
+                    .controlSize(.small)
                     .frame(width: 20, height: 16)
                 Text(L("about.icons.action_running"))
                     .font(.callout)

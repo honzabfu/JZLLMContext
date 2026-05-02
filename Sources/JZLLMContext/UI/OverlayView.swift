@@ -195,7 +195,7 @@ struct OverlayView: View {
             }
         }
         .padding(8)
-        .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
+        .background(Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
@@ -234,7 +234,7 @@ struct OverlayView: View {
             .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
         }
         .padding(8)
-        .background(Color(nsColor: .textBackgroundColor).opacity(ignoreClipboard ? 0.3 : 0.6))
+        .background(Color(nsColor: .controlBackgroundColor).opacity(ignoreClipboard ? 0.4 : 1))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
@@ -272,7 +272,7 @@ struct OverlayView: View {
                 Text(title)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 if isRunning {
-                    ProgressView().scaleEffect(0.65)
+                    ProgressView().controlSize(.small)
                 } else if missingKey {
                     Image(systemName: "exclamationmark.triangle")
                         .foregroundStyle(.orange)

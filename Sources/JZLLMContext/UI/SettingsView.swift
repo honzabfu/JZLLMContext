@@ -166,7 +166,7 @@ struct SettingsView: View {
                     case .idle:
                         EmptyView()
                     case .checking:
-                        ProgressView().scaleEffect(0.7)
+                        ProgressView().controlSize(.small)
                     case .upToDate:
                         Label(L("settings.general.update.up_to_date"), systemImage: "checkmark.circle.fill")
                             .foregroundStyle(.green)
@@ -519,7 +519,7 @@ struct SettingsView: View {
             } label: {
                 if isFetching == provider {
                     HStack(spacing: 6) {
-                        ProgressView().scaleEffect(0.7)
+                        ProgressView().controlSize(.small)
                         Text(L("settings.providers.fetching"))
                     }
                 } else {
@@ -562,7 +562,7 @@ struct SettingsView: View {
             } label: {
                 if isTesting == provider {
                     HStack(spacing: 6) {
-                        ProgressView().scaleEffect(0.7)
+                        ProgressView().controlSize(.small)
                         Text(L("settings.providers.testing"))
                     }
                 } else {
@@ -757,7 +757,7 @@ private struct ActionRow: View {
             TextEditor(text: $action.systemPrompt)
                 .font(.callout)
                 .frame(minHeight: 60, maxHeight: 100)
-                .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.3)))
+                .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
 
             parametersRow
         }
