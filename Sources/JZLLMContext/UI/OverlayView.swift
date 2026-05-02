@@ -21,6 +21,7 @@ struct OverlayView: View {
     @State private var showHistory = false
     @State private var shownHistoryResult: String?
     @State private var actionDetailMode: ActionDetailMode? = nil
+    @State private var pendingSend: PendingSend? = nil
     @FocusState private var userContextFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
@@ -95,6 +96,14 @@ struct OverlayView: View {
         }
         .sheet(item: $actionDetailMode) { mode in
             ActionDetailSheet(mode: mode, onOpenSettings: onOpenSettings)
+        }
+        .sheet(item: $pendingSend) { pending in
+            SensitiveWarningSheet(matches: pending.matches) {
+                pendingSend = nil
+                engine.run(action: pending.action, input: pending.input)
+            } onCancel: {
+                pendingSend = nil
+            }
         }
     }
 
@@ -441,6 +450,14 @@ struct OverlayView: View {
                 input = text
             }
         }
+        let cfg = ConfigStore.shared.config
+        if cfg.sensitiveContentCheckEnabled {
+            let matches = SensitiveContentDetector.detect(text: input, customPatterns: cfg.customSensitivePatterns)
+            if !matches.isEmpty {
+                pendingSend = PendingSend(action: resolved, input: input, matches: matches)
+                return
+            }
+        }
         engine.run(action: resolved, input: input)
     }
 
@@ -455,5 +472,54 @@ struct OverlayView: View {
 private extension View {
     func iconButton() -> some View {
         self.buttonStyle(.plain).focusEffectDisabled()
+    }
+}
+
+private struct PendingSend: Identifiable {
+    let id = UUID()
+    let action: Action
+    let input: String
+    let matches: [SensitiveMatch]
+}
+
+private struct SensitiveWarningSheet: View {
+    let matches: [SensitiveMatch]
+    let onSend: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Label(L("overlay.sensitive.title"), systemImage: "exclamationmark.shield.fill")
+                .font(.headline)
+                .foregroundStyle(.orange)
+            Text(L("overlay.sensitive.message"))
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(matches) { match in
+                    HStack(alignment: .top, spacing: 8) {
+                        Text(match.label)
+                            .fontWeight(.medium)
+                            .frame(width: 140, alignment: .leading)
+                        Text(match.matchedText)
+                            .monospaced()
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    .font(.caption)
+                }
+            }
+            .padding(10)
+            .background(Color(nsColor: .controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            HStack {
+                Button(L("common.cancel"), role: .cancel) { onCancel() }
+                Spacer()
+                Button(L("overlay.sensitive.send")) { onSend() }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+            }
+        }
+        .padding(20)
+        .frame(width: 420)
     }
 }

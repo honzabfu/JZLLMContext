@@ -98,6 +98,8 @@ struct AppConfig: Codable {
     var historyLogDirectory: String? = nil
     var historyLogWarningShown: Bool = false
     var historyLogFilePrefix: String = ""
+    var sensitiveContentCheckEnabled: Bool = true
+    var customSensitivePatterns: [SensitivePattern] = []
 
     static let defaultAzureAPIVersion = "2024-10-21"
 
@@ -113,7 +115,9 @@ struct AppConfig: Codable {
          historyLogEnabled: Bool = false,
          historyLogDirectory: String? = nil,
          historyLogWarningShown: Bool = false,
-         historyLogFilePrefix: String = "") {
+         historyLogFilePrefix: String = "",
+         sensitiveContentCheckEnabled: Bool = true,
+         customSensitivePatterns: [SensitivePattern] = []) {
         self.schemaVersion = schemaVersion
         self.hotkeyKeyCode = hotkeyKeyCode
         self.hotkeyModifiers = hotkeyModifiers
@@ -140,6 +144,8 @@ struct AppConfig: Codable {
         self.historyLogDirectory = historyLogDirectory
         self.historyLogWarningShown = historyLogWarningShown
         self.historyLogFilePrefix = historyLogFilePrefix
+        self.sensitiveContentCheckEnabled = sensitiveContentCheckEnabled
+        self.customSensitivePatterns = customSensitivePatterns
     }
 
     init(from decoder: Decoder) throws {
@@ -170,6 +176,8 @@ struct AppConfig: Codable {
         historyLogDirectory = try c.decodeIfPresent(String.self, forKey: .historyLogDirectory)
         historyLogWarningShown = try c.decodeIfPresent(Bool.self, forKey: .historyLogWarningShown) ?? false
         historyLogFilePrefix = try c.decodeIfPresent(String.self, forKey: .historyLogFilePrefix) ?? ""
+        sensitiveContentCheckEnabled = try c.decodeIfPresent(Bool.self, forKey: .sensitiveContentCheckEnabled) ?? true
+        customSensitivePatterns = try c.decodeIfPresent([SensitivePattern].self, forKey: .customSensitivePatterns) ?? []
     }
 
     static var `default`: AppConfig { makeDefault() }

@@ -38,6 +38,8 @@ struct SettingsView: View {
     @State private var showRestartAlert = false
     @State private var showLogWarning = false
     @State private var updateState: UpdateState = .idle
+    @State private var newPatternLabel = ""
+    @State private var newPatternRegex = ""
 
     private enum UpdateState: Equatable {
         case idle, checking, upToDate, failed
@@ -161,6 +163,69 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            Section(L("settings.general.section.sensitive")) {
+                Toggle(L("settings.general.sensitive.enabled"), isOn: $config.sensitiveContentCheckEnabled)
+                    .onChange(of: config.sensitiveContentCheckEnabled) { _, val in
+                        ConfigStore.shared.update { $0.sensitiveContentCheckEnabled = val }
+                    }
+                if config.sensitiveContentCheckEnabled {
+                    DisclosureGroup(L("settings.general.sensitive.builtin_label")) {
+                        ForEach(SensitiveContentDetector.builtInPatterns) { pattern in
+                            HStack(spacing: 8) {
+                                Text(pattern.label)
+                                    .frame(width: 140, alignment: .leading)
+                                Text(pattern.pattern)
+                                    .monospaced()
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                            }
+                            .font(.caption)
+                        }
+                    }
+                    ForEach(config.customSensitivePatterns) { pattern in
+                        HStack(spacing: 8) {
+                            Text(pattern.label)
+                                .frame(width: 140, alignment: .leading)
+                            Text(pattern.pattern)
+                                .monospaced()
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer()
+                            Button(role: .destructive) {
+                                config.customSensitivePatterns.removeAll { $0.id == pattern.id }
+                                ConfigStore.shared.update { $0.customSensitivePatterns = config.customSensitivePatterns }
+                            } label: {
+                                Image(systemName: "minus.circle")
+                                    .foregroundStyle(.red)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .font(.caption)
+                    }
+                    HStack(spacing: 8) {
+                        TextField(L("settings.general.sensitive.label_placeholder"), text: $newPatternLabel)
+                            .frame(width: 140)
+                        TextField(L("settings.general.sensitive.regex_placeholder"), text: $newPatternRegex)
+                            .frame(maxWidth: .infinity)
+                            .foregroundStyle(!newPatternRegex.isEmpty && !isValidRegex(newPatternRegex) ? .red : .primary)
+                        Button(L("settings.general.sensitive.add_button")) {
+                            let p = SensitivePattern(label: newPatternLabel, pattern: newPatternRegex)
+                            config.customSensitivePatterns.append(p)
+                            ConfigStore.shared.update { $0.customSensitivePatterns = config.customSensitivePatterns }
+                            newPatternLabel = ""
+                            newPatternRegex = ""
+                        }
+                        .disabled(newPatternLabel.isEmpty || !isValidRegex(newPatternRegex))
+                    }
+                    if !newPatternRegex.isEmpty && !isValidRegex(newPatternRegex) {
+                        Text(L("settings.general.sensitive.invalid_regex"))
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
             Section(L("settings.general.section.backup")) {
                 Text(L("settings.general.backup.description"))
                     .font(.caption)
@@ -273,6 +338,10 @@ struct SettingsView: View {
         } message: {
             Text(L("settings.general.logging.alert.message"))
         }
+    }
+
+    private func isValidRegex(_ pattern: String) -> Bool {
+        !pattern.isEmpty && (try? NSRegularExpression(pattern: pattern)) != nil
     }
 
     private func selectLogDirectory() {

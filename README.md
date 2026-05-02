@@ -107,6 +107,7 @@ Pressing the shortcut again while the panel is open reloads the clipboard conten
 - **Check for Updates** – checks whether a newer version is available
 - **Automatically check for updates at launch** – enables/disables the automatic version check on every launch
 - **Log interactions to Markdown files** – opt-in; when enabled, every completed action is appended to a dated `.md` file (`YYYY-MM-DD.md`) in the directory you choose; each entry contains the action name, model, input, and response. An optional **File name prefix** is prepended to the file name. A sensitive-data warning is shown the first time you enable this feature.
+- **Sensitive Content Detection** – enabled by default; scans clipboard text against built-in and custom regex patterns (API keys, tokens, private keys) before sending to the LLM. If a match is found, a confirmation sheet lists the matched values so you can cancel or send anyway. Custom patterns (label + regex) can be added in Settings; built-in patterns cover OpenAI, Anthropic, Google, GitHub, AWS keys, Bearer tokens, and private keys.
 - **Configuration Backup** – export/import the full configuration as JSON; API keys are not included
 - **Reset Settings** – restores the default configuration; API keys in the Keychain are preserved
 
@@ -249,7 +250,8 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Configuration backup** – export/import the full configuration as JSON; API keys are not exported
 - **Configuration reset** – restore default settings with one click; API keys in the Keychain are preserved
 - **Interaction logging** – opt-in; appends each completed action (action name, model, input, response) to a dated Markdown file in a user-defined directory; optional file name prefix; sensitive-data warning on first enable
-- **Update check** – manual button in settings and optional automatic check at launch; new version appears as a dropdown menu item
+- **Sensitive content detection** – regex scanner that checks clipboard text against built-in patterns (OpenAI/Anthropic/Google/GitHub/AWS API keys, Bearer tokens, private keys) and user-defined label+regex patterns before sending to the LLM; a confirmation sheet shows matched values and requires explicit approval; patterns persist in the configuration
+- **Update check** – manual button in settings and optional automatic check at launch with ETag-based caching (avoids redundant GitHub API calls); new version appears as a dropdown menu item
 - **Secure key storage** – API keys are stored in the macOS Keychain, not in the configuration file
 
 #### Requirements
@@ -535,6 +537,7 @@ Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a 
 - **Zkontrolovat aktualizace** – ověří, zda je dostupná novější verze
 - **Automaticky kontrolovat aktualizace při spuštění** – zapíná/vypíná automatickou kontrolu nové verze při každém spuštění aplikace
 - **Ukládat interakce do Markdown souborů** – opt-in; při zapnutí se každá dokončená akce zapíše do datovaného souboru `.md` (`YYYY-MM-DD.md`) ve zvoleném adresáři; každý záznam obsahuje název akce, model, vstup a odpověď. Volitelný **Prefix názvu souboru** se přidá na začátek názvu souboru. Při prvním zapnutí se zobrazí upozornění na citlivá data.
+- **Detekce citlivého obsahu** – výchozí stav zapnuto; před odesláním textu ze schránky do LLM zkontroluje obsah vůči vestavěným i vlastním regex vzorům (API klíče, tokeny, privátní klíče). Pokud je nalezena shoda, zobrazí se potvrzovací dialog se seznamem nalezených hodnot – lze zrušit nebo odeslat přesto. Vlastní vzory (název + regex) lze přidávat v Nastavení; vestavěné vzory pokrývají klíče OpenAI, Anthropic, Google, GitHub, AWS, Bearer tokeny a privátní klíče.
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou zahrnuty
 - **Resetovat nastavení** – obnoví výchozí konfiguraci; API klíče v Keychainu zůstanou zachovány
 
@@ -677,7 +680,8 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
 - **Logování interakcí** – opt-in; každá dokončená akce (název, model, vstup, odpověď) se zapíše do datovaného Markdown souboru ve zvoleném adresáři; volitelný prefix názvu souboru; upozornění na citlivá data při prvním zapnutí
-- **Kontrola aktualizací** – ruční tlačítko v nastavení i automatická kontrola při spuštění (volitelná); při nalezení nové verze se zobrazí položka v dropdown menu
+- **Detekce citlivého obsahu** – regex skener kontrolující text ze schránky před odesláním do LLM vůči vestavěným (OpenAI/Anthropic/Google/GitHub/AWS API klíče, Bearer tokeny, privátní klíče) a uživatelsky definovaným vzorům; potvrzovací dialog zobrazí nalezené hodnoty a vyžaduje výslovný souhlas; vzory jsou uloženy v konfiguraci
+- **Kontrola aktualizací** – ruční tlačítko v nastavení i automatická kontrola při spuštění s ETag cache (zabraňuje nadbytečným voláním GitHub API); při nalezení nové verze se zobrazí položka v dropdown menu
 - **Bezpečné uložení klíčů** – API klíče jsou v macOS Keychain, nikoli v konfiguračním souboru
 
 #### Požadavky

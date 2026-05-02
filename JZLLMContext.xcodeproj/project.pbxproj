@@ -22,6 +22,7 @@
 		6D0BBD128118EBEBC031E25C /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018CB417B49F176AFD1DC7E4 /* UpdateChecker.swift */; };
 		7C7F7BE7E9C1F5004DA1382B /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7788BE265D802DAD645314 /* HotkeyManager.swift */; };
 		849D592AD8198F46B85F160C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B871CF2E7BE6343C453D36B /* SettingsView.swift */; };
+		952A64081E9D90A57A6E9610 /* SensitiveContentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D55E3040D1227AF618476610 /* SensitiveContentDetector.swift */; };
 		9663B7E3F4E9E183B640A3A1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3712CADC923FA76F06AD0828 /* AppDelegate.swift */; };
 		970E06E15E4CBB1D8EF21A98 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22902D0B71BC3BDCD04276DE /* AppConfig.swift */; };
 		9BA136F32541E38FB7ADE0F4 /* ModelFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E25CC40538AA717F1ED10B4 /* ModelFetcher.swift */; };
@@ -63,6 +64,7 @@
 		CF007160F929203C6C07C38F /* ContextResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextResolver.swift; sourceTree = "<group>"; };
 		D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JZLLMContext.entitlements; sourceTree = "<group>"; };
 		D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		D55E3040D1227AF618476610 /* SensitiveContentDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveContentDetector.swift; sourceTree = "<group>"; };
 		EB65AD326E16BF2E0137AABE /* HistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryStore.swift; sourceTree = "<group>"; };
 		EF630DCA11A63BCB84D42DD2 /* ActionDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDetailSheet.swift; sourceTree = "<group>"; };
 		F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIProvider.swift; sourceTree = "<group>"; };
@@ -157,9 +159,18 @@
 				5D06DE75972A8CC4CAEB6238 /* Logging */,
 				F2E4204E670981FBC48E3A17 /* Providers */,
 				718F97CD4327087AD4B44AA1 /* Resources */,
+				BFBB90CCCACCBC7FE7A5A55B /* Security */,
 				3540DFB725C97E3561198B61 /* UI */,
 			);
 			path = JZLLMContext;
+			sourceTree = "<group>";
+		};
+		BFBB90CCCACCBC7FE7A5A55B /* Security */ = {
+			isa = PBXGroup;
+			children = (
+				D55E3040D1227AF618476610 /* SensitiveContentDetector.swift */,
+			);
+			path = Security;
 			sourceTree = "<group>";
 		};
 		E32D50867172A3C3D02A83CA /* Sources */ = {
@@ -295,6 +306,7 @@
 				450734B8BB48675A75765886 /* OverlayView.swift in Sources */,
 				E59EB23A8F4F48E658F183C4 /* OverlayWindowController.swift in Sources */,
 				1548F1816AF1565C5FFBB2FD /* ProviderFactory.swift in Sources */,
+				952A64081E9D90A57A6E9610 /* SensitiveContentDetector.swift in Sources */,
 				849D592AD8198F46B85F160C /* SettingsView.swift in Sources */,
 				6D0BBD128118EBEBC031E25C /* UpdateChecker.swift in Sources */,
 			);

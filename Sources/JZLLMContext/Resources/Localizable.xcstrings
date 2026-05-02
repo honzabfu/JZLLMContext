@@ -1363,6 +1363,86 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Language" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Idioma" } }
       }
+    },
+    "settings.general.section.sensitive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ochrana před citlivým obsahem" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sensitive Content Protection" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Protección de contenido sensible" } }
+      }
+    },
+    "settings.general.sensitive.enabled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Kontrolovat clipboard před odesláním" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Check clipboard before sending" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Verificar portapapeles antes de enviar" } }
+      }
+    },
+    "settings.general.sensitive.builtin_label" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vestavěné patterny" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Built-in patterns" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Patrones predeterminados" } }
+      }
+    },
+    "settings.general.sensitive.label_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Název (např. Firemní token)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Label (e.g. Company Token)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Etiqueta (p.ej. Token empresa)" } }
+      }
+    },
+    "settings.general.sensitive.regex_placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Regulární výraz" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Regular expression" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Expresión regular" } }
+      }
+    },
+    "settings.general.sensitive.add_button" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir" } }
+      }
+    },
+    "settings.general.sensitive.invalid_regex" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Neplatný regulární výraz" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid regular expression" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Expresión regular inválida" } }
+      }
+    },
+    "overlay.sensitive.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Detekován citlivý obsah" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sensitive content detected" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contenido sensible detectado" } }
+      }
+    },
+    "overlay.sensitive.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard pravděpodobně obsahuje citlivá data:" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard likely contains sensitive data:" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles probablemente contiene datos sensibles:" } }
+      }
+    },
+    "overlay.sensitive.send" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odeslat přesto" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send anyway" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar de todos modos" } }
+      }
     }
 
   },

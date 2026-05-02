@@ -10,13 +10,28 @@ enum UpdateChecker {
         var version: String { tag_name.hasPrefix("v") ? String(tag_name.dropFirst()) : tag_name }
     }
 
+    private enum Cache {
+        static let etag = "UpdateChecker.etag"
+        static let data = "UpdateChecker.cachedRelease"
+    }
+
     static func fetchLatest() async throws -> Release {
         var req = URLRequest(url: releasesURL)
         req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         req.timeoutInterval = 10
+        if let etag = UserDefaults.standard.string(forKey: Cache.etag) {
+            req.setValue(etag, forHTTPHeaderField: "If-None-Match")
+        }
         let (data, response) = try await URLSession.shared.data(for: req)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw URLError(.badServerResponse)
+        guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
+        if http.statusCode == 304,
+           let cached = UserDefaults.standard.data(forKey: Cache.data) {
+            return try JSONDecoder().decode(Release.self, from: cached)
+        }
+        guard (200..<300).contains(http.statusCode) else { throw URLError(.badServerResponse) }
+        if let newEtag = http.value(forHTTPHeaderField: "ETag") {
+            UserDefaults.standard.set(newEtag, forKey: Cache.etag)
+            UserDefaults.standard.set(data, forKey: Cache.data)
         }
         return try JSONDecoder().decode(Release.self, from: data)
     }
@@ -29,7 +44,8 @@ enum UpdateChecker {
         guard ConfigStore.shared.config.autoUpdateCheck else { return }
         guard let release = try? await fetchLatest(),
               release.version != currentVersion,
-              let url = URL(string: release.html_url) else { return }
+              let url = URL(string: release.html_url),
+              url.host == "github.com" else { return }
         await MainActor.run {
             NotificationCenter.default.post(
                 name: .updateAvailable,
