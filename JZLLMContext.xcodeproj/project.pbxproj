@@ -15,6 +15,7 @@
 		1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299358F7A9CBA63430E341F7 /* HotkeyRecorderView.swift */; };
 		22887C026E9224A0D2923C8A /* ConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4788917E973F02208D6DAB08 /* ConnectionTester.swift */; };
 		29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB65AD326E16BF2E0137AABE /* HistoryStore.swift */; };
+		D1A2B3C4E5F6A7B8C9D0E1F2 /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F3A4B5C6D7E8F9A0B1C2D3 /* HistoryLogger.swift */; };
 		450734B8BB48675A75765886 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D70E3B5C8380F38DF3181F /* OverlayView.swift */; };
 		4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */; };
 		55A7384824E1E417674390AE /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A0987C8886320AB4C42709 /* AboutView.swift */; };
@@ -126,6 +127,15 @@
 			path = Engine;
 			sourceTree = "<group>";
 		};
+		F4A5B6C7D8E9F0A1B2C3D4E5 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				E2F3A4B5C6D7E8F9A0B1C2D3 /* HistoryLogger.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		E2F3A4B5C6D7E8F9A0B1C2D3 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
 		A07FF79AF12DA12FB072396E = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +154,7 @@
 				EC220C3994F500842554EEFF /* Config */,
 				2FCC534B033C3D03A572CD65 /* Context */,
 				97D272CB3B3203A44B69AACF /* Engine */,
+				F4A5B6C7D8E9F0A1B2C3D4E5 /* Logging */,
 				F2E4204E670981FBC48E3A17 /* Providers */,
 				718F97CD4327087AD4B44AA1 /* Resources */,
 				3540DFB725C97E3561198B61 /* UI */,
@@ -273,6 +284,7 @@
 				22887C026E9224A0D2923C8A /* ConnectionTester.swift in Sources */,
 				0C3A306A2EAF3CCD2796ACC4 /* ContextResolver.swift in Sources */,
 				29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */,
+				D1A2B3C4E5F6A7B8C9D0E1F2 /* HistoryLogger.swift in Sources */,
 				7C7F7BE7E9C1F5004DA1382B /* HotkeyManager.swift in Sources */,
 				1C2B45E4AA8EE0C9E320128D /* HotkeyRecorderView.swift in Sources */,
 				64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */,

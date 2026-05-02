@@ -36,6 +36,7 @@ struct SettingsView: View {
     @State private var reviewingProvider: ProviderType? = nil
     @State private var showResetAlert = false
     @State private var showRestartAlert = false
+    @State private var showLogWarning = false
     @State private var updateState: UpdateState = .idle
 
     private enum UpdateState: Equatable {
@@ -118,6 +119,47 @@ struct SettingsView: View {
                 Text(L("settings.general.language.restart.message"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            Section(L("settings.general.section.logging")) {
+                Toggle(L("settings.general.logging.toggle"), isOn: $config.historyLogEnabled)
+                    .onChange(of: config.historyLogEnabled) { _, enabled in
+                        if enabled {
+                            if !config.historyLogWarningShown {
+                                config.historyLogEnabled = false
+                                showLogWarning = true
+                            } else if config.historyLogDirectory == nil {
+                                selectLogDirectory()
+                            } else {
+                                ConfigStore.shared.update { $0.historyLogEnabled = true }
+                            }
+                        } else {
+                            ConfigStore.shared.update { $0.historyLogEnabled = false }
+                        }
+                    }
+                if config.historyLogEnabled || config.historyLogDirectory != nil {
+                    HStack {
+                        Text(L("settings.general.logging.directory_label"))
+                            .foregroundStyle(.secondary)
+                        Text(config.historyLogDirectory ?? L("settings.general.logging.no_directory"))
+                            .lineLimit(1)
+                            .truncationMode(.head)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button(L("settings.general.logging.choose_button")) { selectLogDirectory() }
+                    }
+                    HStack {
+                        Text(L("settings.general.logging.prefix_label"))
+                            .foregroundStyle(.secondary)
+                        TextField("", text: $config.historyLogFilePrefix)
+                            .frame(maxWidth: 200)
+                            .onChange(of: config.historyLogFilePrefix) { _, val in
+                                ConfigStore.shared.update { $0.historyLogFilePrefix = val }
+                                Task { await HistoryLogger.shared.resetHandleCache() }
+                            }
+                    }
+                    Text(L("settings.general.logging.caption"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             Section(L("settings.general.section.backup")) {
                 Text(L("settings.general.backup.description"))
@@ -224,6 +266,38 @@ struct SettingsView: View {
             Button(L("common.later"), role: .cancel) {}
         } message: {
             Text(L("settings.general.language.restart.message"))
+        }
+        .alert(L("settings.general.logging.alert.title"), isPresented: $showLogWarning) {
+            Button(L("settings.general.logging.alert.enable")) { selectLogDirectory() }
+            Button(L("common.cancel"), role: .cancel) { }
+        } message: {
+            Text(L("settings.general.logging.alert.message"))
+        }
+    }
+
+    private func selectLogDirectory() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        panel.prompt = L("settings.general.logging.choose_button")
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else {
+                if !config.historyLogWarningShown {
+                    config.historyLogEnabled = false
+                    ConfigStore.shared.update { $0.historyLogEnabled = false }
+                }
+                return
+            }
+            config.historyLogDirectory = url.path
+            config.historyLogEnabled = true
+            config.historyLogWarningShown = true
+            ConfigStore.shared.update {
+                $0.historyLogDirectory = url.path
+                $0.historyLogEnabled = true
+                $0.historyLogWarningShown = true
+            }
+            Task { await HistoryLogger.shared.resetHandleCache() }
         }
     }
 

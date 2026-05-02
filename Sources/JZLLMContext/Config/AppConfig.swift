@@ -94,6 +94,10 @@ struct AppConfig: Codable {
     var modelPresets: [String: [ModelPreset]] = [:]
     var autoUpdateCheck: Bool = true
     var appLanguage: AppLanguage = .system
+    var historyLogEnabled: Bool = false
+    var historyLogDirectory: String? = nil
+    var historyLogWarningShown: Bool = false
+    var historyLogFilePrefix: String = ""
 
     static let defaultAzureAPIVersion = "2024-10-21"
 
@@ -105,7 +109,11 @@ struct AppConfig: Codable {
          autoCopyAndClose: Bool = false, historyLimit: Int = 5, markdownOutput: Bool = true,
          modelPresets: [String: [ModelPreset]] = [:],
          autoUpdateCheck: Bool = true,
-         appLanguage: AppLanguage = .system) {
+         appLanguage: AppLanguage = .system,
+         historyLogEnabled: Bool = false,
+         historyLogDirectory: String? = nil,
+         historyLogWarningShown: Bool = false,
+         historyLogFilePrefix: String = "") {
         self.schemaVersion = schemaVersion
         self.hotkeyKeyCode = hotkeyKeyCode
         self.hotkeyModifiers = hotkeyModifiers
@@ -128,6 +136,10 @@ struct AppConfig: Codable {
         self.modelPresets = modelPresets
         self.autoUpdateCheck = autoUpdateCheck
         self.appLanguage = appLanguage
+        self.historyLogEnabled = historyLogEnabled
+        self.historyLogDirectory = historyLogDirectory
+        self.historyLogWarningShown = historyLogWarningShown
+        self.historyLogFilePrefix = historyLogFilePrefix
     }
 
     init(from decoder: Decoder) throws {
@@ -154,6 +166,10 @@ struct AppConfig: Codable {
         modelPresets = try c.decodeIfPresent([String: [ModelPreset]].self, forKey: .modelPresets) ?? [:]
         autoUpdateCheck = try c.decodeIfPresent(Bool.self, forKey: .autoUpdateCheck) ?? true
         appLanguage = try c.decodeIfPresent(AppLanguage.self, forKey: .appLanguage) ?? .system
+        historyLogEnabled = try c.decodeIfPresent(Bool.self, forKey: .historyLogEnabled) ?? false
+        historyLogDirectory = try c.decodeIfPresent(String.self, forKey: .historyLogDirectory)
+        historyLogWarningShown = try c.decodeIfPresent(Bool.self, forKey: .historyLogWarningShown) ?? false
+        historyLogFilePrefix = try c.decodeIfPresent(String.self, forKey: .historyLogFilePrefix) ?? ""
     }
 
     static var `default`: AppConfig { makeDefault() }
