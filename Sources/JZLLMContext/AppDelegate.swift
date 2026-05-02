@@ -86,6 +86,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         updateURL = url
         updateMenuItem?.title = String(format: L("menu.update.available"), version)
         updateMenuItem?.isHidden = false
+        UpdateState.shared.updateURL = url
+        UpdateState.shared.updateVersion = version
     }
 
     @objc private func openUpdateURL() {

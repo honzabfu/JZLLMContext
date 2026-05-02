@@ -8,6 +8,7 @@ struct OverlayView: View {
 
     @StateObject private var engine = ActionEngine()
     @ObservedObject private var history = HistoryStore.shared
+    @ObservedObject private var updateState = UpdateState.shared
     @State private var contextText: String?
     @State private var contextError: String?
     @State private var isResolvingContext = false
@@ -116,6 +117,14 @@ struct OverlayView: View {
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
             Spacer()
+            if updateState.isAvailable, let url = updateState.updateURL {
+                Button { NSWorkspace.shared.open(url) } label: {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(.blue)
+                }
+                .iconButton()
+                .help(updateState.updateVersion.map { String(format: L("menu.update.available"), $0) } ?? "")
+            }
             Button(action: onOpenSettings) {
                 Image(systemName: "gearshape")
                     .foregroundStyle(.secondary)

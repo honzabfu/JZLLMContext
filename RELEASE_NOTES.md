@@ -1,5 +1,8 @@
 # Release Notes
 
+## v0.57 – 2026-05-02
+- Update indicator: when a new version is detected automatically, an info icon (ⓘ) appears in the overlay header bar next to the version number; clicking it opens the GitHub release page directly
+
 ## v0.56 – 2026-05-02
 - Opt-in interaction logging: each completed action can be appended to a dated Markdown file in a user-defined directory; configurable file name prefix; sensitive-data warning shown on first enable
 - Clipboard change indicator: a refresh icon appears below the eye button when the clipboard content changes while the panel is open; clicking it reloads the content
