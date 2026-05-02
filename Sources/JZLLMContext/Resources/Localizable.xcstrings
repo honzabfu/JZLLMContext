@@ -809,6 +809,14 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Ignorar portapapeles" } }
       }
     },
+    "overlay.help.clipboard_changed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obsah schránky se změnil — kliknutím obnovíte" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard changed — click to refresh" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles cambió — haz clic para actualizar" } }
+      }
+    },
     "overlay.action.ocr" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1118,6 +1126,14 @@
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka ignorována – akce dostane jen doplňkový kontext" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard ignored – action receives only additional context" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Portapapeles ignorado – la acción solo recibe contexto adicional" } }
+      }
+    },
+    "about.icons.clipboard_refresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Obsah schránky se změnil – kliknutím obnovíte" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard changed – click to reload" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles cambió – haz clic para recargar" } }
       }
     },
     "about.icons.missing_key" : {

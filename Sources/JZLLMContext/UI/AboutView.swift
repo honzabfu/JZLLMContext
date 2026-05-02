@@ -126,6 +126,7 @@ struct AboutView: View {
             iconRow("doc.on.clipboard",          L("about.icons.clipboard_text"))
             iconRow("doc.viewfinder",             L("about.icons.clipboard_ocr"))
             iconRow("eye.slash",                  L("about.icons.clipboard_ignored"))
+            iconRow("arrow.clockwise",            L("about.icons.clipboard_refresh"), color: .blue)
 
             Divider().padding(.vertical, 2)
 

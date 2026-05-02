@@ -16,6 +16,8 @@ struct OverlayView: View {
     @State private var didCopy = false
     @State private var userContext: String = ""
     @State private var ignoreClipboard: Bool = false
+    @State private var clipboardChanged: Bool = false
+    @State private var knownClipboardChangeCount: Int = NSPasteboard.general.changeCount
     @State private var showHistory = false
     @State private var shownHistoryResult: String?
     @State private var actionDetailMode: ActionDetailMode? = nil
@@ -63,6 +65,12 @@ struct OverlayView: View {
         .background(.regularMaterial)
         .onAppear { resolveContext() }
         .onChange(of: state.refreshID) { resolveContext() }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            let current = NSPasteboard.general.changeCount
+            if current != knownClipboardChangeCount {
+                clipboardChanged = true
+            }
+        }
         .onChange(of: engine.isLoading) { _, isLoading in
             guard !isLoading, engine.errorMessage == nil, !engine.result.isEmpty else { return }
             HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
@@ -223,15 +231,28 @@ struct OverlayView: View {
             .font(.caption)
             .lineLimit(4)
             .frame(maxWidth: .infinity, alignment: .leading)
-            Button {
-                ignoreClipboard.toggle()
-            } label: {
-                Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
-                    .foregroundStyle(ignoreClipboard ? .primary : .secondary)
-                    .font(.caption)
+            VStack(spacing: 4) {
+                Button {
+                    ignoreClipboard.toggle()
+                } label: {
+                    Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
+                        .foregroundStyle(ignoreClipboard ? .primary : .secondary)
+                        .font(.caption)
+                }
+                .iconButton()
+                .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
+                if clipboardChanged && !ignoreClipboard {
+                    Button { resolveContext() } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .foregroundStyle(.blue)
+                            .font(.caption)
+                    }
+                    .iconButton()
+                    .help(L("overlay.help.clipboard_changed"))
+                    .transition(.scale.combined(with: .opacity))
+                }
             }
-            .iconButton()
-            .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
+            .animation(.easeInOut(duration: 0.15), value: clipboardChanged)
         }
         .padding(8)
         .background(Color(nsColor: .controlBackgroundColor).opacity(ignoreClipboard ? 0.4 : 1))
@@ -382,6 +403,8 @@ struct OverlayView: View {
         didCopy = false
         userContext = ""
         ignoreClipboard = false
+        clipboardChanged = false
+        knownClipboardChangeCount = NSPasteboard.general.changeCount
         shownHistoryResult = nil
         showHistory = false
         let pb = NSPasteboard.general

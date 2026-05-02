@@ -16,6 +16,7 @@ Copy text or an image, press the global shortcut, and the selected action sends 
 
 ### Contents
 
+- [Download](#download)
 - [User Guide](#user-guide)
   - [Basic Usage](#basic-usage)
   - [Menu Bar](#menu-bar)
@@ -88,6 +89,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
   - **Cancel** – shown while an action is running; stops the request
   - **Right-click** on an action – context menu: *Run* / *View Prompt* / *Edit*
 - **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input
+- **Clipboard change indicator** – if the clipboard content changes while the panel is open, a blue refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
 - **History** – the clock button in the header shows recent results from the current session
@@ -104,6 +106,7 @@ Pressing the shortcut again while the panel is open reloads the clipboard conten
 - **Result history** – number of results kept until the app closes (0 = disabled, max 10)
 - **Check for Updates** – checks whether a newer version is available
 - **Automatically check for updates at launch** – enables/disables the automatic version check on every launch
+- **Log interactions to Markdown files** – opt-in; when enabled, every completed action is appended to a dated `.md` file (`YYYY-MM-DD.md`) in the directory you choose; each entry contains the action name, model, input, and response. An optional **File name prefix** is prepended to the file name. A sensitive-data warning is shown the first time you enable this feature.
 - **Configuration Backup** – export/import the full configuration as JSON; API keys are not included
 - **Reset Settings** – restores the default configuration; API keys in the Keychain are preserved
 
@@ -202,6 +205,8 @@ The app does not write to system directories – all data is in two locations.
 rm -rf ~/Library/"Application Support"/JZLLMContext
 ```
 
+If you have enabled history logging (Settings → General), conversation logs are saved to the directory you configured. Delete that folder manually.
+
 API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`. Delete them via **Keychain Access** or the terminal:
 
 ```bash
@@ -233,6 +238,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Default action** – one action can be marked as default; it is triggered by pressing Enter in the additional context field
 - **Additional context** – optional text field in the overlay for adding instructions beyond the clipboard content
 - **Clipboard ignore** – a button in the overlay switches to clipboard-free mode; the LLM receives only the additional context
+- **Clipboard change detection** – while the panel is open, the app monitors the clipboard; a blue refresh icon appears if the content changes, allowing instant reload
 - **Prompt variables** – `{{datum}}`, `{{jazyk}}`, `{{kontext}}` are replaced with their current values before sending (note: variable names are in Czech)
 - **Result history** – session-only; recent results accessible via the clock button in the overlay panel (0–10 entries)
 - **Launch at Login** – optional Service Management integration
@@ -242,6 +248,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Connection test** – verifies that the API key and configuration are working
 - **Configuration backup** – export/import the full configuration as JSON; API keys are not exported
 - **Configuration reset** – restore default settings with one click; API keys in the Keychain are preserved
+- **Interaction logging** – opt-in; appends each completed action (action name, model, input, response) to a dated Markdown file in a user-defined directory; optional file name prefix; sensitive-data warning on first enable
 - **Update check** – manual button in settings and optional automatic check at launch; new version appears as a dropdown menu item
 - **Secure key storage** – API keys are stored in the macOS Keychain, not in the configuration file
 
@@ -437,6 +444,7 @@ Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce po
 
 ### Obsah
 
+- [Stažení](#stažení)
 - [Uživatelská příručka](#uživatelská-příručka)
   - [Základní použití](#základní-použití)
   - [Menu bar](#menu-bar-1)
@@ -509,6 +517,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
   - **Zrušit** – zobrazí se při běžící akci; zastaví požadavek
   - **Pravé tlačítko myši** na akci – kontextové menu: *Spustit* / *Zobrazit prompt* / *Upravit*
 - **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext
+- **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí modrá ikona obnovení; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
 - **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session
@@ -525,6 +534,7 @@ Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a 
 - **Historie výsledků** – počet záznamů uchovávaných do zavření aplikace (0 = vypnuto, max. 10)
 - **Zkontrolovat aktualizace** – ověří, zda je dostupná novější verze
 - **Automaticky kontrolovat aktualizace při spuštění** – zapíná/vypíná automatickou kontrolu nové verze při každém spuštění aplikace
+- **Ukládat interakce do Markdown souborů** – opt-in; při zapnutí se každá dokončená akce zapíše do datovaného souboru `.md` (`YYYY-MM-DD.md`) ve zvoleném adresáři; každý záznam obsahuje název akce, model, vstup a odpověď. Volitelný **Prefix názvu souboru** se přidá na začátek názvu souboru. Při prvním zapnutí se zobrazí upozornění na citlivá data.
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou zahrnuty
 - **Resetovat nastavení** – obnoví výchozí konfiguraci; API klíče v Keychainu zůstanou zachovány
 
@@ -623,6 +633,8 @@ Aplikace nezapisuje do systémových adresářů – veškerá data jsou na dvou
 rm -rf ~/Library/"Application Support"/JZLLMContext
 ```
 
+Pokud máš zapnuto logování konverzací (Nastavení → Obecné), záznamy se ukládají do adresáře, který jsi nastavil. Tento adresář smaž ručně.
+
 API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`. Smazání přes **Klíčenka** (Keychain Access) nebo terminál:
 
 ```bash
@@ -654,6 +666,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Výchozí akce** – jedna akce může být označena jako výchozí; spustí se stiskem Enter v poli doplňkového kontextu
 - **Doplňkový kontext** – volitelné textové pole v overlay pro přidání instrukce nad rámec schránky
 - **Ignorování schránky** – tlačítko v overlay přepne do režimu bez schránky; LLM dostane jen doplňkový kontext
+- **Detekce změny schránky** – při otevřeném panelu aplikace sleduje schránku; pokud se obsah změní, zobrazí se modrá ikona obnovení umožňující okamžité znovunačtení
 - **Proměnné v promptech** – `{{datum}}`, `{{jazyk}}`, `{{kontext}}` se v systémovém promptu nahradí aktuální hodnotou před odesláním
 - **Historie výsledků** – session-only; poslední výsledky dostupné přes tlačítko hodin v overlay panelu (0–10 záznamů)
 - **Spuštění při přihlášení** – volitelná integrace se Service Management
@@ -663,6 +676,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Test připojení** – ověří, zda je API klíč a konfigurace funkční
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
+- **Logování interakcí** – opt-in; každá dokončená akce (název, model, vstup, odpověď) se zapíše do datovaného Markdown souboru ve zvoleném adresáři; volitelný prefix názvu souboru; upozornění na citlivá data při prvním zapnutí
 - **Kontrola aktualizací** – ruční tlačítko v nastavení i automatická kontrola při spuštění (volitelná); při nalezení nové verze se zobrazí položka v dropdown menu
 - **Bezpečné uložení klíčů** – API klíče jsou v macOS Keychain, nikoli v konfiguračním souboru
 
