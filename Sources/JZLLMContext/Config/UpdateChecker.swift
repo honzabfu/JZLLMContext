@@ -40,10 +40,14 @@ enum UpdateChecker {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     }
 
+    static func isNewer(_ candidate: String, than current: String) -> Bool {
+        candidate.compare(current, options: .numeric) == .orderedDescending
+    }
+
     static func checkOnLaunch() async {
         guard ConfigStore.shared.config.autoUpdateCheck else { return }
         guard let release = try? await fetchLatest(),
-              release.version != currentVersion,
+              isNewer(release.version, than: currentVersion),
               let url = URL(string: release.html_url),
               url.host == "github.com" else { return }
         await MainActor.run {

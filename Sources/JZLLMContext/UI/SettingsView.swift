@@ -40,6 +40,8 @@ struct SettingsView: View {
     @State private var updateState: UpdateState = .idle
     @State private var newPatternLabel = ""
     @State private var newPatternRegex = ""
+    private enum PatternField: Hashable { case label, regex }
+    @FocusState private var patternFocus: PatternField?
 
     private enum UpdateState: Equatable {
         case idle, checking, upToDate, failed
@@ -61,7 +63,6 @@ struct SettingsView: View {
         .frame(minWidth: 620, minHeight: 520)
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
-            Task { @MainActor in loadKeys() }
         }
         .sheet(item: $reviewingProvider) { provider in
             ModelReviewSheet(provider: provider, models: $reviewModels) { saved in
@@ -148,9 +149,7 @@ struct SettingsView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Button(L("settings.general.logging.choose_button")) { selectLogDirectory() }
                     }
-                    HStack {
-                        Text(L("settings.general.logging.prefix_label"))
-                            .foregroundStyle(.secondary)
+                    LabeledContent(L("settings.general.logging.prefix_label")) {
                         TextField("", text: $config.historyLogFilePrefix)
                             .frame(maxWidth: 200)
                             .onChange(of: config.historyLogFilePrefix) { _, val in
@@ -180,6 +179,7 @@ struct SettingsView: View {
                                     .lineLimit(1)
                                     .truncationMode(.middle)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .font(.caption)
                         }
                     }
@@ -204,12 +204,32 @@ struct SettingsView: View {
                         }
                         .font(.caption)
                     }
-                    HStack(spacing: 8) {
-                        TextField(L("settings.general.sensitive.label_placeholder"), text: $newPatternLabel)
-                            .frame(width: 140)
-                        TextField(L("settings.general.sensitive.regex_placeholder"), text: $newPatternRegex)
-                            .frame(maxWidth: .infinity)
+                    LabeledContent(L("settings.general.sensitive.label_placeholder")) {
+                        TextField("", text: $newPatternLabel)
+                            .focused($patternFocus, equals: .label)
+                            .onSubmit { patternFocus = .regex }
+                    }
+                    LabeledContent(L("settings.general.sensitive.regex_placeholder")) {
+                        TextField("", text: $newPatternRegex)
+                            .focused($patternFocus, equals: .regex)
                             .foregroundStyle(!newPatternRegex.isEmpty && !isValidRegex(newPatternRegex) ? .red : .primary)
+                            .onSubmit {
+                                guard !newPatternLabel.isEmpty, isValidRegex(newPatternRegex) else { return }
+                                let p = SensitivePattern(label: newPatternLabel, pattern: newPatternRegex)
+                                config.customSensitivePatterns.append(p)
+                                ConfigStore.shared.update { $0.customSensitivePatterns = config.customSensitivePatterns }
+                                newPatternLabel = ""
+                                newPatternRegex = ""
+                                patternFocus = .label
+                            }
+                    }
+                    if !newPatternRegex.isEmpty && !isValidRegex(newPatternRegex) {
+                        Text(L("settings.general.sensitive.invalid_regex"))
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+                    HStack {
+                        Spacer()
                         Button(L("settings.general.sensitive.add_button")) {
                             let p = SensitivePattern(label: newPatternLabel, pattern: newPatternRegex)
                             config.customSensitivePatterns.append(p)
@@ -218,11 +238,6 @@ struct SettingsView: View {
                             newPatternRegex = ""
                         }
                         .disabled(newPatternLabel.isEmpty || !isValidRegex(newPatternRegex))
-                    }
-                    if !newPatternRegex.isEmpty && !isValidRegex(newPatternRegex) {
-                        Text(L("settings.general.sensitive.invalid_regex"))
-                            .font(.caption)
-                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -509,29 +524,37 @@ struct SettingsView: View {
     private var providersTab: some View {
         Form {
             Section("OpenAI") {
-                SecureField(L("settings.providers.api_key"), text: $openaiKey)
-                    .onSubmit { saveKey(openaiKey, for: .openai) }
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $openaiKey)
+                        .onSubmit { saveKey(openaiKey, for: .openai) }
+                }
                 saveButton(for: .openai, key: openaiKey)
                 fetchModelsRow(for: .openai)
                 testConnectionRow(for: .openai)
             }
             Section("Anthropic") {
-                SecureField(L("settings.providers.api_key"), text: $anthropicKey)
-                    .onSubmit { saveKey(anthropicKey, for: .anthropic) }
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $anthropicKey)
+                        .onSubmit { saveKey(anthropicKey, for: .anthropic) }
+                }
                 saveButton(for: .anthropic, key: anthropicKey)
                 fetchModelsRow(for: .anthropic)
                 testConnectionRow(for: .anthropic)
             }
             Section("Google Gemini") {
-                SecureField(L("settings.providers.api_key"), text: $geminiKey)
-                    .onSubmit { saveKey(geminiKey, for: .gemini) }
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $geminiKey)
+                        .onSubmit { saveKey(geminiKey, for: .gemini) }
+                }
                 saveButton(for: .gemini, key: geminiKey)
                 fetchModelsRow(for: .gemini)
                 testConnectionRow(for: .gemini)
             }
             Section("xAI Grok") {
-                SecureField(L("settings.providers.api_key"), text: $grokKey)
-                    .onSubmit { saveKey(grokKey, for: .grok) }
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $grokKey)
+                        .onSubmit { saveKey(grokKey, for: .grok) }
+                }
                 saveButton(for: .grok, key: grokKey)
                 fetchModelsRow(for: .grok)
                 testConnectionRow(for: .grok)
@@ -540,74 +563,94 @@ struct SettingsView: View {
                 Text(L("settings.providers.azure.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                SecureField(L("settings.providers.api_key"), text: $azureKey)
-                    .onSubmit { saveKey(azureKey, for: .azureOpenai) }
-                TextField(L("settings.providers.azure.deployment_url"), text: Binding(
-                    get: { config.azureEndpoint ?? "" },
-                    set: {
-                        config.azureEndpoint = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
-                    }
-                ))
-                TextField(L("settings.providers.azure.deployment_name"), text: Binding(
-                    get: { config.azureDeploymentName ?? "" },
-                    set: {
-                        config.azureDeploymentName = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
-                    }
-                ))
-                TextField(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion), text: Binding(
-                    get: { config.azureAPIVersion ?? "" },
-                    set: {
-                        config.azureAPIVersion = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureAPIVersion = config.azureAPIVersion }
-                    }
-                ))
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $azureKey)
+                        .onSubmit { saveKey(azureKey, for: .azureOpenai) }
+                }
+                LabeledContent(L("settings.providers.azure.deployment_url")) {
+                    TextField("", text: Binding(
+                        get: { config.azureEndpoint ?? "" },
+                        set: {
+                            config.azureEndpoint = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
+                        }
+                    ))
+                }
+                LabeledContent(L("settings.providers.azure.deployment_name")) {
+                    TextField("", text: Binding(
+                        get: { config.azureDeploymentName ?? "" },
+                        set: {
+                            config.azureDeploymentName = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
+                        }
+                    ))
+                }
+                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
+                    TextField("", text: Binding(
+                        get: { config.azureAPIVersion ?? "" },
+                        set: {
+                            config.azureAPIVersion = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureAPIVersion = config.azureAPIVersion }
+                        }
+                    ))
+                }
                 saveButton(for: .azureOpenai, key: azureKey)
                 testConnectionRow(for: .azureOpenai)
             }
             Section("Azure AI (slot 2)") {
-                SecureField(L("settings.providers.api_key"), text: $azureKey2)
-                    .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
-                TextField(L("settings.providers.azure.deployment_url"), text: Binding(
-                    get: { config.azureEndpoint2 ?? "" },
-                    set: {
-                        config.azureEndpoint2 = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
-                    }
-                ))
-                TextField(L("settings.providers.azure.deployment_name"), text: Binding(
-                    get: { config.azureDeploymentName2 ?? "" },
-                    set: {
-                        config.azureDeploymentName2 = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
-                    }
-                ))
-                TextField(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion), text: Binding(
-                    get: { config.azureAPIVersion2 ?? "" },
-                    set: {
-                        config.azureAPIVersion2 = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.azureAPIVersion2 = config.azureAPIVersion2 }
-                    }
-                ))
+                LabeledContent(L("settings.providers.api_key")) {
+                    SecureField("", text: $azureKey2)
+                        .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
+                }
+                LabeledContent(L("settings.providers.azure.deployment_url")) {
+                    TextField("", text: Binding(
+                        get: { config.azureEndpoint2 ?? "" },
+                        set: {
+                            config.azureEndpoint2 = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
+                        }
+                    ))
+                }
+                LabeledContent(L("settings.providers.azure.deployment_name")) {
+                    TextField("", text: Binding(
+                        get: { config.azureDeploymentName2 ?? "" },
+                        set: {
+                            config.azureDeploymentName2 = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
+                        }
+                    ))
+                }
+                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
+                    TextField("", text: Binding(
+                        get: { config.azureAPIVersion2 ?? "" },
+                        set: {
+                            config.azureAPIVersion2 = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.azureAPIVersion2 = config.azureAPIVersion2 }
+                        }
+                    ))
+                }
                 saveButton(for: .azureOpenai2, key: azureKey2)
                 testConnectionRow(for: .azureOpenai2)
             }
             Section(L("provider.custom1")) {
-                TextField(L("settings.providers.custom.base_url"), text: Binding(
-                    get: { config.customOpenAIBaseURL ?? "" },
-                    set: {
-                        config.customOpenAIBaseURL = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.customOpenAIBaseURL = config.customOpenAIBaseURL }
-                    }
-                ))
-                TextField(L("settings.providers.custom.api_version"), text: Binding(
-                    get: { config.customOpenAIAPIVersion ?? "" },
-                    set: {
-                        config.customOpenAIAPIVersion = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
-                    }
-                ))
+                LabeledContent(L("settings.providers.custom.base_url")) {
+                    TextField("", text: Binding(
+                        get: { config.customOpenAIBaseURL ?? "" },
+                        set: {
+                            config.customOpenAIBaseURL = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.customOpenAIBaseURL = config.customOpenAIBaseURL }
+                        }
+                    ))
+                }
+                LabeledContent(L("settings.providers.custom.api_version")) {
+                    TextField("", text: Binding(
+                        get: { config.customOpenAIAPIVersion ?? "" },
+                        set: {
+                            config.customOpenAIAPIVersion = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
+                        }
+                    ))
+                }
                 Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam) {
                     ForEach(TokenParamStyle.allCases, id: \.self) { style in
                         Text(style.displayName).tag(style)
@@ -616,26 +659,32 @@ struct SettingsView: View {
                 .onChange(of: config.customOpenAITokenParam) { _, val in
                     ConfigStore.shared.update { $0.customOpenAITokenParam = val }
                 }
-                SecureField(L("settings.providers.api_key_optional"), text: $customKey)
-                    .onSubmit { saveKey(customKey, for: .customOpenAI) }
+                LabeledContent(L("settings.providers.api_key_optional")) {
+                    SecureField("", text: $customKey)
+                        .onSubmit { saveKey(customKey, for: .customOpenAI) }
+                }
                 saveButton(for: .customOpenAI, key: customKey)
                 testConnectionRow(for: .customOpenAI)
             }
             Section(L("provider.custom2")) {
-                TextField(L("settings.providers.custom.base_url"), text: Binding(
-                    get: { config.customOpenAIBaseURL2 ?? "" },
-                    set: {
-                        config.customOpenAIBaseURL2 = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.customOpenAIBaseURL2 = config.customOpenAIBaseURL2 }
-                    }
-                ))
-                TextField(L("settings.providers.custom.api_version"), text: Binding(
-                    get: { config.customOpenAIAPIVersion2 ?? "" },
-                    set: {
-                        config.customOpenAIAPIVersion2 = $0.isEmpty ? nil : $0
-                        ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
-                    }
-                ))
+                LabeledContent(L("settings.providers.custom.base_url")) {
+                    TextField("", text: Binding(
+                        get: { config.customOpenAIBaseURL2 ?? "" },
+                        set: {
+                            config.customOpenAIBaseURL2 = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.customOpenAIBaseURL2 = config.customOpenAIBaseURL2 }
+                        }
+                    ))
+                }
+                LabeledContent(L("settings.providers.custom.api_version")) {
+                    TextField("", text: Binding(
+                        get: { config.customOpenAIAPIVersion2 ?? "" },
+                        set: {
+                            config.customOpenAIAPIVersion2 = $0.isEmpty ? nil : $0
+                            ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
+                        }
+                    ))
+                }
                 Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam2) {
                     ForEach(TokenParamStyle.allCases, id: \.self) { style in
                         Text(style.displayName).tag(style)
@@ -644,14 +693,26 @@ struct SettingsView: View {
                 .onChange(of: config.customOpenAITokenParam2) { _, val in
                     ConfigStore.shared.update { $0.customOpenAITokenParam2 = val }
                 }
-                SecureField(L("settings.providers.api_key_optional"), text: $customKey2)
-                    .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
+                LabeledContent(L("settings.providers.api_key_optional")) {
+                    SecureField("", text: $customKey2)
+                        .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
+                }
                 saveButton(for: .customOpenAI2, key: customKey2)
                 testConnectionRow(for: .customOpenAI2)
             }
         }
         .formStyle(.grouped)
         .padding()
+        .onAppear {
+            Task { @MainActor in
+                loadKeys()
+                NSApp.activate(ignoringOtherApps: true)
+                for window in NSApp.windows where window.title == "JZLLMContext" && window.isVisible {
+                    window.makeKeyAndOrderFront(nil)
+                    break
+                }
+            }
+        }
     }
 
     @ViewBuilder

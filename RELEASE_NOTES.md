@@ -1,8 +1,10 @@
 # Release Notes
 
-## Unreleased
+## v0.56 – 2026-05-02
 - Opt-in interaction logging: each completed action can be appended to a dated Markdown file in a user-defined directory; configurable file name prefix; sensitive-data warning shown on first enable
 - Clipboard change indicator: a refresh icon appears below the eye button when the clipboard content changes while the panel is open; clicking it reloads the content
+- Sensitive content detection: clipboard text is scanned against built-in and custom regex patterns (API keys, tokens, private keys) before sending to the LLM; a confirmation sheet lists matches and requires explicit approval
+- Fix: update checker now only notifies when a genuinely newer version is available (was triggering on any version that differed from the running one)
 
 ## v0.55 – 2026-04-30
 - Localized custom API section names in Settings

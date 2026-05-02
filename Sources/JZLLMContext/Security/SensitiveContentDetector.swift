@@ -31,6 +31,8 @@ enum SensitiveContentDetector {
         SensitivePattern(label: "AWS Access Key",    pattern: #"AKIA[0-9A-Z]{16}"#),
         SensitivePattern(label: "Private Key",       pattern: #"-----BEGIN [A-Z ]*PRIVATE KEY-----"#),
         SensitivePattern(label: "Bearer Token",      pattern: #"(?i)bearer\s+[a-zA-Z0-9\-._~+/]{20,}"#),
+        SensitivePattern(label: "Password field",    pattern: #"(?i)(?:password|passwd|pwd)\s*[:=]\s*\S{3,}"#),
+        SensitivePattern(label: "Secret field",      pattern: #"(?i)(?:secret|api_secret|client_secret)\s*[:=]\s*[a-zA-Z0-9\-._~+/]{8,}"#),
     ]
 
     static func detect(text: String, customPatterns: [SensitivePattern]) -> [SensitiveMatch] {

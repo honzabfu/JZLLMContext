@@ -22,7 +22,23 @@ final class OverlayWindowController: NSObject {
             panel?.center()
         }
         state.triggerRefresh()
+        adjustPanelHeight()
         panel?.makeKeyAndOrderFront(nil)
+    }
+
+    private func adjustPanelHeight() {
+        let actionCount = ConfigStore.shared.actions.filter(\.enabled).count
+        let targetHeight = CGFloat(min(max(160 + actionCount * 44, 280), 620))
+        guard let panel = panel, panel.frame.height != targetHeight else { return }
+        let currentFrame = panel.frame
+        let newY = currentFrame.maxY - targetHeight
+        let clampedY: CGFloat
+        if let visible = (panel.screen ?? NSScreen.main)?.visibleFrame {
+            clampedY = max(visible.minY, min(newY, visible.maxY - targetHeight))
+        } else {
+            clampedY = newY
+        }
+        panel.setFrame(NSRect(x: currentFrame.minX, y: clampedY, width: currentFrame.width, height: targetHeight), display: true)
     }
 
     func hideOverlay() {
