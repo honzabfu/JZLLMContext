@@ -99,7 +99,7 @@ struct ActionDetailSheet: View {
                 TextEditor(text: $systemPrompt)
                     .font(.callout)
                     .frame(minHeight: 140, maxHeight: 300)
-                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.3)))
+                    .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
             } else {
                 ScrollView {
                     Text(action.systemPrompt)
@@ -109,8 +109,8 @@ struct ActionDetailSheet: View {
                         .padding(8)
                 }
                 .frame(minHeight: 80, maxHeight: 260)
-                .background(Color(nsColor: .textBackgroundColor).opacity(0.6))
-                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .background(Color(nsColor: .textBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
             }
         }
     }
