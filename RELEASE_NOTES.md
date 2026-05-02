@@ -1,5 +1,7 @@
 # Release Notes
 
+## Unreleased
+
 ## v0.58 – 2026-05-02
 - Fix: warning triangle no longer shown for custom OpenAI-compatible providers (local models do not require an API key)
 - History panel: "Open log folder" button added at the bottom — visible when interaction logging is enabled
