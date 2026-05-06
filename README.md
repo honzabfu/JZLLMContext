@@ -25,7 +25,7 @@ Copy text or an image, press the global shortcut, and the selected action sends 
   - [Settings – Actions](#settings--actions)
   - [Settings – Providers](#settings--providers)
 - [Custom Models](#custom-models)
-- [Custom OpenAI-Compatible Provider](#custom-openai-compatible-provider)
+- [Custom OpenAI-Compatible Providers](#custom-openai-compatible-providers)
 - [Uninstalling](#uninstalling)
 - [Technical Overview](#technical-overview)
 - [Disclaimer](#disclaimer)
@@ -143,7 +143,9 @@ All changes are saved immediately.
 
 **Azure AI (slot 1 and slot 2)** – each slot represents one deployment in Azure AI Foundry. Enter the API key, Deployment URL, and API version.
 
-**Custom OpenAI-compatible (slot 1 and slot 2)** – any server compatible with the OpenAI Chat Completions API. Enter the Base URL, optionally an API key (can be left empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), and the **Max tokens parameter** – select the token limit parameter name (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) based on what the server expects. **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available.
+**Custom OpenAI-compatible providers** – any number of custom providers compatible with the OpenAI Chat Completions API. Add a provider with the **+** button and configure: provider name (used in the action picker and all UI), Base URL, optionally an API key (leave empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), the **Max tokens parameter** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – select based on what the server expects), and optional **Custom Headers** (extra HTTP headers sent with every request – useful for authentication headers, API routing, or service-specific requirements). **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available. Providers can be removed with the delete button; actions using the deleted provider are automatically reset to OpenAI.
+
+**Model Filters** – global filters that apply across all providers. The **Exclude** list hides any model whose ID contains one of the specified strings (e.g. adding `preview` hides all preview models). The **Include** list, when non-empty, shows only models whose ID contains at least one of the specified strings. Include takes priority over exclude. Filters apply in the action model picker and in the Update Models sheet.
 
 The **Verify Connection** button for each provider sends a test request and displays the result.
 
@@ -160,18 +162,19 @@ Each provider offers a predefined model list and the option to enter any model m
 | Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
 | xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model is determined by the deployment configuration) |
-| Custom API (slot 1 / slot 2) | fetched via Update Models (if server supports `/models`); manual entry always available |
+| Custom providers | fetched via Update Models (if server supports `/models`); manual entry always available |
 
 To use a custom model: in the action settings, open the model picker → select "Custom model…" → enter the exact model identifier (e.g. `gpt-4.5-preview`). The value is saved immediately.
 
 ---
 
-### Custom OpenAI-Compatible Provider
+### Custom OpenAI-Compatible Providers
 
-The app supports any server compatible with the OpenAI Chat Completions API via two independent slots.
+The app supports any number of custom providers compatible with the OpenAI Chat Completions API. Add them in **Settings → Providers** using the **+** button. Each provider has an independent name, API key, and configuration.
 
 **Ollama (local models)**
 ```
+Name:     Ollama
 Base URL: http://localhost:11434/v1
 API key:  (leave empty)
 Model:    llama3.2, mistral, ...
@@ -179,16 +182,28 @@ Model:    llama3.2, mistral, ...
 
 **LM Studio**
 ```
+Name:     LM Studio
 Base URL: http://localhost:1234/v1
 API key:  (leave empty or any string)
 Model:    (name of the model loaded in LM Studio)
 ```
 
-**Another cloud provider**
+**Another cloud provider (e.g. Together AI)**
 ```
+Name:     Together AI
 Base URL: https://api.together.xyz/v1
 API key:  <your key>
 Model:    meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo
+```
+
+**OpenRouter (with custom headers)**
+```
+Name:           OpenRouter
+Base URL:       https://openrouter.ai/api/v1
+API key:        <your OpenRouter key>
+Custom Headers: HTTP-Referer: https://your-app.example.com
+                X-Title: YourAppName
+Model:          (any OpenRouter model ID)
 ```
 
 ---
@@ -217,8 +232,8 @@ security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.gemin
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.grok.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai_2.apikey"
-security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai.apikey"
-security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai_2.apikey"
+# For each custom provider, replace <uuid> with the provider's UUID from config.json:
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.<uuid>.apikey"
 ```
 
 If "Launch at Login" was enabled, unregister the app in Settings → General before deleting it. macOS usually removes the registration automatically when the `.app` bundle is deleted.
@@ -231,7 +246,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 - **Global shortcut** – opens the overlay panel with clipboard content from anywhere (default: Cmd+Shift+Space)
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
-- **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), custom OpenAI-compatible endpoint – 2 slots (Ollama, LM Studio, …)
+- **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), unlimited custom OpenAI-compatible providers (Ollama, LM Studio, OpenRouter, …)
 - **Custom actions** – any number of actions with system prompts; each has its own provider, model, temperature, and token limit
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
 - **Custom models** – each provider supports entering any model beyond the predefined list
@@ -246,6 +261,8 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Auto copy and close** – global toggle and per-action override (Always / Never / Use global setting)
 - **Result formatting** – global toggle; result can be shown with Markdown formatting or as plain text
 - **Online model list refresh** – fetch current models directly from the API via the provider settings button; custom OpenAI-compatible providers query the server's `/models` endpoint
+- **Model filters** – global include and exclude filter lists; models whose ID contains an exclude string are hidden across all providers; if any include strings are set, only matching models are shown; filters apply in the model picker and the Update Models sheet
+- **Custom HTTP headers** – each custom provider can send arbitrary extra HTTP headers with every request (useful for API routing, authentication, or service-specific requirements like `HTTP-Referer` on OpenRouter)
 - **Connection test** – verifies that the API key and configuration are working
 - **Configuration backup** – export/import the full configuration as JSON; API keys are not exported
 - **Configuration reset** – restore default settings with one click; API keys in the Keychain are preserved
@@ -305,7 +322,7 @@ ConfigStore (singleton)       – read/write config.json
 KeychainStore                 – store API keys in macOS Keychain
 ContextResolver               – read NSPasteboard + Vision OCR
 ProviderFactory               – create LLMProvider based on action config
-  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 slots) + custom endpoint (2 slots)
+  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 slots) + dynamic custom endpoints
   └── AnthropicProvider        – Anthropic Claude
 ```
 
@@ -345,8 +362,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
 | xAI Grok | `jzllmcontext.grok.apikey` |
 | Azure AI slot 1 | `jzllmcontext.azure_openai.apikey` |
 | Azure AI slot 2 | `jzllmcontext.azure_openai_2.apikey` |
-| Custom API slot 1 | `jzllmcontext.custom_openai.apikey` |
-| Custom API slot 2 | `jzllmcontext.custom_openai_2.apikey` |
+| Custom provider | `jzllmcontext.<uuid>.apikey` (UUID is assigned per provider on creation) |
 
 #### Configuration File Structure
 
@@ -372,12 +388,30 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
   "azureDeploymentName2": null,
   "azureEndpoint2": null,
   "azureAPIVersion2": null,
-  "customOpenAIBaseURL": "http://localhost:11434/v1",
-  "customOpenAIAPIVersion": null,
-  "customOpenAITokenParam": "max_tokens",
-  "customOpenAIBaseURL2": null,
-  "customOpenAIAPIVersion2": null,
-  "customOpenAITokenParam2": "max_tokens",
+  "customProviders": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Ollama",
+      "baseURL": "http://localhost:11434/v1",
+      "apiVersion": null,
+      "tokenParamStyle": "max_tokens",
+      "requiresAPIKey": false,
+      "customHeaders": {}
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "OpenRouter",
+      "baseURL": "https://openrouter.ai/api/v1",
+      "apiVersion": null,
+      "tokenParamStyle": "max_tokens",
+      "requiresAPIKey": true,
+      "customHeaders": {
+        "HTTP-Referer": "https://your-app.example.com"
+      }
+    }
+  ],
+  "modelExcludeFilters": ["preview", "instruct"],
+  "modelIncludeFilters": [],
   "autoUpdateCheck": true,
   "autoCopyAndClose": false,
   "historyLimit": 5,
@@ -385,13 +419,13 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 1
+  "schemaVersion": 2
 }
 ```
 
 `hotkeyKeyCode` and `hotkeyModifiers` are Carbon API codes. The default shortcut Cmd+Shift+Space corresponds to `keyCode: 49`, `modifiers: 768`.
 
-Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
+Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, or the UUID string of a custom provider (e.g. `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`).
 
 #### Providers and Their Details
 
@@ -403,8 +437,7 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`,
 | xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
 | Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | `api-key: {key}` header; model in body is ignored – model is determined by the deployment |
 | Azure AI (slot 2) | same as slot 1, different config | 0.0–2.0 | Independent slot for a second deployment |
-| Custom API (slot 1) | `{customBaseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protocol; API key and API version are optional |
-| Custom API (slot 2) | same as slot 1, different config | 0.0–2.0 | Independent slot for a second custom endpoint |
+| Custom provider (any) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protocol; API key, API version, and custom headers are all optional; supports Ollama, LM Studio, OpenRouter, Together AI, etc. |
 
 All HTTP requests time out after **60 seconds**.
 
@@ -455,7 +488,7 @@ Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce po
   - [Nastavení – Akce](#nastavení--akce)
   - [Nastavení – Providery](#nastavení--providery)
 - [Vlastní modely](#vlastní-modely)
-- [Vlastní OpenAI-compatible provider](#vlastní-openai-compatible-provider)
+- [Vlastní OpenAI-compatible providery](#vlastní-openai-compatible-providery)
 - [Odinstalace](#odinstalace)
 - [Technický popis](#technický-popis)
 - [Zřeknutí se odpovědnosti](#zřeknutí-se-odpovědnosti)
@@ -573,7 +606,9 @@ Všechny změny se ukládají okamžitě.
 
 **Azure AI (slot 1 a slot 2)** – každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
-**Vlastní OpenAI-compatible (slot 1 a slot 2)** – libovolný server kompatibilní s OpenAI Chat Completions API. Zadej Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `api-version` do URL) a **Parametr max. tokenů** – výběr názvu parametru pro limit tokenů (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens`) podle toho, co daný server očekává. **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné.
+**Vlastní OpenAI-compatible providery** – libovolný počet vlastních providerů kompatibilních s OpenAI Chat Completions API. Přidej provider tlačítkem **+** a nakonfiguruj: název providera (používá se ve výběru akce a v celém UI), Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `?api-version=…` do URL), **Parametr max. tokenů** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – zvol podle toho, co daný server očekává) a volitelné **Vlastní hlavičky** (extra HTTP hlavičky odeslané s každým požadavkem – pro autentizaci, směrování API nebo specifické požadavky serveru). **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné. Providery lze odebrat tlačítkem smazat; akce používající smazaný provider se automaticky resetují na OpenAI.
+
+**Filtry modelů** – globální filtry platné pro všechny providery. Seznam **Exclude** skryje každý model, jehož ID obsahuje zadaný řetězec (např. přidání `preview` skryje všechny preview modely). Seznam **Include**, je-li neprázdný, zobrazí jen modely, jejichž ID obsahuje alespoň jeden ze zadaných řetězců. Include má přednost před exclude. Filtry se uplatňují ve výběru modelu v akci i v listu Update Models.
 
 Tlačítko **Ověřit připojení** u každého providera odešle testovací požadavek a zobrazí výsledek.
 
@@ -590,18 +625,19 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 | Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
 | xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
-| Vlastní API (slot 1 / slot 2) | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
+| Vlastní providery | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
 
 Výběr vlastního modelu: v nastavení akce otevři výběr modelu → vyber „Vlastní model…" → zadej přesný identifikátor (např. `gpt-4.5-preview`). Hodnota se uloží okamžitě.
 
 ---
 
-### Vlastní OpenAI-compatible provider
+### Vlastní OpenAI-compatible providery
 
-Aplikace podporuje libovolný server kompatibilní s OpenAI Chat Completions API – ve formě dvou nezávislých slotů.
+Aplikace podporuje libovolný počet vlastních providerů kompatibilních s OpenAI Chat Completions API. Přidej je v **Nastavení → Providery** tlačítkem **+**. Každý provider má nezávislý název, API klíč a konfiguraci.
 
 **Ollama (lokální modely)**
 ```
+Název:    Ollama
 Base URL: http://localhost:11434/v1
 API klíč: (nechat prázdné)
 Model:    llama3.2, mistral, ...
@@ -609,16 +645,28 @@ Model:    llama3.2, mistral, ...
 
 **LM Studio**
 ```
+Název:    LM Studio
 Base URL: http://localhost:1234/v1
 API klíč: (nechat prázdné nebo libovolný řetězec)
 Model:    (název modelu načteného v LM Studio)
 ```
 
-**Jiný cloud provider**
+**Jiný cloud provider (např. Together AI)**
 ```
+Název:    Together AI
 Base URL: https://api.together.xyz/v1
 API klíč: <tvůj klíč>
 Model:    meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo
+```
+
+**OpenRouter (s vlastními hlavičkami)**
+```
+Název:            OpenRouter
+Base URL:         https://openrouter.ai/api/v1
+API klíč:         <tvůj OpenRouter klíč>
+Vlastní hlavičky: HTTP-Referer: https://tvoje-appka.example.com
+                  X-Title: NazevAppky
+Model:            (libovolné model ID z OpenRouter)
 ```
 
 ---
@@ -647,8 +695,8 @@ security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.gemin
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.grok.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai_2.apikey"
-security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai.apikey"
-security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.custom_openai_2.apikey"
+# Pro každý vlastní provider nahraď <uuid> UUID providera z config.json:
+security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.<uuid>.apikey"
 ```
 
 Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před smazáním přes Nastavení → Obecné. macOS registraci většinou smaže automaticky při odstranění `.app` bundlu.
@@ -661,7 +709,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
-- **Více providerů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), vlastní OpenAI-compatible endpoint – 2 sloty (Ollama, LM Studio, …)
+- **Více providerů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible providerů (Ollama, LM Studio, OpenRouter, …)
 - **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastní provider, model, teplotu a limit tokenů
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
 - **Vlastní modely** – každý provider podporuje zadání libovolného modelu mimo předdefinovaný seznam
@@ -676,6 +724,8 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Automatické zkopírování a zavření** – globální přepínač i per-akce přepis (Vždy / Nikdy / Dle globálního nastavení)
 - **Formátování výsledku** – globální přepínač; výsledek lze zobrazit s Markdown formátováním nebo jako prostý text
 - **Aktualizace seznamu modelů online** – tlačítkem v nastavení providerů lze načíst aktuální modely přímo z API; vlastní OpenAI-compatible providery načítají modely z endpointu `/models` na daném serveru
+- **Filtry modelů** – globální seznamy include a exclude filtrů; modely jejichž ID obsahuje exclude řetězec jsou skryty u všech providerů; jsou-li zadány include řetězce, zobrazí se jen shodné modely; filtry se uplatňují ve výběru modelu i v listu Update Models
+- **Vlastní HTTP hlavičky** – každý vlastní provider může posílat libovolné extra HTTP hlavičky s každým požadavkem (pro API routing, autentizaci nebo specifické požadavky jako `HTTP-Referer` na OpenRouter)
 - **Test připojení** – ověří, zda je API klíč a konfigurace funkční
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
@@ -735,7 +785,7 @@ ConfigStore (singleton)       – čtení/zápis config.json
 KeychainStore                 – ukládání API klíčů do macOS Keychain
 ContextResolver               – čtení NSPasteboard + Vision OCR
 ProviderFactory               – vytváření LLMProvider podle konfigurace akce
-  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 sloty) + vlastní endpoint (2 sloty)
+  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 sloty) + dynamické vlastní endpointy
   └── AnthropicProvider        – Anthropic Claude
 ```
 
@@ -773,8 +823,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 | xAI Grok | `jzllmcontext.grok.apikey` |
 | Azure AI slot 1 | `jzllmcontext.azure_openai.apikey` |
 | Azure AI slot 2 | `jzllmcontext.azure_openai_2.apikey` |
-| Vlastní API slot 1 | `jzllmcontext.custom_openai.apikey` |
-| Vlastní API slot 2 | `jzllmcontext.custom_openai_2.apikey` |
+| Vlastní provider | `jzllmcontext.<uuid>.apikey` (UUID přiřazeno při vytvoření providera) |
 
 #### Struktura konfiguračního souboru
 
@@ -800,12 +849,19 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
   "azureDeploymentName2": null,
   "azureEndpoint2": null,
   "azureAPIVersion2": null,
-  "customOpenAIBaseURL": "http://localhost:11434/v1",
-  "customOpenAIAPIVersion": null,
-  "customOpenAITokenParam": "max_tokens",
-  "customOpenAIBaseURL2": null,
-  "customOpenAIAPIVersion2": null,
-  "customOpenAITokenParam2": "max_tokens",
+  "customProviders": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Ollama",
+      "baseURL": "http://localhost:11434/v1",
+      "apiVersion": null,
+      "tokenParamStyle": "max_tokens",
+      "requiresAPIKey": false,
+      "customHeaders": {}
+    }
+  ],
+  "modelExcludeFilters": ["preview"],
+  "modelIncludeFilters": [],
   "autoUpdateCheck": true,
   "autoCopyAndClose": false,
   "historyLimit": 5,
@@ -813,13 +869,13 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 1
+  "schemaVersion": 2
 }
 ```
 
 Hodnoty `hotkeyKeyCode` a `hotkeyModifiers` jsou kódy Carbon API. Výchozí zkratka Cmd+Shift+Space odpovídá `keyCode: 49`, `modifiers: 768`.
 
-Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, `"custom_openai"`, `"custom_openai_2"`.
+Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, nebo UUID string vlastního providera (např. `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`).
 
 #### Providery a jejich limity
 
@@ -831,8 +887,7 @@ Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"
 | xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
 | Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | Header `api-key: {key}`; model v body ignorován – model určuje deployment |
 | Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý deployment |
-| Vlastní API (slot 1) | `{customBaseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč i API verze volitelné |
-| Vlastní API (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý custom endpoint |
+| Vlastní provider (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
 
 Timeout všech HTTP požadavků: **60 sekund**.
 
