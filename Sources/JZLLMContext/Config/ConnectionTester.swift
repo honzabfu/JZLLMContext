@@ -2,15 +2,25 @@ import Foundation
 
 enum ConnectionTester {
     static func test(for provider: ProviderType) async throws {
-        switch provider {
-        case .openai:       try await pingOpenAI()
-        case .anthropic:    try await pingAnthropic()
-        case .gemini:       try await pingGemini()
-        case .grok:         try await pingGrok()
-        case .azureOpenai:  try await pingAzure(slot: 1)
-        case .azureOpenai2: try await pingAzure(slot: 2)
-        case .customOpenAI:  try await pingCustom(slot: 1)
-        case .customOpenAI2: try await pingCustom(slot: 2)
+        if provider == .openai {
+            try await pingOpenAI()
+        } else if provider == .anthropic {
+            try await pingAnthropic()
+        } else if provider == .gemini {
+            try await pingGemini()
+        } else if provider == .grok {
+            try await pingGrok()
+        } else if provider == .azureOpenai {
+            try await pingAzure(slot: 1)
+        } else if provider == .azureOpenai2 {
+            try await pingAzure(slot: 2)
+        } else if provider.isCustom {
+            guard let cp = provider.customProvider else {
+                throw LLMError.missingAPIKey(provider)
+            }
+            try await pingCustom(provider: provider, config: cp)
+        } else {
+            throw LLMError.missingAPIKey(provider)
         }
     }
 
@@ -88,23 +98,21 @@ enum ConnectionTester {
 
     // MARK: - Custom OpenAI-compatible
 
-    private static func pingCustom(slot: Int) async throws {
-        let providerType: ProviderType = slot == 1 ? .customOpenAI : .customOpenAI2
-        let key = (try? KeychainStore.load(for: providerType)) ?? ""
-        let config = ConfigStore.shared.config
-        let urlStr = slot == 1 ? config.customOpenAIBaseURL : config.customOpenAIBaseURL2
-        guard let urlStr, !urlStr.isEmpty else {
-            throw LLMError.missingAPIKey(providerType)
+    private static func pingCustom(provider: ProviderType, config cp: CustomProvider) async throws {
+        let key = (try? KeychainStore.load(for: provider)) ?? ""
+        guard !cp.baseURL.isEmpty else {
+            throw LLMError.missingAPIKey(provider)
         }
-        var base = urlStr.hasSuffix("/") ? String(urlStr.dropLast()) : urlStr
+        var base = cp.baseURL.hasSuffix("/") ? String(cp.baseURL.dropLast()) : cp.baseURL
         if base.hasSuffix("/chat/completions") {
             base = String(base.dropLast("/chat/completions".count))
         }
         guard let modelsURL = URL(string: "\(base)/models") else {
-            throw LLMError.missingAPIKey(providerType)
+            throw LLMError.missingAPIKey(provider)
         }
         var req = URLRequest(url: modelsURL)
         if !key.isEmpty { req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization") }
+        for (k, v) in cp.customHeaders { req.setValue(v, forHTTPHeaderField: k) }
         req.timeoutInterval = 10
         let (data, response) = try await URLSession.shared.data(for: req)
         try validate(data: data, response: response)

@@ -13,13 +13,15 @@ struct OpenAIProvider: LLMProvider {
     let temperature: Double
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
+    let extraHeaders: [String: String]
 
     init(model: String, apiKey: String,
          baseURL: URL = URL(string: "https://api.openai.com/v1")!,
          chatURL: URL? = nil,
          authStyle: OpenAIAuthStyle = .bearer,
          temperature: Double = 0.7, maxTokens: Int = 4096,
-         tokenParamStyle: TokenParamStyle = .maxCompletionTokens) {
+         tokenParamStyle: TokenParamStyle = .maxCompletionTokens,
+         extraHeaders: [String: String] = [:]) {
         self.model = model
         self.apiKey = apiKey
         self.chatURL = chatURL ?? baseURL.appendingPathComponent("chat/completions")
@@ -27,6 +29,7 @@ struct OpenAIProvider: LLMProvider {
         self.temperature = temperature
         self.maxTokens = maxTokens
         self.tokenParamStyle = tokenParamStyle
+        self.extraHeaders = extraHeaders
     }
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
@@ -40,6 +43,9 @@ struct OpenAIProvider: LLMProvider {
                     case .apiKey: request.setValue(apiKey, forHTTPHeaderField: "api-key")
                     }
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    for (key, value) in extraHeaders {
+                        request.setValue(value, forHTTPHeaderField: key)
+                    }
                     request.timeoutInterval = 60
 
                     let body = OpenAIChatRequest(
