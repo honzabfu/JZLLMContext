@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Dynamic custom providers: replace the fixed two-slot "Custom API" system with an unlimited list of named custom OpenAI-compatible providers; each provider has its own name, Base URL, optional API key, API version, max-tokens parameter style, and custom HTTP headers
+- Custom HTTP headers per provider: arbitrary key-value headers sent with every request – enables API routing, authentication, and other provider-specific requirements (e.g. `HTTP-Referer`, `X-Org-ID`)
+- Global model filters: exclude filter hides models whose ID contains a specified string across all providers; include filter (when non-empty) shows only models matching at least one specified string; filters apply in the model picker and the Update Models sheet
+- Automatic config migration: existing configurations with "Custom API slot 1/2" are automatically migrated to the new provider format on first launch; API keys and model presets are preserved
+
 ## v0.58 – 2026-05-02
 - Fix: warning triangle no longer shown for custom OpenAI-compatible providers (local models do not require an API key)
 - History panel: "Open log folder" button added at the bottom — visible when interaction logging is enabled

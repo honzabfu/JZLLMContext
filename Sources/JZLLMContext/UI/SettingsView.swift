@@ -19,8 +19,7 @@ struct SettingsView: View {
     @State private var grokKey = ""
     @State private var azureKey = ""
     @State private var azureKey2 = ""
-    @State private var customKey = ""
-    @State private var customKey2 = ""
+    @State private var customProviderKeys: [String: String] = [:]
     @State private var keySaveStatus: [ProviderType: Bool] = [:]
     @State private var launchAtLogin = false
     @State private var importedActions: [Action] = []
@@ -40,6 +39,13 @@ struct SettingsView: View {
     @State private var updateState: UpdateState = .idle
     @State private var newPatternLabel = ""
     @State private var newPatternRegex = ""
+    @State private var newExcludeFilter = ""
+    @State private var newIncludeFilter = ""
+    @State private var newHeaderKey: [UUID: String] = [:]
+    @State private var newHeaderValue: [UUID: String] = [:]
+    @State private var showDeleteProviderAlert = false
+    @State private var providerToDelete: CustomProvider? = nil
+
     private enum PatternField: Hashable { case label, regex }
     @FocusState private var patternFocus: PatternField?
 
@@ -76,7 +82,18 @@ struct SettingsView: View {
                 reviewingProvider = nil
             }
         }
+        .alert(L("settings.providers.custom.delete_confirm_title"), isPresented: $showDeleteProviderAlert) {
+            Button(L("common.delete"), role: .destructive) {
+                if let cp = providerToDelete { performDeleteCustomProvider(cp) }
+            }
+            Button(L("common.cancel"), role: .cancel) { providerToDelete = nil }
+        } message: {
+            Text(String(format: L("settings.providers.custom.delete_confirm_message"),
+                        providerToDelete?.name ?? ""))
+        }
     }
+
+    // MARK: - General Tab
 
     private var generalTab: some View {
         Form {
@@ -355,52 +372,7 @@ struct SettingsView: View {
         }
     }
 
-    private func isValidRegex(_ pattern: String) -> Bool {
-        !pattern.isEmpty && (try? NSRegularExpression(pattern: pattern)) != nil
-    }
-
-    private func selectLogDirectory() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.canCreateDirectories = true
-        panel.prompt = L("settings.general.logging.choose_button")
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else {
-                if !config.historyLogWarningShown {
-                    config.historyLogEnabled = false
-                    ConfigStore.shared.update { $0.historyLogEnabled = false }
-                }
-                return
-            }
-            config.historyLogDirectory = url.path
-            config.historyLogEnabled = true
-            config.historyLogWarningShown = true
-            ConfigStore.shared.update {
-                $0.historyLogDirectory = url.path
-                $0.historyLogEnabled = true
-                $0.historyLogWarningShown = true
-            }
-            Task { await HistoryLogger.shared.resetHandleCache() }
-        }
-    }
-
-    private func relaunchApp() {
-        let path = Bundle.main.bundleURL.path
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        task.arguments = ["-n", path]
-        try? task.run()
-        NSApp.terminate(nil)
-    }
-
-    private func saveHotkey() {
-        ConfigStore.shared.update {
-            $0.hotkeyKeyCode = config.hotkeyKeyCode
-            $0.hotkeyModifiers = config.hotkeyModifiers
-        }
-        NotificationCenter.default.post(name: .hotkeyDidChange, object: nil)
-    }
+    // MARK: - Actions Tab
 
     private var actionsTab: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -460,69 +432,11 @@ struct SettingsView: View {
         }
     }
 
-    private func exportActions() {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let data = try? encoder.encode(config.actions) else { return }
-        let panel = NSSavePanel()
-        panel.title = "Exportovat akce"
-        panel.nameFieldStringValue = "JZLLMContext-actions.json"
-        panel.allowedContentTypes = [.json]
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            try? data.write(to: url, options: .atomic)
-        }
-    }
-
-    private func importActions() {
-        let panel = NSOpenPanel()
-        panel.title = "Importovat akce"
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        panel.begin { response in
-            guard response == .OK, let url = panel.url,
-                  let data = try? Data(contentsOf: url),
-                  let actions = try? JSONDecoder().decode([Action].self, from: data),
-                  !actions.isEmpty else { return }
-            DispatchQueue.main.async {
-                importedActions = actions
-                showImportAlert = true
-            }
-        }
-    }
-
-    private func exportConfig() {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let data = try? encoder.encode(ConfigStore.shared.config) else { return }
-        let panel = NSSavePanel()
-        panel.title = "Exportovat konfiguraci"
-        panel.nameFieldStringValue = "JZLLMContext-config.json"
-        panel.allowedContentTypes = [.json]
-        panel.begin { response in
-            guard response == .OK, let url = panel.url else { return }
-            try? data.write(to: url, options: .atomic)
-        }
-    }
-
-    private func importConfig() {
-        let panel = NSOpenPanel()
-        panel.title = "Importovat konfiguraci"
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        panel.begin { response in
-            guard response == .OK, let url = panel.url,
-                  let data = try? Data(contentsOf: url),
-                  let cfg = try? JSONDecoder().decode(AppConfig.self, from: data) else { return }
-            DispatchQueue.main.async {
-                importedConfig = cfg
-                showConfigImportAlert = true
-            }
-        }
-    }
+    // MARK: - Providers Tab
 
     private var providersTab: some View {
         Form {
+            // Built-in providers
             Section("OpenAI") {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $openaiKey)
@@ -632,76 +546,25 @@ struct SettingsView: View {
                 saveButton(for: .azureOpenai2, key: azureKey2)
                 testConnectionRow(for: .azureOpenai2)
             }
-            Section(L("provider.custom1")) {
-                LabeledContent(L("settings.providers.custom.base_url")) {
-                    TextField("", text: Binding(
-                        get: { config.customOpenAIBaseURL ?? "" },
-                        set: {
-                            config.customOpenAIBaseURL = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.customOpenAIBaseURL = config.customOpenAIBaseURL }
-                        }
-                    ))
-                }
-                LabeledContent(L("settings.providers.custom.api_version")) {
-                    TextField("", text: Binding(
-                        get: { config.customOpenAIAPIVersion ?? "" },
-                        set: {
-                            config.customOpenAIAPIVersion = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.customOpenAIAPIVersion = config.customOpenAIAPIVersion }
-                        }
-                    ))
-                }
-                Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam) {
-                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
-                        Text(style.displayName).tag(style)
-                    }
-                }
-                .onChange(of: config.customOpenAITokenParam) { _, val in
-                    ConfigStore.shared.update { $0.customOpenAITokenParam = val }
-                }
-                LabeledContent(L("settings.providers.api_key_optional")) {
-                    SecureField("", text: $customKey)
-                        .onSubmit { saveKey(customKey, for: .customOpenAI) }
-                }
-                saveButton(for: .customOpenAI, key: customKey)
-                testConnectionRow(for: .customOpenAI)
-                fetchModelsRow(for: .customOpenAI)
+
+            // Dynamic custom providers
+            ForEach($config.customProviders) { $cp in
+                customProviderSection(cp: $cp)
             }
-            Section(L("provider.custom2")) {
-                LabeledContent(L("settings.providers.custom.base_url")) {
-                    TextField("", text: Binding(
-                        get: { config.customOpenAIBaseURL2 ?? "" },
-                        set: {
-                            config.customOpenAIBaseURL2 = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.customOpenAIBaseURL2 = config.customOpenAIBaseURL2 }
-                        }
-                    ))
+
+            Section {
+                Button {
+                    let newCP = CustomProvider(name: L("settings.providers.custom.new_name"),
+                                               baseURL: "")
+                    config.customProviders.append(newCP)
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                } label: {
+                    Label(L("settings.providers.add_custom"), systemImage: "plus")
                 }
-                LabeledContent(L("settings.providers.custom.api_version")) {
-                    TextField("", text: Binding(
-                        get: { config.customOpenAIAPIVersion2 ?? "" },
-                        set: {
-                            config.customOpenAIAPIVersion2 = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.customOpenAIAPIVersion2 = config.customOpenAIAPIVersion2 }
-                        }
-                    ))
-                }
-                Picker(L("settings.providers.token_param"), selection: $config.customOpenAITokenParam2) {
-                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
-                        Text(style.displayName).tag(style)
-                    }
-                }
-                .onChange(of: config.customOpenAITokenParam2) { _, val in
-                    ConfigStore.shared.update { $0.customOpenAITokenParam2 = val }
-                }
-                LabeledContent(L("settings.providers.api_key_optional")) {
-                    SecureField("", text: $customKey2)
-                        .onSubmit { saveKey(customKey2, for: .customOpenAI2) }
-                }
-                saveButton(for: .customOpenAI2, key: customKey2)
-                testConnectionRow(for: .customOpenAI2)
-                fetchModelsRow(for: .customOpenAI2)
             }
+
+            // Model filters
+            modelFiltersSection
         }
         .formStyle(.grouped)
         .padding()
@@ -716,6 +579,236 @@ struct SettingsView: View {
             }
         }
     }
+
+    // MARK: - Custom Provider Section
+
+    @ViewBuilder
+    private func customProviderSection(cp: Binding<CustomProvider>) -> some View {
+        let cpID = cp.wrappedValue.id
+        let provider = ProviderType(cpID.uuidString)
+        let keyBinding = Binding<String>(
+            get: { customProviderKeys[cpID.uuidString] ?? "" },
+            set: { customProviderKeys[cpID.uuidString] = $0 }
+        )
+
+        Section {
+            LabeledContent(L("settings.providers.custom.name")) {
+                TextField("", text: cp.name)
+                    .onChange(of: cp.wrappedValue.name) { _, _ in
+                        ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    }
+            }
+            LabeledContent(L("settings.providers.custom.base_url")) {
+                TextField("https://…", text: cp.baseURL)
+                    .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                        ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    }
+            }
+            LabeledContent(L("settings.providers.custom.api_version")) {
+                TextField("", text: Binding(
+                    get: { cp.wrappedValue.apiVersion ?? "" },
+                    set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
+                ))
+                .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                }
+            }
+            Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
+                ForEach(TokenParamStyle.allCases, id: \.self) { style in
+                    Text(style.displayName).tag(style)
+                }
+            }
+            .onChange(of: cp.wrappedValue.tokenParamStyle) { _, _ in
+                ConfigStore.shared.update { $0.customProviders = config.customProviders }
+            }
+            Toggle(L("settings.providers.custom.requires_key"), isOn: cp.requiresAPIKey)
+                .onChange(of: cp.wrappedValue.requiresAPIKey) { _, _ in
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                }
+            LabeledContent(L("settings.providers.api_key_optional")) {
+                SecureField("", text: keyBinding)
+                    .onSubmit { saveKey(keyBinding.wrappedValue, for: provider) }
+            }
+            saveButton(for: provider, key: keyBinding.wrappedValue)
+
+            // Custom headers
+            customHeadersRows(cp: cp, cpID: cpID)
+
+            testConnectionRow(for: provider)
+            fetchModelsRow(for: provider)
+
+            Button(role: .destructive) {
+                providerToDelete = cp.wrappedValue
+                showDeleteProviderAlert = true
+            } label: {
+                Label(L("settings.providers.custom.delete"), systemImage: "trash")
+                    .foregroundStyle(.red)
+            }
+        } header: {
+            Text(cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name)
+        }
+    }
+
+    @ViewBuilder
+    private func customHeadersRows(cp: Binding<CustomProvider>, cpID: UUID) -> some View {
+        DisclosureGroup(L("settings.providers.custom.headers")) {
+            ForEach(Array(cp.wrappedValue.customHeaders.keys.sorted()), id: \.self) { key in
+                HStack {
+                    Text(key)
+                        .frame(width: 130, alignment: .leading)
+                        .foregroundStyle(.secondary)
+                    Text(cp.wrappedValue.customHeaders[key] ?? "")
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    Spacer()
+                    Button(role: .destructive) {
+                        var headers = cp.wrappedValue.customHeaders
+                        headers.removeValue(forKey: key)
+                        cp.customHeaders.wrappedValue = headers
+                        ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    } label: {
+                        Image(systemName: "minus.circle").foregroundStyle(.red)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .font(.caption)
+            }
+            HStack(spacing: 6) {
+                TextField(L("settings.providers.custom.header_key"), text: Binding(
+                    get: { newHeaderKey[cpID] ?? "" },
+                    set: { newHeaderKey[cpID] = $0 }
+                ))
+                .frame(width: 130)
+                TextField(L("settings.providers.custom.header_value"), text: Binding(
+                    get: { newHeaderValue[cpID] ?? "" },
+                    set: { newHeaderValue[cpID] = $0 }
+                ))
+                Button(L("common.add")) {
+                    guard let k = newHeaderKey[cpID], !k.isEmpty,
+                          let v = newHeaderValue[cpID], !v.isEmpty else { return }
+                    var headers = cp.wrappedValue.customHeaders
+                    headers[k] = v
+                    cp.customHeaders.wrappedValue = headers
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    newHeaderKey[cpID] = ""
+                    newHeaderValue[cpID] = ""
+                }
+                .disabled((newHeaderKey[cpID] ?? "").isEmpty || (newHeaderValue[cpID] ?? "").isEmpty)
+            }
+            .font(.caption)
+        }
+    }
+
+    private func performDeleteCustomProvider(_ cp: CustomProvider) {
+        let providerType = ProviderType(cp.id.uuidString)
+        KeychainStore.delete(for: providerType)
+        // Reset any actions using this provider back to openai
+        ConfigStore.shared.update {
+            $0.customProviders.removeAll { $0.id == cp.id }
+            for i in $0.actions.indices where $0.actions[i].provider == providerType {
+                $0.actions[i].provider = .openai
+                $0.actions[i].model = "gpt-5.5"
+            }
+            $0.modelPresets.removeValue(forKey: cp.id.uuidString)
+        }
+        config = ConfigStore.shared.config
+        customProviderKeys.removeValue(forKey: cp.id.uuidString)
+        providerToDelete = nil
+    }
+
+    // MARK: - Model Filters Section
+
+    private var modelFiltersSection: some View {
+        Section(L("settings.providers.model_filters")) {
+            // Exclude
+            LabeledContent {
+                filterTagsRow(
+                    filters: $config.modelExcludeFilters,
+                    onRemove: { idx in
+                        config.modelExcludeFilters.remove(at: idx)
+                        ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
+                    }
+                )
+            } label: {
+                Text(L("settings.providers.model_exclude_filter"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            HStack(spacing: 6) {
+                TextField(L("settings.providers.model_filter.placeholder"), text: $newExcludeFilter)
+                    .onSubmit { addExcludeFilter() }
+                Button(L("common.add")) { addExcludeFilter() }
+                    .disabled(newExcludeFilter.isEmpty)
+            }
+            Text(L("settings.providers.model_filter.hint_exclude"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            // Include
+            LabeledContent {
+                filterTagsRow(
+                    filters: $config.modelIncludeFilters,
+                    onRemove: { idx in
+                        config.modelIncludeFilters.remove(at: idx)
+                        ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
+                    }
+                )
+            } label: {
+                Text(L("settings.providers.model_include_filter"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            HStack(spacing: 6) {
+                TextField(L("settings.providers.model_filter.placeholder"), text: $newIncludeFilter)
+                    .onSubmit { addIncludeFilter() }
+                Button(L("common.add")) { addIncludeFilter() }
+                    .disabled(newIncludeFilter.isEmpty)
+            }
+            Text(L("settings.providers.model_filter.hint_include"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func filterTagsRow(filters: Binding<[String]>, onRemove: @escaping (Int) -> Void) -> some View {
+        if filters.wrappedValue.isEmpty {
+            Text("—").foregroundStyle(.secondary).font(.caption)
+        } else {
+            HStack(spacing: 4) {
+                ForEach(Array(filters.wrappedValue.enumerated()), id: \.offset) { idx, filter in
+                    HStack(spacing: 3) {
+                        Text(filter).font(.caption)
+                        Button { onRemove(idx) } label: {
+                            Image(systemName: "xmark").font(.system(size: 9))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.15))
+                    .cornerRadius(4)
+                }
+            }
+        }
+    }
+
+    private func addExcludeFilter() {
+        let s = newExcludeFilter.trimmingCharacters(in: .whitespaces)
+        guard !s.isEmpty, !config.modelExcludeFilters.contains(s) else { return }
+        config.modelExcludeFilters.append(s)
+        ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
+        newExcludeFilter = ""
+    }
+
+    private func addIncludeFilter() {
+        let s = newIncludeFilter.trimmingCharacters(in: .whitespaces)
+        guard !s.isEmpty, !config.modelIncludeFilters.contains(s) else { return }
+        config.modelIncludeFilters.append(s)
+        ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
+        newIncludeFilter = ""
+    }
+
+    // MARK: - Shared Provider Helpers
 
     @ViewBuilder
     private func fetchModelsRow(for provider: ProviderType) -> some View {
@@ -829,14 +922,126 @@ struct SettingsView: View {
     }
 
     private func loadKeys() {
-        openaiKey = (try? KeychainStore.load(for: .openai)) ?? ""
+        openaiKey    = (try? KeychainStore.load(for: .openai)) ?? ""
         anthropicKey = (try? KeychainStore.load(for: .anthropic)) ?? ""
-        geminiKey = (try? KeychainStore.load(for: .gemini)) ?? ""
-        grokKey = (try? KeychainStore.load(for: .grok)) ?? ""
-        azureKey = (try? KeychainStore.load(for: .azureOpenai)) ?? ""
-        azureKey2 = (try? KeychainStore.load(for: .azureOpenai2)) ?? ""
-        customKey = (try? KeychainStore.load(for: .customOpenAI)) ?? ""
-        customKey2 = (try? KeychainStore.load(for: .customOpenAI2)) ?? ""
+        geminiKey    = (try? KeychainStore.load(for: .gemini)) ?? ""
+        grokKey      = (try? KeychainStore.load(for: .grok)) ?? ""
+        azureKey     = (try? KeychainStore.load(for: .azureOpenai)) ?? ""
+        azureKey2    = (try? KeychainStore.load(for: .azureOpenai2)) ?? ""
+        for cp in config.customProviders {
+            let provider = ProviderType(cp.id.uuidString)
+            customProviderKeys[cp.id.uuidString] = (try? KeychainStore.load(for: provider)) ?? ""
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func isValidRegex(_ pattern: String) -> Bool {
+        !pattern.isEmpty && (try? NSRegularExpression(pattern: pattern)) != nil
+    }
+
+    private func selectLogDirectory() {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        panel.prompt = L("settings.general.logging.choose_button")
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else {
+                if !config.historyLogWarningShown {
+                    config.historyLogEnabled = false
+                    ConfigStore.shared.update { $0.historyLogEnabled = false }
+                }
+                return
+            }
+            config.historyLogDirectory = url.path
+            config.historyLogEnabled = true
+            config.historyLogWarningShown = true
+            ConfigStore.shared.update {
+                $0.historyLogDirectory = url.path
+                $0.historyLogEnabled = true
+                $0.historyLogWarningShown = true
+            }
+            Task { await HistoryLogger.shared.resetHandleCache() }
+        }
+    }
+
+    private func relaunchApp() {
+        let path = Bundle.main.bundleURL.path
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+        task.arguments = ["-n", path]
+        try? task.run()
+        NSApp.terminate(nil)
+    }
+
+    private func saveHotkey() {
+        ConfigStore.shared.update {
+            $0.hotkeyKeyCode = config.hotkeyKeyCode
+            $0.hotkeyModifiers = config.hotkeyModifiers
+        }
+        NotificationCenter.default.post(name: .hotkeyDidChange, object: nil)
+    }
+
+    private func exportActions() {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(config.actions) else { return }
+        let panel = NSSavePanel()
+        panel.title = "Exportovat akce"
+        panel.nameFieldStringValue = "JZLLMContext-actions.json"
+        panel.allowedContentTypes = [.json]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    private func importActions() {
+        let panel = NSOpenPanel()
+        panel.title = "Importovat akce"
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url,
+                  let data = try? Data(contentsOf: url),
+                  let actions = try? JSONDecoder().decode([Action].self, from: data),
+                  !actions.isEmpty else { return }
+            DispatchQueue.main.async {
+                importedActions = actions
+                showImportAlert = true
+            }
+        }
+    }
+
+    private func exportConfig() {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(ConfigStore.shared.config) else { return }
+        let panel = NSSavePanel()
+        panel.title = "Exportovat konfiguraci"
+        panel.nameFieldStringValue = "JZLLMContext-config.json"
+        panel.allowedContentTypes = [.json]
+        panel.begin { response in
+            guard response == .OK, let url = panel.url else { return }
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    private func importConfig() {
+        let panel = NSOpenPanel()
+        panel.title = "Importovat konfiguraci"
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.begin { response in
+            guard response == .OK, let url = panel.url,
+                  let data = try? Data(contentsOf: url),
+                  let cfg = try? JSONDecoder().decode(AppConfig.self, from: data) else { return }
+            DispatchQueue.main.async {
+                importedConfig = cfg
+                showConfigImportAlert = true
+            }
+        }
     }
 }
 
@@ -847,6 +1052,22 @@ private struct ModelReviewSheet: View {
     @Binding var models: [FetchedModel]
     let onSave: ([FetchedModel]) -> Void
     let onCancel: () -> Void
+
+    private var visibleModels: [FetchedModel] {
+        let cfg = ConfigStore.shared.config
+        var result = models
+        if !cfg.modelIncludeFilters.isEmpty {
+            result = result.filter { m in
+                cfg.modelIncludeFilters.contains { m.id.lowercased().contains($0.lowercased()) }
+            }
+        }
+        if !cfg.modelExcludeFilters.isEmpty {
+            result = result.filter { m in
+                !cfg.modelExcludeFilters.contains { m.id.lowercased().contains($0.lowercased()) }
+            }
+        }
+        return result
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -859,37 +1080,40 @@ private struct ModelReviewSheet: View {
             Divider()
 
             List($models) { $model in
-                HStack(spacing: 10) {
-                    Toggle("", isOn: $model.isIncluded)
-                        .labelsHidden()
-                        .onChange(of: model.isIncluded) { _, included in
-                            if !included && model.isRecommended {
-                                model.isRecommended = false
+                let isVisible = visibleModels.contains(where: { $0.id == model.id })
+                if isVisible {
+                    HStack(spacing: 10) {
+                        Toggle("", isOn: $model.isIncluded)
+                            .labelsHidden()
+                            .onChange(of: model.isIncluded) { _, included in
+                                if !included && model.isRecommended {
+                                    model.isRecommended = false
+                                }
+                            }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(model.displayName)
+                                .strikethrough(!model.isIncluded, color: .secondary)
+                                .foregroundStyle(model.isIncluded ? .primary : .secondary)
+                            if model.inUseByAction {
+                                Text(L("settings.models.in_use"))
+                                    .font(.caption2)
+                                    .foregroundStyle(.orange)
                             }
                         }
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text(model.displayName)
-                            .strikethrough(!model.isIncluded, color: .secondary)
-                            .foregroundStyle(model.isIncluded ? .primary : .secondary)
-                        if model.inUseByAction {
-                            Text(L("settings.models.in_use"))
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                        Spacer()
+                        Button {
+                            let targetID = model.id
+                            for i in models.indices {
+                                models[i].isRecommended = models[i].id == targetID
+                            }
+                        } label: {
+                            Image(systemName: model.isRecommended ? "star.fill" : "star")
+                                .foregroundStyle(model.isRecommended ? Color.yellow : Color.secondary)
                         }
+                        .buttonStyle(.plain)
+                        .disabled(!model.isIncluded)
+                        .help(L("settings.models.help.recommend"))
                     }
-                    Spacer()
-                    Button {
-                        let targetID = model.id
-                        for i in models.indices {
-                            models[i].isRecommended = models[i].id == targetID
-                        }
-                    } label: {
-                        Image(systemName: model.isRecommended ? "star.fill" : "star")
-                            .foregroundStyle(model.isRecommended ? Color.yellow : Color.secondary)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!model.isIncluded)
-                    .help(L("settings.models.help.recommend"))
                 }
             }
 
@@ -923,7 +1147,7 @@ private struct ActionRow: View {
 
     private let customSentinel = "__custom__"
 
-    private var isCustom: Bool { pickerModel == customSentinel }
+    private var isCustomModel: Bool { pickerModel == customSentinel }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -1036,7 +1260,7 @@ private struct ActionRow: View {
                     }
                 }
 
-                if isCustom {
+                if isCustomModel {
                     TextField(L("action.row.model_placeholder"), text: $customModelText)
                         .frame(width: 160)
                         .onChange(of: customModelText) {
@@ -1085,69 +1309,6 @@ private struct ActionRow: View {
                         .labelsHidden()
                 }
             }
-        }
-    }
-}
-
-// MARK: - ProviderType extensions
-
-extension ProviderType: Identifiable {
-    public var id: String { rawValue }
-}
-
-extension ProviderType {
-    var displayName: String {
-        switch self {
-        case .openai:        L("provider.openai")
-        case .azureOpenai:   L("provider.azure1")
-        case .azureOpenai2:  L("provider.azure2")
-        case .anthropic:     L("provider.anthropic")
-        case .gemini:        L("provider.gemini")
-        case .grok:          L("provider.grok")
-        case .customOpenAI:  L("provider.custom1")
-        case .customOpenAI2: L("provider.custom2")
-        }
-    }
-
-    func effectiveModels() -> [ModelPreset] {
-        let stored = ConfigStore.shared.config.modelPresets[rawValue] ?? []
-        return stored.isEmpty ? presetModels : stored
-    }
-
-    var presetModels: [ModelPreset] {
-        switch self {
-        case .openai:
-            [
-                .init(id: "gpt-5.5",      displayName: "gpt-5.5",             isRecommended: true),
-                .init(id: "gpt-5.4-mini", displayName: "gpt-5.4-mini"),
-                .init(id: "o4-mini",      displayName: "o4-mini (legacy)"),
-                .init(id: "o3",           displayName: "o3 (legacy)"),
-                .init(id: "o3-mini",      displayName: "o3-mini (legacy)"),
-                .init(id: "gpt-4o",       displayName: "gpt-4o (legacy)"),
-                .init(id: "gpt-4o-mini",  displayName: "gpt-4o-mini (legacy)")
-            ]
-        case .azureOpenai, .azureOpenai2:
-            []
-        case .anthropic:
-            [
-                .init(id: "claude-sonnet-4-6",         displayName: "claude-sonnet-4.6", isRecommended: true),
-                .init(id: "claude-opus-4-7",            displayName: "claude-opus-4.7"),
-                .init(id: "claude-haiku-4-5-20251001",  displayName: "claude-haiku-4.5")
-            ]
-        case .gemini:
-            [
-                .init(id: "gemini-3.1-pro",        displayName: "gemini-3.1-pro",        isRecommended: true),
-                .init(id: "gemini-3-flash-preview", displayName: "gemini-3-flash-preview"),
-                .init(id: "gemini-3.1-flash-lite",  displayName: "gemini-3.1-flash-lite")
-            ]
-        case .grok:
-            [
-                .init(id: "grok-4.20",              displayName: "grok-4.20",              isRecommended: true),
-                .init(id: "grok-4.20-non-reasoning", displayName: "grok-4.20-non-reasoning"),
-                .init(id: "grok-4-1-fast-reasoning", displayName: "grok-4.1-fast-reasoning")
-            ]
-        case .customOpenAI, .customOpenAI2:
-            []
         }
     }
 }

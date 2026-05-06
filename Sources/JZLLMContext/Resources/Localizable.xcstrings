@@ -1282,6 +1282,143 @@
       }
     },
 
+    "settings.providers.custom.name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Název" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre" } }
+      }
+    },
+    "settings.providers.custom.new_name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nový provider" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo proveedor" } }
+      }
+    },
+    "settings.providers.custom.unnamed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nepojmenovaný provider" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unnamed Provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedor sin nombre" } }
+      }
+    },
+    "settings.providers.custom.requires_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyžaduje API klíč" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requires API key" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Requiere clave API" } }
+      }
+    },
+    "settings.providers.custom.headers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní HTTP hlavičky" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Custom HTTP headers" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cabeceras HTTP personalizadas" } }
+      }
+    },
+    "settings.providers.custom.header_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Název" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Header name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre" } }
+      }
+    },
+    "settings.providers.custom.header_value" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Hodnota" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Value" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Valor" } }
+      }
+    },
+    "settings.providers.custom.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat provider" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar proveedor" } }
+      }
+    },
+    "settings.providers.custom.delete_confirm_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat provider?" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove provider?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Eliminar proveedor?" } }
+      }
+    },
+    "settings.providers.custom.delete_confirm_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebere provider „%@" včetně API klíče. Akce používající tento provider budou přepnuty na OpenAI." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This will remove provider \"%@\" and its API key. Actions using this provider will be reset to OpenAI." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se eliminará el proveedor \"%@\" y su clave API. Las acciones que usen este proveedor se restablecerán a OpenAI." } }
+      }
+    },
+    "settings.providers.add_custom" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat vlastní provider" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add custom provider" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir proveedor personalizado" } }
+      }
+    },
+    "settings.providers.model_filters" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr modelů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model filters" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Filtros de modelos" } }
+      }
+    },
+    "settings.providers.model_exclude_filter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skrýt obsahující" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide containing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar si contiene" } }
+      }
+    },
+    "settings.providers.model_include_filter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit pouze obsahující" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show only containing" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar solo si contiene" } }
+      }
+    },
+    "settings.providers.model_filter.placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "např. preview" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "e.g. preview" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "p.ej. preview" } }
+      }
+    },
+    "settings.providers.model_filter.hint_exclude" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skryje modely jejichž ID obsahuje daný řetězec (u všech providerů)." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hides models whose ID contains the given string (across all providers)." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oculta modelos cuyo ID contiene la cadena dada (en todos los proveedores)." } }
+      }
+    },
+    "settings.providers.model_filter.hint_include" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazí pouze modely jejichž ID obsahuje alespoň jeden z řetězců (má přednost před exclude filtrem)." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows only models whose ID contains at least one of the strings (takes priority over exclude filter)." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Muestra solo modelos cuyo ID contiene al menos una de las cadenas (tiene prioridad sobre el filtro de exclusión)." } }
+      }
+    },
+
     "autocopy.use_global" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1340,6 +1477,22 @@
       }
     },
 
+    "common.add" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir" } }
+      }
+    },
+    "common.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Smazat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } }
+      }
+    },
     "common.cancel" : {
       "extractionState" : "manual",
       "localizations" : {

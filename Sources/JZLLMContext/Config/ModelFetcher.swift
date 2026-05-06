@@ -31,13 +31,19 @@ enum ModelFetcher {
     ]
 
     static func fetch(for provider: ProviderType) async throws -> [FetchedModel] {
-        switch provider {
-        case .openai:                    return try await fetchOpenAI()
-        case .anthropic:                 return try await fetchAnthropic()
-        case .gemini:                    return try await fetchGemini()
-        case .grok:                      return try await fetchGrok()
-        case .customOpenAI, .customOpenAI2: return try await fetchCustomOpenAI(provider: provider)
-        default:                         throw ModelFetchError.invalidResponse
+        if provider == .openai {
+            return try await fetchOpenAI()
+        } else if provider == .anthropic {
+            return try await fetchAnthropic()
+        } else if provider == .gemini {
+            return try await fetchGemini()
+        } else if provider == .grok {
+            return try await fetchGrok()
+        } else if provider.isCustom {
+            guard let cp = provider.customProvider else { throw ModelFetchError.missingBaseURL }
+            return try await fetchCustomOpenAI(provider: provider, config: cp)
+        } else {
+            throw ModelFetchError.invalidResponse
         }
     }
 
@@ -192,15 +198,11 @@ enum ModelFetcher {
         return models
     }
 
-    // MARK: - Custom OpenAI
+    // MARK: - Custom OpenAI-compatible
 
-    private static func fetchCustomOpenAI(provider: ProviderType) async throws -> [FetchedModel] {
-        let cfg = ConfigStore.shared.config
-        let rawURL = provider == .customOpenAI ? cfg.customOpenAIBaseURL : cfg.customOpenAIBaseURL2
-        guard let baseURL = rawURL, !baseURL.isEmpty else {
-            throw ModelFetchError.missingBaseURL
-        }
-        let base = baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL
+    private static func fetchCustomOpenAI(provider: ProviderType, config cp: CustomProvider) async throws -> [FetchedModel] {
+        guard !cp.baseURL.isEmpty else { throw ModelFetchError.missingBaseURL }
+        let base = cp.baseURL.hasSuffix("/") ? String(cp.baseURL.dropLast()) : cp.baseURL
         guard let url = URL(string: "\(base)/models") else {
             throw ModelFetchError.invalidResponse
         }
@@ -209,6 +211,7 @@ enum ModelFetcher {
         if let key = try? KeychainStore.load(for: provider), !key.isEmpty {
             request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         }
+        for (k, v) in cp.customHeaders { request.setValue(v, forHTTPHeaderField: k) }
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
