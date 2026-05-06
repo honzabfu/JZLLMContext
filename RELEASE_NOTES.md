@@ -2,10 +2,10 @@
 
 ## Unreleased
 
-- Dynamic custom providers: replace the fixed two-slot "Custom API" system with an unlimited list of named custom OpenAI-compatible providers; each provider has its own name, Base URL, optional API key, API version, max-tokens parameter style, and custom HTTP headers
-- Custom HTTP headers per provider: arbitrary key-value headers sent with every request – enables API routing, authentication, and other provider-specific requirements (e.g. `HTTP-Referer`, `X-Org-ID`)
-- Global model filters: exclude filter hides models whose ID contains a specified string across all providers; include filter (when non-empty) shows only models matching at least one specified string; filters apply in the model picker and the Update Models sheet
-- Automatic config migration: existing configurations with "Custom API slot 1/2" are automatically migrated to the new provider format on first launch; API keys and model presets are preserved
+## v0.60 – 2026-05-06
+- Custom provider settings now show a live "Effective URL" preview (the exact chat endpoint used, including optional `?api-version=` query parameter)
+- Model filter section redesigned: Exclude and Include filters each have their own header and description; filter names clarified with "(Exclude)" / "(Include)" labels; Include filter description clarifies that Exclude is applied on top of it
+- Fix: crash when deleting a custom provider — SwiftUI ForEach now uses identity-based bindings instead of index-based, preventing out-of-bounds access during the alert dismissal animation
 
 ## v0.58 – 2026-05-02
 - Fix: warning triangle no longer shown for custom OpenAI-compatible providers (local models do not require an API key)

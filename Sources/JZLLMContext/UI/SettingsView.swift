@@ -548,8 +548,16 @@ struct SettingsView: View {
             }
 
             // Dynamic custom providers
-            ForEach($config.customProviders) { $cp in
-                customProviderSection(cp: $cp)
+            ForEach(config.customProviders) { cp in
+                customProviderSection(cp: Binding(
+                    get: { config.customProviders.first { $0.id == cp.id } ?? cp },
+                    set: { newVal in
+                        if let i = config.customProviders.firstIndex(where: { $0.id == cp.id }) {
+                            config.customProviders[i] = newVal
+                        }
+                        ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    }
+                ))
             }
 
             Section {
@@ -612,6 +620,15 @@ struct SettingsView: View {
                 .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
                     ConfigStore.shared.update { $0.customProviders = config.customProviders }
                 }
+            }
+            LabeledContent(L("settings.providers.custom.effective_url")) {
+                Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
+                    .monospaced()
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
             }
             Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
                 ForEach(TokenParamStyle.allCases, id: \.self) { style in
@@ -719,9 +736,8 @@ struct SettingsView: View {
     // MARK: - Model Filters Section
 
     private var modelFiltersSection: some View {
-        Section(L("settings.providers.model_filters")) {
-            // Exclude
-            LabeledContent {
+        Group {
+            Section {
                 filterTagsRow(
                     filters: $config.modelExcludeFilters,
                     onRemove: { idx in
@@ -729,23 +745,19 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
                     }
                 )
-            } label: {
+                HStack(spacing: 6) {
+                    TextField(L("settings.providers.model_filter.placeholder"), text: $newExcludeFilter)
+                        .onSubmit { addExcludeFilter() }
+                    Button(L("common.add")) { addExcludeFilter() }
+                        .disabled(newExcludeFilter.isEmpty)
+                }
+            } header: {
                 Text(L("settings.providers.model_exclude_filter"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            } footer: {
+                Text(L("settings.providers.model_filter.hint_exclude"))
             }
-            HStack(spacing: 6) {
-                TextField(L("settings.providers.model_filter.placeholder"), text: $newExcludeFilter)
-                    .onSubmit { addExcludeFilter() }
-                Button(L("common.add")) { addExcludeFilter() }
-                    .disabled(newExcludeFilter.isEmpty)
-            }
-            Text(L("settings.providers.model_filter.hint_exclude"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
 
-            // Include
-            LabeledContent {
+            Section {
                 filterTagsRow(
                     filters: $config.modelIncludeFilters,
                     onRemove: { idx in
@@ -753,20 +765,17 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
                     }
                 )
-            } label: {
+                HStack(spacing: 6) {
+                    TextField(L("settings.providers.model_filter.placeholder"), text: $newIncludeFilter)
+                        .onSubmit { addIncludeFilter() }
+                    Button(L("common.add")) { addIncludeFilter() }
+                        .disabled(newIncludeFilter.isEmpty)
+                }
+            } header: {
                 Text(L("settings.providers.model_include_filter"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            } footer: {
+                Text(L("settings.providers.model_filter.hint_include"))
             }
-            HStack(spacing: 6) {
-                TextField(L("settings.providers.model_filter.placeholder"), text: $newIncludeFilter)
-                    .onSubmit { addIncludeFilter() }
-                Button(L("common.add")) { addIncludeFilter() }
-                    .disabled(newIncludeFilter.isEmpty)
-            }
-            Text(L("settings.providers.model_filter.hint_include"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
@@ -932,6 +941,20 @@ struct SettingsView: View {
             let provider = ProviderType(cp.id.uuidString)
             customProviderKeys[cp.id.uuidString] = (try? KeychainStore.load(for: provider)) ?? ""
         }
+    }
+
+    private func effectiveChatURL(baseURL: String, apiVersion: String?) -> String {
+        guard !baseURL.isEmpty else { return "—" }
+        var base = baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL
+        if !base.hasSuffix("/chat/completions") {
+            base += "/chat/completions"
+        }
+        if let version = apiVersion, !version.isEmpty {
+            var components = URLComponents(string: base)
+            components?.queryItems = [URLQueryItem(name: "api-version", value: version)]
+            return components?.url?.absoluteString ?? base
+        }
+        return base
     }
 
     // MARK: - Helpers

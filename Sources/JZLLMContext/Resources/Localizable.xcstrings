@@ -643,6 +643,14 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API (opcional, añade ?api-version=…)" } }
       }
     },
+    "settings.providers.custom.effective_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výsledné URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Effective URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL efectiva" } }
+      }
+    },
     "settings.providers.token_param" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1357,7 +1365,7 @@
     "settings.providers.custom.delete_confirm_message" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebere provider „%@" včetně API klíče. Akce používající tento provider budou přepnuty na OpenAI." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebere provider „%@\" včetně API klíče. Akce používající tento provider budou přepnuty na OpenAI." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This will remove provider \"%@\" and its API key. Actions using this provider will be reset to OpenAI." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Se eliminará el proveedor \"%@\" y su clave API. Las acciones que usen este proveedor se restablecerán a OpenAI." } }
       }
@@ -1381,17 +1389,17 @@
     "settings.providers.model_exclude_filter" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skrýt obsahující" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide containing" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar si contiene" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skrýt obsahující (Exclude)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hide containing (Exclude)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ocultar si contiene (Exclude)" } }
       }
     },
     "settings.providers.model_include_filter" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit pouze obsahující" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show only containing" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar solo si contiene" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazit pouze obsahující (Include)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show only containing (Include)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar solo si contiene (Include)" } }
       }
     },
     "settings.providers.model_filter.placeholder" : {
@@ -1413,9 +1421,9 @@
     "settings.providers.model_filter.hint_include" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazí pouze modely jejichž ID obsahuje alespoň jeden z řetězců (má přednost před exclude filtrem)." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows only models whose ID contains at least one of the strings (takes priority over exclude filter)." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Muestra solo modelos cuyo ID contiene al menos una de las cadenas (tiene prioridad sobre el filtro de exclusión)." } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zobrazí pouze modely jejichž ID obsahuje alespoň jeden z řetězců. Poté se aplikuje Exclude filtr, který může výsledek dále omezit." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Shows only models whose ID contains at least one of the strings. The Exclude filter is then applied on top and may further narrow the result." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Muestra solo modelos cuyo ID contiene al menos una de las cadenas. El filtro Exclude se aplica después y puede reducir aún más el resultado." } }
       }
     },
 

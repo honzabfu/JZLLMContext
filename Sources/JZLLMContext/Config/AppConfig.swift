@@ -131,6 +131,19 @@ struct ProviderType: RawRepresentable, Codable, Hashable, Sendable, Identifiable
     var requiresApiKey: Bool {
         isCustom ? (customProvider?.requiresAPIKey ?? false) : true
     }
+
+    var displayName: String {
+        if let cp = customProvider { return cp.name }
+        switch self {
+        case .openai:       return "OpenAI"
+        case .azureOpenai:  return "Azure OpenAI"
+        case .azureOpenai2: return "Azure OpenAI 2"
+        case .anthropic:    return "Anthropic"
+        case .gemini:       return "Gemini"
+        case .grok:         return "Grok"
+        default:            return rawValue
+        }
+    }
 }
 
 // MARK: - AppConfig
@@ -266,11 +279,20 @@ struct AppConfig: Codable {
             let ver2   = try lc.decodeIfPresent(String.self, forKey: .customOpenAIAPIVersion2)
             let tok2   = try lc.decodeIfPresent(TokenParamStyle.self, forKey: .customOpenAITokenParam2) ?? .maxTokens
 
+            let lang = appLanguage.resolvedLocale.language.languageCode?.identifier ?? "en"
+            func migratedName(_ slot: Int) -> String {
+                switch lang {
+                case "cs": return "Vlastní API (slot \(slot))"
+                case "es": return "API personalizada (slot \(slot))"
+                default:   return "Custom API (slot \(slot))"
+                }
+            }
+
             var migrated: [CustomProvider] = customProviders
             var oldToNew: [String: String] = [:]  // old rawValue → new UUID string
 
             if let url = url1, !url.isEmpty {
-                let cp = CustomProvider(name: L("provider.custom1"), baseURL: url,
+                let cp = CustomProvider(name: migratedName(1), baseURL: url,
                                         apiVersion: ver1, tokenParamStyle: tok1)
                 migrated.append(cp)
                 oldToNew["custom_openai"] = cp.id.uuidString
@@ -280,7 +302,7 @@ struct AppConfig: Codable {
                 }
             }
             if let url = url2, !url.isEmpty {
-                let cp = CustomProvider(name: L("provider.custom2"), baseURL: url,
+                let cp = CustomProvider(name: migratedName(2), baseURL: url,
                                         apiVersion: ver2, tokenParamStyle: tok2)
                 migrated.append(cp)
                 oldToNew["custom_openai_2"] = cp.id.uuidString
