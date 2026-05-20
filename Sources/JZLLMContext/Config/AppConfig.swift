@@ -453,6 +453,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
     var maxTokens: Int
     var autoCopyClose: AutoCopyClose
     var isDefault: Bool
+    var ignoreClipboard: Bool
 
     init(
         name: String,
@@ -463,7 +464,8 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         temperature: Double = 0.7,
         maxTokens: Int = 2048,
         autoCopyClose: AutoCopyClose = .useGlobal,
-        isDefault: Bool = false
+        isDefault: Bool = false,
+        ignoreClipboard: Bool = false
     ) {
         self.id = UUID()
         self.name = name
@@ -475,20 +477,22 @@ struct Action: Codable, Identifiable, Hashable, Equatable {
         self.maxTokens = maxTokens
         self.autoCopyClose = autoCopyClose
         self.isDefault = isDefault
+        self.ignoreClipboard = ignoreClipboard
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id            = try c.decode(UUID.self, forKey: .id)
-        name          = try c.decode(String.self, forKey: .name)
-        systemPrompt  = try c.decode(String.self, forKey: .systemPrompt)
-        provider      = try c.decode(ProviderType.self, forKey: .provider)
-        model         = try c.decode(String.self, forKey: .model)
-        enabled       = try c.decode(Bool.self, forKey: .enabled)
-        temperature   = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
-        maxTokens     = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 2048
-        autoCopyClose = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
-        isDefault     = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
+        id              = try c.decode(UUID.self, forKey: .id)
+        name            = try c.decode(String.self, forKey: .name)
+        systemPrompt    = try c.decode(String.self, forKey: .systemPrompt)
+        provider        = try c.decode(ProviderType.self, forKey: .provider)
+        model           = try c.decode(String.self, forKey: .model)
+        enabled         = try c.decode(Bool.self, forKey: .enabled)
+        temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
+        maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 2048
+        autoCopyClose   = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
+        isDefault       = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
+        ignoreClipboard = try c.decodeIfPresent(Bool.self, forKey: .ignoreClipboard) ?? false
     }
 }
 

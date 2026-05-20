@@ -127,6 +127,7 @@ Manage the actions shown in the overlay panel.
 - **System prompt** – instructions for the LLM; clipboard content is sent as the user message
 - **Provider and model** – select provider and model (see [Custom Models](#custom-models))
 - **Temperature** – slider 0.0–2.0; default 0.7
+- **Ignore clipboard** – when checked, the action always runs without clipboard content; only the additional context field is sent as input (equivalent to toggling the eye button manually)
 - **Copy & Close** – per-action override of the global setting: *Use global setting* / *Always* / *Never*
 - **Max. tokens** – maximum response length
 - **Reordering** – drag & drop to change the order
@@ -253,7 +254,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Keyboard shortcuts** – actions 1–9 can be triggered by pressing the corresponding digit directly in the overlay panel
 - **Default action** – one action can be marked as default; it is triggered by pressing Enter in the additional context field
 - **Additional context** – optional text field in the overlay for adding instructions beyond the clipboard content
-- **Clipboard ignore** – a button in the overlay switches to clipboard-free mode; the LLM receives only the additional context
+- **Clipboard ignore** – a button in the overlay switches to clipboard-free mode; the LLM receives only the additional context; individual actions can have this set permanently via the *Ignore clipboard* checkbox in action settings
 - **Clipboard change detection** – while the panel is open, the app monitors the clipboard; a blue refresh icon appears if the content changes, allowing instant reload
 - **Prompt variables** – `{{datum}}`, `{{jazyk}}`, `{{kontext}}` are replaced with their current values before sending (note: variable names are in Czech)
 - **Result history** – session-only; recent results accessible via the clock button in the overlay panel (0–10 entries)
@@ -373,6 +374,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
       "autoCopyClose": "useGlobal",
       "enabled": true,
       "id": "550e8400-e29b-41d4-a716-446655440000",
+      "ignoreClipboard": false,
       "isDefault": false,
       "maxTokens": 2048,
       "model": "gpt-5.5",
@@ -590,6 +592,7 @@ Správa akcí zobrazovaných v overlay panelu.
 - **Systémový prompt** – instrukce pro LLM; obsah schránky se posílá jako uživatelská zpráva
 - **Provider a model** – výběr providera a modelu (viz [Vlastní modely](#vlastní-modely))
 - **Teplota** – slider 0.0–2.0; výchozí 0.7
+- **Ignorovat schránku** – je-li zaškrtnuto, akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu (odpovídá ručnímu stisknutí tlačítka oka)
 - **Zkopírovat a zavřít** – per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*
 - **Max. tokenů** – maximální délka odpovědi
 - **Přesouvání** – drag & drop pro změnu pořadí
@@ -716,7 +719,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Klávesové zkratky** – akce 1–9 lze spustit stiskem příslušné číslice přímo v overlay panelu
 - **Výchozí akce** – jedna akce může být označena jako výchozí; spustí se stiskem Enter v poli doplňkového kontextu
 - **Doplňkový kontext** – volitelné textové pole v overlay pro přidání instrukce nad rámec schránky
-- **Ignorování schránky** – tlačítko v overlay přepne do režimu bez schránky; LLM dostane jen doplňkový kontext
+- **Ignorování schránky** – tlačítko v overlay přepne do režimu bez schránky; LLM dostane jen doplňkový kontext; jednotlivé akce mohou mít toto nastavení trvale zapnuto přes checkbox *Ignorovat schránku* v nastavení akce
 - **Detekce změny schránky** – při otevřeném panelu aplikace sleduje schránku; pokud se obsah změní, zobrazí se modrá ikona obnovení umožňující okamžité znovunačtení
 - **Proměnné v promptech** – `{{datum}}`, `{{jazyk}}`, `{{kontext}}` se v systémovém promptu nahradí aktuální hodnotou před odesláním
 - **Historie výsledků** – session-only; poslední výsledky dostupné přes tlačítko hodin v overlay panelu (0–10 záznamů)
@@ -834,6 +837,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
       "autoCopyClose": "useGlobal",
       "enabled": true,
       "id": "550e8400-e29b-41d4-a716-446655440000",
+      "ignoreClipboard": false,
       "isDefault": false,
       "maxTokens": 2048,
       "model": "gpt-5.5",

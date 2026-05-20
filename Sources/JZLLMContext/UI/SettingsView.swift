@@ -1306,6 +1306,11 @@ private struct ActionRow: View {
 
             Spacer()
 
+            Toggle(L("action.row.ignore_clipboard"), isOn: $action.ignoreClipboard)
+                .toggleStyle(.checkbox)
+                .font(.caption)
+                .help(L("action.row.help.ignore_clipboard"))
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(L("action.row.copy_close"))
                     .font(.caption)

@@ -351,7 +351,7 @@ struct OverlayView: View {
             .padding(.vertical, 2)
         }
         .buttonStyle(.bordered)
-        .disabled(engine.isLoading || (!ignoreClipboard && contextText == nil))
+        .disabled(engine.isLoading || (!(ignoreClipboard || (actionModel?.ignoreClipboard ?? false)) && contextText == nil))
         .help({
             guard let a = actionModel else { return "" }
             return a.systemPrompt.count > 200 ? String(a.systemPrompt.prefix(200)) + "…" : a.systemPrompt
@@ -461,6 +461,7 @@ struct OverlayView: View {
         lastAction = action
         didCopy = false
         shownHistoryResult = nil
+        if action.ignoreClipboard { ignoreClipboard = true }
         var resolved = action
         resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
         let input: String

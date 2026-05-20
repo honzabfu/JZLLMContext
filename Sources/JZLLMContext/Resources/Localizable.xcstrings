@@ -541,6 +541,22 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Copiar y cerrar" } }
       }
     },
+    "action.row.ignore_clipboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Ignorovat schránku" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ignore clipboard" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ignorar portapapeles" } }
+      }
+    },
+    "action.row.help.ignore_clipboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Při spuštění akce nebude obsah schránky zahrnut do vstupu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard content will be ignored when running this action" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El contenido del portapapeles se ignorará al ejecutar esta acción" } }
+      }
+    },
     "action.row.max_tokens" : {
       "extractionState" : "manual",
       "localizations" : {
