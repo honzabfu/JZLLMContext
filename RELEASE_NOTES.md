@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.61 – 2026-05-20
+- Per-action "Ignore clipboard" setting: each action can now be configured to bypass clipboard input, so the LLM receives only the manual text input — no need to toggle the eye icon in the overlay
+
 ## v0.60 – 2026-05-06
 - Custom provider settings now show a live "Effective URL" preview (the exact chat endpoint used, including optional `?api-version=` query parameter)
 - Model filter section redesigned: Exclude and Include filters each have their own header and description; filter names clarified with "(Exclude)" / "(Include)" labels; Include filter description clarifies that Exclude is applied on top of it
