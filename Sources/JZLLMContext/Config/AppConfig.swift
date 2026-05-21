@@ -34,7 +34,7 @@ enum AppLanguage: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .system: "Systémový"
+        case .system: L("language.option.system")
         case .cs:     "Čeština"
         case .en:     "English"
         case .es:     "Español"

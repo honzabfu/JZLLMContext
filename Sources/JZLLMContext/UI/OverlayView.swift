@@ -420,7 +420,7 @@ struct OverlayView: View {
         df.dateStyle = .long
         df.timeStyle = .none
         df.locale = Locale.current
-        let lang = Locale.current.language.languageCode?.identifier ?? "cs"
+        let lang = Locale.current.language.languageCode?.identifier ?? "en"
         return prompt
             .replacingOccurrences(of: "{{datum}}", with: df.string(from: Date()))
             .replacingOccurrences(of: "{{jazyk}}", with: lang)
