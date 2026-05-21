@@ -115,6 +115,14 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "desactivado" } }
       }
     },
+    "language.option.system" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Systémový" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } }
+      }
+    },
     "settings.general.section.language" : {
       "extractionState" : "manual",
       "localizations" : {
