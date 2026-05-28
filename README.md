@@ -65,7 +65,7 @@ Pre-built binaries are available on the [GitHub Releases](https://github.com/hon
 
 **From a file:**
 1. Press **Cmd+Shift+Space** to open the overlay panel
-2. Drag any file from Finder directly onto the panel
+2. Drag any file from Finder directly onto the panel — or copy a file in Finder (**Cmd+C**) and then open the panel
 3. The file content is extracted locally and shown in the context preview (filename displayed)
 4. Click an action button – the result appears below
 5. Press **Escape** to clear the file (second press closes the panel), or click the × button next to the filename
@@ -459,12 +459,13 @@ All HTTP requests time out after **60 seconds**.
 When the overlay panel is activated, the app checks the clipboard:
 
 1. If the clipboard contains text → used directly
-2. If the clipboard contains an image → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`
-3. If the clipboard is empty → an error message is shown
+2. If the clipboard contains a file URL (file copied in Finder via Cmd+C) and the file is not an image → `extractText()` is called (same pipeline as drag & drop)
+3. If the clipboard contains an image or an image file URL → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`
+4. If the clipboard is empty → an error message is shown
 
 #### File Processing
 
-Files are dragged onto the overlay panel and processed entirely locally — nothing is uploaded. Text is extracted according to the file type:
+Files can be loaded two ways: drag & drop directly onto the overlay panel, or copy a file in Finder (Cmd+C) and open the panel — both routes use the same local extraction pipeline. Nothing is uploaded. Text is extracted according to the file type:
 
 | Format | Extraction method |
 |--------|------------------|
@@ -571,7 +572,7 @@ Sestavené binárky jsou k dispozici na stránce [GitHub Releases](https://githu
 
 **Ze souboru:**
 1. Stiskni **Cmd+Shift+Space** pro otevření overlay panelu
-2. Přetáhni libovolný soubor z Finderu přímo na panel
+2. Přetáhni libovolný soubor z Finderu přímo na panel — nebo soubor zkopíruj ve Finderu (**Cmd+C**) a pak otevři panel
 3. Obsah souboru se extrahuje lokálně a zobrazí se v náhledu kontextu (s názvem souboru)
 4. Klikni na tlačítko akce – výsledek se zobrazí pod akcemi
 5. Stiskni **Escape** pro vymazání souboru (druhé stisknutí zavře panel), nebo klikni na tlačítko × vedle názvu souboru
@@ -952,12 +953,13 @@ Timeout všech HTTP požadavků: **60 sekund**.
 Při aktivaci overlay panelu aplikace zkontroluje obsah schránky:
 
 1. Pokud schránka obsahuje text → použije se přímo
-2. Pokud schránka obsahuje obrázek → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`
-3. Pokud je schránka prázdná → zobrazí se chybová zpráva
+2. Pokud schránka obsahuje URL souboru (soubor zkopírovaný ve Finderu přes Cmd+C) a soubor není obrázek → zavolá se `extractText()` (stejná pipeline jako při drag & drop)
+3. Pokud schránka obsahuje obrázek nebo URL obrázku → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`
+4. Pokud je schránka prázdná → zobrazí se chybová zpráva
 
 #### Zpracování souborů
 
-Soubory se přetáhnou na overlay panel a zpracují se výhradně lokálně — nic se nenahrává. Text se extrahuje podle typu souboru:
+Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, nebo zkopírováním souboru ve Finderu (Cmd+C) a otevřením panelu — obě cesty používají stejnou lokální pipeline extrakce. Nic se nenahrává. Text se extrahuje podle typu souboru:
 
 | Formát | Metoda extrakce |
 |--------|----------------|
