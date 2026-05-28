@@ -30,6 +30,17 @@ enum ContextResolver {
             return .text(text, isOCR: false)
         }
 
+        // File copied from Finder (Cmd+C): non-image files carry only a file URL,
+        // no text or image data — route them through extractText.
+        // Image files carry both a file URL and full image data; let NSImage handle those.
+        let imageExts: Set<String> = ["png", "jpg", "jpeg", "heic", "tiff", "tif", "webp", "bmp", "gif"]
+        if let urls = pasteboard.readObjects(forClasses: [NSURL.self],
+                                             options: [.urlReadingFileURLsOnly: true]) as? [URL],
+           let fileURL = urls.first,
+           !imageExts.contains(fileURL.pathExtension.lowercased()) {
+            return await extractText(from: fileURL)
+        }
+
         if let image = NSImage(pasteboard: pasteboard) {
             return await performOCR(on: image)
         }
