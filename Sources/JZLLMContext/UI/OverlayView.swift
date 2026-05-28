@@ -554,6 +554,8 @@ struct OverlayView: View {
             contextIsFromOCR = false
             isResolvingContext = true
             let result = await ContextResolver.extractText(from: url)
+            // Discard stale result if user cleared or replaced the file during extraction
+            guard droppedFileURL == url else { return }
             switch result {
             case .text(let text, let isOCR):
                 contextText = text
