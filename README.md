@@ -28,6 +28,7 @@ Copy text or an image, press the global shortcut, and the selected action sends 
 - [Custom OpenAI-Compatible Providers](#custom-openai-compatible-providers)
 - [Uninstalling](#uninstalling)
 - [Technical Overview](#technical-overview)
+  - [File Processing](#file-processing)
 - [Disclaimer](#disclaimer)
 - [License](#license)
 
@@ -54,12 +55,20 @@ Pre-built binaries are available on the [GitHub Releases](https://github.com/hon
 
 #### Basic Usage
 
+**From clipboard:**
 1. Select and copy text (or copy an image containing text to the clipboard)
 2. Press **Cmd+Shift+Space** from anywhere
 3. The overlay panel shows a preview of the clipboard content and a list of actions
 4. Click an action button – the result appears below the actions
 5. Click **Copy** (or **Cmd+C** directly in the panel) to put the result back in the clipboard
 6. Close the panel with **Escape** or the × button
+
+**From a file:**
+1. Press **Cmd+Shift+Space** to open the overlay panel
+2. Drag any file from Finder directly onto the panel
+3. The file content is extracted locally and shown in the context preview (filename displayed)
+4. Click an action button – the result appears below
+5. Press **Escape** to clear the file (second press closes the panel), or click the × button next to the filename
 
 #### Menu Bar
 
@@ -88,6 +97,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
   - ↩ = default action (triggered by Enter in the context field)
   - **Cancel** – shown while an action is running; stops the request
   - **Right-click** on an action – context menu: *Run* / *View Prompt* / *Edit*
+- **File drag & drop** – drag any file directly onto the panel; the app extracts the text content locally and uses it as context instead of the clipboard. Supported formats: PDF, images (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote, and all plain-text formats (TXT, MD, CSV, JSON, source code, …). Maximum file size: 5 MB. The filename appears in the preview with a × clear button; pressing **Escape** while a file is loaded clears it first (second press closes the panel). File context bypasses the *clipboard ignore* toggle.
 - **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, a blue refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse
@@ -247,6 +257,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 - **Global shortcut** – opens the overlay panel with clipboard content from anywhere (default: Cmd+Shift+Space)
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
+- **File drag & drop** – drag files directly onto the overlay panel; PDF (PDFKit), images (OCR), structured documents (DOCX, XLSX, RTF, PPTX, iWork formats via Spotlight), and all plain-text formats; maximum 5 MB per file; file content replaces clipboard context
 - **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), unlimited custom OpenAI-compatible providers (Ollama, LM Studio, OpenRouter, …)
 - **Custom actions** – any number of actions with system prompts; each has its own provider, model, temperature, and token limit
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
@@ -451,6 +462,36 @@ When the overlay panel is activated, the app checks the clipboard:
 2. If the clipboard contains an image → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`
 3. If the clipboard is empty → an error message is shown
 
+#### File Processing
+
+Files are dragged onto the overlay panel and processed entirely locally — nothing is uploaded. Text is extracted according to the file type:
+
+| Format | Extraction method |
+|--------|------------------|
+| PDF | PDFKit — iterates all pages, joins text with `\n` |
+| PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (same pipeline as clipboard images) |
+| DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
+| TXT, MD, CSV, JSON, source code, … | `String(contentsOf:encoding:.utf8)` on a detached thread |
+
+**Size limit:** 5 MB (file size on disk). Files exceeding this limit are rejected immediately with an error.
+
+**History logging:** when interaction logging is enabled, the full extracted text is written to the MD log as the input field. For large files this can produce large log entries.
+
+**Recommended action for document analysis:**
+
+Create an action with the following system prompt to handle any type of dropped file:
+
+```
+You are a document analyst. Process the provided content and return:
+1. A concise summary (2–3 sentences)
+2. Key information or findings (bullet list)
+3. Action items or next steps (if applicable)
+
+Adapt the output structure to the document type.
+```
+
+Suggested settings: model with a large context window (e.g. `gemini-2.5-flash` or `claude-sonnet-4.6`), max tokens 2048, temperature 0.3. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
+
 #### Global Shortcut
 
 The shortcut is registered via Carbon `RegisterEventHotKey` with identifier `JZLC`. On change, `unregister()` is called followed by `register()` with the new values; the change is propagated via `NotificationCenter` (`hotkeyDidChange`).
@@ -493,6 +534,7 @@ Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce po
 - [Vlastní OpenAI-compatible providery](#vlastní-openai-compatible-providery)
 - [Odinstalace](#odinstalace)
 - [Technický popis](#technický-popis)
+  - [Zpracování souborů](#zpracování-souborů)
 - [Zřeknutí se odpovědnosti](#zřeknutí-se-odpovědnosti)
 - [Licence](#licence-1)
 
@@ -519,12 +561,20 @@ Sestavené binárky jsou k dispozici na stránce [GitHub Releases](https://githu
 
 #### Základní použití
 
+**Ze schránky:**
 1. Označ a zkopíruj text (nebo zkopíruj obrázek s textem do schránky)
 2. Stiskni **Cmd+Shift+Space** odkudkoli
 3. V overlay panelu uvidíš náhled obsahu schránky a seznam akcí
 4. Klikni na tlačítko akce – výsledek se zobrazí pod akcemi
 5. Klikni na **Zkopírovat** (nebo **Cmd+C** přímo v panelu) a výsledek máš zpět ve schránce
 6. Panel zavřeš klávesou **Escape** nebo tlačítkem ×
+
+**Ze souboru:**
+1. Stiskni **Cmd+Shift+Space** pro otevření overlay panelu
+2. Přetáhni libovolný soubor z Finderu přímo na panel
+3. Obsah souboru se extrahuje lokálně a zobrazí se v náhledu kontextu (s názvem souboru)
+4. Klikni na tlačítko akce – výsledek se zobrazí pod akcemi
+5. Stiskni **Escape** pro vymazání souboru (druhé stisknutí zavře panel), nebo klikni na tlačítko × vedle názvu souboru
 
 #### Menu bar
 
@@ -553,6 +603,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
   - ↩ = výchozí akce (spustí se stiskem Enter v poli kontextu)
   - **Zrušit** – zobrazí se při běžící akci; zastaví požadavek
   - **Pravé tlačítko myši** na akci – kontextové menu: *Spustit* / *Zobrazit prompt* / *Upravit*
+- **Přetažení souboru (drag & drop)** – přetáhni libovolný soubor přímo na panel; text se extrahuje lokálně a použije jako kontext místo schránky. Podporované formáty: PDF, obrázky (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote a všechny plain-text formáty (TXT, MD, CSV, JSON, zdrojový kód, …). Maximální velikost: 5 MB. Název souboru se zobrazí v náhledu s tlačítkem × pro odebrání; stisknutím **Escape** při načteném souboru se soubor nejprve vymaže (druhé stisknutí panel zavře). Kontext ze souboru obchází přepínač *ignorovat schránku*.
 - **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí modrá ikona obnovení; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
@@ -712,6 +763,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
+- **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX, XLSX, RTF, PPTX, iWork formáty přes Spotlight) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
 - **Více providerů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible providerů (Ollama, LM Studio, OpenRouter, …)
 - **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastní provider, model, teplotu a limit tokenů
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
@@ -902,6 +954,36 @@ Při aktivaci overlay panelu aplikace zkontroluje obsah schránky:
 1. Pokud schránka obsahuje text → použije se přímo
 2. Pokud schránka obsahuje obrázek → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`
 3. Pokud je schránka prázdná → zobrazí se chybová zpráva
+
+#### Zpracování souborů
+
+Soubory se přetáhnou na overlay panel a zpracují se výhradně lokálně — nic se nenahrává. Text se extrahuje podle typu souboru:
+
+| Formát | Metoda extrakce |
+|--------|----------------|
+| PDF | PDFKit — iteruje všechny stránky, spojí text pomocí `\n` |
+| PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (stejná pipeline jako u obrázků ze schránky) |
+| DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
+| TXT, MD, CSV, JSON, zdrojový kód, … | `String(contentsOf:encoding:.utf8)` na background vlákně |
+
+**Limit velikosti:** 5 MB (velikost souboru na disku). Soubory přes tento limit jsou okamžitě odmítnuty s chybou.
+
+**Logování do MD souboru:** pokud je zapnuto logování interakcí, celý extrahovaný text se zapíše do MD logu jako pole vstup. U velkých souborů to může vytvořit velké záznamy.
+
+**Doporučená akce pro analýzu dokumentů:**
+
+Vytvoř akci s následujícím systémovým promptem pro zpracování libovolného přetaženého souboru:
+
+```
+Jsi analytik dokumentů. Zpracuj přiložený obsah a vrať:
+1. Stručné shrnutí (2–3 věty)
+2. Klíčové informace nebo zjištění (seznam)
+3. Navazující kroky nebo úkoly (pokud jsou relevantní)
+
+Přizpůsob strukturu výstupu typu dokumentu.
+```
+
+Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-2.5-flash` nebo `claude-sonnet-4.6`), max tokenů 2048, teplota 0,3. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
 
 #### Globální zkratka
 
