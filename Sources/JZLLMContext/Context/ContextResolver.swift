@@ -1,4 +1,6 @@
 import AppKit
+import CoreServices
+import PDFKit
 import Vision
 
 enum ContextResult {
@@ -9,11 +11,13 @@ enum ContextResult {
 enum ContextError: Error, LocalizedError {
     case empty
     case ocrFailed
+    case fileReadFailed
 
     var errorDescription: String? {
         switch self {
         case .empty: "Zkopíruj text nebo obrázek do schránky (⌘C)"
         case .ocrFailed: "Text nebyl rozpoznán"
+        case .fileReadFailed: "Soubor nelze přečíst"
         }
     }
 }
@@ -33,7 +37,52 @@ enum ContextResolver {
         return .error(.empty)
     }
 
-    private static func performOCR(on image: NSImage) async -> ContextResult {
+    static func extractText(from fileURL: URL) async -> ContextResult {
+        let maxBytes = 5 * 1024 * 1024
+        if let size = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize, size > maxBytes {
+            return .error(.fileReadFailed)
+        }
+
+        let ext = fileURL.pathExtension.lowercased()
+        let imageExts: Set<String> = ["png", "jpg", "jpeg", "heic", "tiff", "tif", "webp", "bmp", "gif"]
+
+        if imageExts.contains(ext) {
+            guard let image = NSImage(contentsOf: fileURL) else { return .error(.fileReadFailed) }
+            return await performOCR(on: image)
+        }
+
+        if ext == "pdf" {
+            if let doc = PDFDocument(url: fileURL) {
+                let text = (0..<doc.pageCount)
+                    .compactMap { doc.page(at: $0)?.string }
+                    .joined(separator: "\n")
+                if !text.isEmpty { return .text(text, isOCR: false) }
+            }
+            return .error(.fileReadFailed)
+        }
+
+        // Spotlight handles DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote, etc.
+        let spotlightText: String? = await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                let text = MDItemCreateWithURL(nil, fileURL as CFURL)
+                    .flatMap { MDItemCopyAttribute($0, kMDItemTextContent) as? String }
+                continuation.resume(returning: text)
+            }
+        }
+        if let text = spotlightText, !text.isEmpty {
+            return .text(text, isOCR: false)
+        }
+
+        // Plain text fallback for .txt, .md, .csv, .json, source code, etc. (off main thread)
+        let plainText = await Task.detached { try? String(contentsOf: fileURL, encoding: .utf8) }.value
+        if let text = plainText, !text.isEmpty {
+            return .text(text, isOCR: false)
+        }
+
+        return .error(.fileReadFailed)
+    }
+
+    static func performOCR(on image: NSImage) async -> ContextResult {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             return .error(.ocrFailed)
         }

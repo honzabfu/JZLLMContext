@@ -1,5 +1,6 @@
 import SwiftUI
 import MarkdownUI
+import UniformTypeIdentifiers
 
 struct OverlayView: View {
     @ObservedObject var state: OverlayState
@@ -23,6 +24,9 @@ struct OverlayView: View {
     @State private var shownHistoryResult: String?
     @State private var actionDetailMode: ActionDetailMode? = nil
     @State private var pendingSend: PendingSend? = nil
+    @State private var droppedFileURL: URL? = nil
+    @State private var isDragTargeted: Bool = false
+    @State private var contextSourceName: String? = nil
     @FocusState private var userContextFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
@@ -65,6 +69,22 @@ struct OverlayView: View {
         .frame(minWidth: 480, idealWidth: 640, maxWidth: .infinity,
                minHeight: 300, idealHeight: 480, maxHeight: .infinity)
         .background(.regularMaterial)
+        .onDrop(of: [UTType.fileURL], isTargeted: $isDragTargeted) { providers in
+            guard let provider = providers.first else { return false }
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                guard let url, url.isFileURL else { return }
+                Task { @MainActor in handleDroppedFile(url: url) }
+            }
+            return true
+        }
+        .overlay(alignment: .center) {
+            if isDragTargeted {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.accentColor, lineWidth: 2)
+                    .padding(4)
+                    .allowsHitTesting(false)
+            }
+        }
         .onAppear { resolveContext() }
         .onChange(of: state.refreshID) { resolveContext() }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
@@ -87,7 +107,16 @@ struct OverlayView: View {
                 onClose()
             }
         }
-        .onKeyPress(.escape) { onClose(); return .handled }
+        .onKeyPress(.escape) {
+            if droppedFileURL != nil {
+                droppedFileURL = nil
+                contextSourceName = nil
+                resolveContext()
+            } else {
+                onClose()
+            }
+            return .handled
+        }
         .onKeyPress { press in
             guard !userContextFocused,
                   let digit = Int(press.characters),
@@ -242,22 +271,30 @@ struct OverlayView: View {
 
     private var contextPreview: some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: contextIsFromOCR && !ignoreClipboard ? "doc.viewfinder" : "doc.on.clipboard")
-                .foregroundStyle(ignoreClipboard ? .tertiary : .secondary)
+            Image(systemName: contextSourceName != nil ? "doc.fill" :
+                  (contextIsFromOCR && !ignoreClipboard ? "doc.viewfinder" : "doc.on.clipboard"))
+                .foregroundStyle(ignoreClipboard && contextSourceName == nil ? .tertiary : .secondary)
                 .font(.caption)
                 .padding(.top, 1)
             Group {
-                if ignoreClipboard {
+                if ignoreClipboard && contextSourceName == nil {
                     Text(L("overlay.clipboard.ignored"))
                         .foregroundStyle(.tertiary)
                         .italic()
                 } else if isResolvingContext {
-                    Text(contextIsFromOCR ? L("overlay.clipboard.ocr_loading") : L("overlay.clipboard.loading"))
+                    Text(contextSourceName != nil ? L("overlay.clipboard.file_loading") :
+                         (contextIsFromOCR ? L("overlay.clipboard.ocr_loading") : L("overlay.clipboard.loading")))
                         .foregroundStyle(.secondary)
                 } else if let text = contextText {
-                    Text(text.prefix(300) + (text.count > 300 ? "…" : ""))
+                    VStack(alignment: .leading, spacing: 2) {
+                        if let name = contextSourceName {
+                            Text(name).fontWeight(.medium)
+                        }
+                        Text(text.prefix(300) + (text.count > 300 ? "…" : ""))
+                            .foregroundStyle(contextSourceName != nil ? .secondary : .primary)
+                    }
                 } else {
-                    Text(L("overlay.clipboard.empty"))
+                    Text(contextError ?? L("overlay.clipboard.empty"))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -265,30 +302,44 @@ struct OverlayView: View {
             .lineLimit(4)
             .frame(maxWidth: .infinity, alignment: .leading)
             VStack(spacing: 4) {
-                Button {
-                    ignoreClipboard.toggle()
-                } label: {
-                    Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
-                        .foregroundStyle(ignoreClipboard ? .primary : .secondary)
-                        .font(.caption)
-                }
-                .iconButton()
-                .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
-                if clipboardChanged && !ignoreClipboard {
-                    Button { resolveContext() } label: {
-                        Image(systemName: "arrow.clockwise")
-                            .foregroundStyle(.blue)
+                if contextSourceName != nil {
+                    Button {
+                        droppedFileURL = nil
+                        contextSourceName = nil
+                        resolveContext()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.secondary)
                             .font(.caption)
                     }
                     .iconButton()
-                    .help(L("overlay.help.clipboard_changed"))
-                    .transition(.scale.combined(with: .opacity))
+                    .help(L("overlay.file.clear"))
+                } else {
+                    Button {
+                        ignoreClipboard.toggle()
+                    } label: {
+                        Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
+                            .foregroundStyle(ignoreClipboard ? .primary : .secondary)
+                            .font(.caption)
+                    }
+                    .iconButton()
+                    .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
+                    if clipboardChanged && !ignoreClipboard {
+                        Button { resolveContext() } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .foregroundStyle(.blue)
+                                .font(.caption)
+                        }
+                        .iconButton()
+                        .help(L("overlay.help.clipboard_changed"))
+                        .transition(.scale.combined(with: .opacity))
+                    }
                 }
             }
             .animation(.easeInOut(duration: 0.15), value: clipboardChanged)
         }
         .padding(8)
-        .background(Color(nsColor: .controlBackgroundColor).opacity(ignoreClipboard ? 0.4 : 1))
+        .background(Color(nsColor: .controlBackgroundColor).opacity(ignoreClipboard && contextSourceName == nil ? 0.4 : 1))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 
@@ -428,6 +479,7 @@ struct OverlayView: View {
     }
 
     private func resolveContext() {
+        guard droppedFileURL == nil else { return }
         userContextFocused = false
         engine.reset()
         isResolvingContext = true
@@ -461,11 +513,11 @@ struct OverlayView: View {
         lastAction = action
         didCopy = false
         shownHistoryResult = nil
-        if action.ignoreClipboard { ignoreClipboard = true }
+        if action.ignoreClipboard && droppedFileURL == nil { ignoreClipboard = true }
         var resolved = action
         resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
         let input: String
-        if ignoreClipboard {
+        if ignoreClipboard && droppedFileURL == nil {
             input = userContext
         } else {
             guard let text = contextText else { return }
@@ -491,6 +543,28 @@ struct OverlayView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
         didCopy = true
+    }
+
+    private func handleDroppedFile(url: URL) {
+        Task {
+            droppedFileURL = url
+            contextSourceName = url.lastPathComponent
+            contextText = nil
+            contextError = nil
+            contextIsFromOCR = false
+            isResolvingContext = true
+            let result = await ContextResolver.extractText(from: url)
+            switch result {
+            case .text(let text, let isOCR):
+                contextText = text
+                contextIsFromOCR = isOCR
+            case .error(let error):
+                contextError = error.localizedDescription
+                droppedFileURL = nil
+                contextSourceName = nil
+            }
+            isResolvingContext = false
+        }
     }
 }
 
