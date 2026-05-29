@@ -85,7 +85,15 @@ enum ContextResolver {
         }
 
         // Plain text fallback for .txt, .md, .csv, .json, source code, etc. (off main thread)
-        let plainText = await Task.detached { try? String(contentsOf: fileURL, encoding: .utf8) }.value
+        // Auto-detect encoding via BOM/heuristics; fall back to common legacy encodings.
+        let plainText: String? = await Task.detached {
+            var enc: String.Encoding = .utf8
+            if let text = try? String(contentsOf: fileURL, usedEncoding: &enc) { return text }
+            for fallback: String.Encoding in [.windowsCP1250, .isoLatin2, .isoLatin1] {
+                if let text = try? String(contentsOf: fileURL, encoding: fallback) { return text }
+            }
+            return nil
+        }.value
         if let text = plainText, !text.isEmpty {
             return .text(text, isOCR: false)
         }
