@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## v0.62 – 2026-05-29
+- File processing: clipboard files (Cmd+C in Finder) now send file content to the LLM instead of the raw file path
+- File processing: DOCX, DOC, RTF, ODT, HTML files now extract text via `textutil`
+- File processing: XLSX files extract text from embedded XML (`xl/sharedStrings.xml`)
+- File processing: PPTX files extract text from slide XMLs
+- File processing: Pages, Numbers, Keynote files are OCR-processed via their embedded preview image
+
 ## v0.61 – 2026-05-20
 - Per-action "Ignore clipboard" setting: each action can now be configured to bypass clipboard input, so the LLM receives only the manual text input — no need to toggle the eye icon in the overlay
 

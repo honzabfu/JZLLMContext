@@ -833,6 +833,30 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles está vacío" } }
       }
     },
+    "overlay.clipboard.file_loading" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Načítám soubor…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading file…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando archivo…" } }
+      }
+    },
+    "overlay.file.clear" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat soubor" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove file" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar archivo" } }
+      }
+    },
+    "overlay.file.drop_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přetáhněte soubor sem" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop file here" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Arrastre un archivo aquí" } }
+      }
+    },
     "overlay.help.use_clipboard" : {
       "extractionState" : "manual",
       "localizations" : {
