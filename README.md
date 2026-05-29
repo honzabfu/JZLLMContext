@@ -472,7 +472,7 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 | PDF | PDFKit — iterates all pages, joins text with `\n` |
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (same pipeline as clipboard images) |
 | DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
-| TXT, MD, CSV, JSON, source code, … | `String(contentsOf:encoding:.utf8)` on a detached thread |
+| TXT, MD, CSV, JSON, source code, … | encoding auto-detected (BOM / Foundation heuristics); fallback chain: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
 
 **Size limit:** 5 MB (file size on disk). Files exceeding this limit are rejected immediately with an error.
 
@@ -966,7 +966,7 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 | PDF | PDFKit — iteruje všechny stránky, spojí text pomocí `\n` |
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (stejná pipeline jako u obrázků ze schránky) |
 | DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
-| TXT, MD, CSV, JSON, zdrojový kód, … | `String(contentsOf:encoding:.utf8)` na background vlákně |
+| TXT, MD, CSV, JSON, zdrojový kód, … | kódování auto-detekováno (BOM / Foundation heuristiky); fallback: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
 
 **Limit velikosti:** 5 MB (velikost souboru na disku). Soubory přes tento limit jsou okamžitě odmítnuty s chybou.
 
