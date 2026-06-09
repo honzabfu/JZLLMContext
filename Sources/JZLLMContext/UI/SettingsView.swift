@@ -287,12 +287,11 @@ struct SettingsView: View {
                         Task {
                             do {
                                 let release = try await UpdateChecker.fetchLatest()
-                                if release.version == UpdateChecker.currentVersion {
-                                    updateState = .upToDate
-                                } else if let url = URL(string: release.html_url) {
+                                if UpdateChecker.isNewer(release.version, than: UpdateChecker.currentVersion),
+                                   let url = URL(string: release.html_url) {
                                     updateState = .available(version: release.version, url: url)
                                 } else {
-                                    updateState = .failed
+                                    updateState = .upToDate
                                 }
                             } catch {
                                 updateState = .failed

@@ -1,6 +1,6 @@
 import Foundation
 
-struct SensitivePattern: Codable, Identifiable, Hashable {
+struct SensitivePattern: Codable, Identifiable, Hashable, Sendable {
     var id: UUID
     var label: String
     var pattern: String

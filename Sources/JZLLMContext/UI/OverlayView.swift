@@ -73,8 +73,8 @@ struct OverlayView: View {
                 clipboardChanged = true
             }
         }
-        .onChange(of: engine.isLoading) { _, isLoading in
-            guard !isLoading, engine.errorMessage == nil, !engine.result.isEmpty else { return }
+        .onChange(of: engine.completedRunID) { _, completedID in
+            guard completedID != nil, !engine.result.isEmpty else { return }
             HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
             let shouldCopyClose: Bool
             switch lastAction?.autoCopyClose {
@@ -477,7 +477,13 @@ struct OverlayView: View {
         }
         let cfg = ConfigStore.shared.config
         if cfg.sensitiveContentCheckEnabled {
-            let matches = SensitiveContentDetector.detect(text: input, customPatterns: cfg.customSensitivePatterns)
+            // userContext may be embedded into the system prompt via {{kontext}}
+            // instead of the input, so it has to be scanned as well
+            var textToCheck = input
+            if !userContext.isEmpty && action.systemPrompt.contains("{{kontext}}") {
+                textToCheck += "\n" + userContext
+            }
+            let matches = SensitiveContentDetector.detect(text: textToCheck, customPatterns: cfg.customSensitivePatterns)
             if !matches.isEmpty {
                 pendingSend = PendingSend(action: resolved, input: input, matches: matches)
                 return
