@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.64 – 2026-06-10
+
 ## v0.63 – 2026-06-10
 - File processing: fixed handling of non-UTF8 text file encodings in `extractText`
 - Update check now correctly compares versions following the `0.x` minor-version scheme (e.g. 0.7 > 0.61), so the manual check no longer offers an "update" to a version that isn't actually newer
