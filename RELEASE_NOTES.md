@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+## v0.63 – 2026-06-10
+- File processing: fixed handling of non-UTF8 text file encodings in `extractText`
+- Update check now correctly compares versions following the `0.x` minor-version scheme (e.g. 0.7 > 0.61), so the manual check no longer offers an "update" to a version that isn't actually newer
+- Cancelling an action no longer saves a partial result to history or triggers auto-copy/close
+- Sensitive content detection now also scans manual context embedded into the system prompt via `{{kontext}}`
+
+## v0.62 – 2026-05-29
+- File processing: clipboard files (Cmd+C in Finder) now send file content to the LLM instead of the raw file path
+- File processing: DOCX, DOC, RTF, ODT, HTML files now extract text via `textutil`
+- File processing: XLSX files extract text from embedded XML (`xl/sharedStrings.xml`)
+- File processing: PPTX files extract text from slide XMLs
+- File processing: Pages, Numbers, Keynote files are OCR-processed via their embedded preview image
+
 ## v0.61 – 2026-05-20
 - Per-action "Ignore clipboard" setting: each action can now be configured to bypass clipboard input, so the LLM receives only the manual text input — no need to toggle the eye icon in the overlay
 
