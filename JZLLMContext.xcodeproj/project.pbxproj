@@ -34,6 +34,7 @@
 		BA622966B92FFCF597951280 /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E173DCEF891DE8BF7A6A8D4 /* HistoryLogger.swift */; };
 		BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */; };
 		CEA7BC87270AC61BA80F47CE /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDCAE340BBEAC5C27AA845F /* App.swift */; };
+		D238DC29366B37F06428B4EC /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B97066D39087A6C919961F28 /* PDFKit.framework */; };
 		E378D7A12751D40FCA58B14B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A398B617F293D69A2F4DE271 /* Localizable.xcstrings */; };
 		E59EB23A8F4F48E658F183C4 /* OverlayWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115B55BB48331930264A2987 /* OverlayWindowController.swift */; };
 /* End PBXBuildFile section */
@@ -62,6 +63,7 @@
 		8A1B77ACB12636472CE78D41 /* JZLLMContext.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JZLLMContext.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EEB15BFF1A234C902698B41 /* AnthropicProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnthropicProvider.swift; sourceTree = "<group>"; };
 		A398B617F293D69A2F4DE271 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		B97066D39087A6C919961F28 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
 		CC7788BE265D802DAD645314 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		CF007160F929203C6C07C38F /* ContextResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextResolver.swift; sourceTree = "<group>"; };
 		D0273500A6EB60B489DBD14E /* JZLLMContext.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JZLLMContext.entitlements; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				15BD9921E2500155B561899A /* MarkdownUI in Frameworks */,
+				D238DC29366B37F06428B4EC /* PDFKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,6 +116,14 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		360F5963D6B11E1A6F666C8D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B97066D39087A6C919961F28 /* PDFKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		5D06DE75972A8CC4CAEB6238 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				E32D50867172A3C3D02A83CA /* Sources */,
+				360F5963D6B11E1A6F666C8D /* Frameworks */,
 				184F0E025AC899B604DE6549 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -368,7 +380,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.60;
+				MARKETING_VERSION = 0.63;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jz.JZLLMContext;
@@ -452,7 +464,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.60;
+				MARKETING_VERSION = 0.63;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
