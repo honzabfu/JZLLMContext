@@ -3,12 +3,14 @@
 ## Unreleased
 
 ## v0.64 – 2026-06-10
-
-## v0.63 – 2026-06-10
 - File processing: fixed handling of non-UTF8 text file encodings in `extractText`
 - Update check now correctly compares versions following the `0.x` minor-version scheme (e.g. 0.7 > 0.61), so the manual check no longer offers an "update" to a version that isn't actually newer
 - Cancelling an action no longer saves a partial result to history or triggers auto-copy/close
 - Sensitive content detection now also scans manual context embedded into the system prompt via `{{kontext}}`
+- Fix: a cancelled action resuming late can no longer clobber the state (result, loading indicator) of the next run
+- Fix: `ConfigStore` is now thread-safe — config reads from background tasks (history logger) no longer race with writes from the UI
+
+(v0.63 was never published; its changes shipped as part of v0.64)
 
 ## v0.62 – 2026-05-29
 - File processing: clipboard files (Cmd+C in Finder) now send file content to the LLM instead of the raw file path
