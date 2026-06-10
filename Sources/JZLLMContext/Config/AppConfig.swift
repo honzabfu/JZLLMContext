@@ -57,7 +57,7 @@ enum AppLanguage: String, Codable, CaseIterable {
     }
 }
 
-struct ModelPreset: Identifiable, Codable, Equatable {
+struct ModelPreset: Identifiable, Codable, Equatable, Sendable {
     let id: String
     var displayName: String
     var isRecommended: Bool
@@ -71,7 +71,7 @@ struct ModelPreset: Identifiable, Codable, Equatable {
 
 // MARK: - CustomProvider
 
-struct CustomProvider: Codable, Identifiable {
+struct CustomProvider: Codable, Identifiable, Sendable {
     var id: UUID
     var name: String
     var baseURL: String
@@ -148,7 +148,7 @@ struct ProviderType: RawRepresentable, Codable, Hashable, Sendable, Identifiable
 
 // MARK: - AppConfig
 
-struct AppConfig: Codable {
+struct AppConfig: Codable, Sendable {
     var schemaVersion: Int
     var hotkeyKeyCode: Int
     var hotkeyModifiers: Int
@@ -442,7 +442,7 @@ struct AppConfig: Codable {
     }
 }
 
-struct Action: Codable, Identifiable, Hashable, Equatable {
+struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
     var id: UUID
     var name: String
     var systemPrompt: String

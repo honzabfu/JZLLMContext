@@ -1,12 +1,15 @@
 import Carbon
 import Foundation
+import Synchronization
 
-final class ConfigStore: @unchecked Sendable {
+final class ConfigStore: Sendable {
     static let shared = ConfigStore()
 
     private let fileURL: URL
-    private(set) var config: AppConfig
+    // Guards config against cross-thread access (HistoryLogger actor, detached tasks)
+    private let state: Mutex<AppConfig>
 
+    var config: AppConfig { state.withLock { $0 } }
     var hotkeyKeyCode: Int { config.hotkeyKeyCode }
     var hotkeyModifiers: Int { config.hotkeyModifiers }
     var actions: [Action] { config.actions }
@@ -16,7 +19,7 @@ final class ConfigStore: @unchecked Sendable {
         let dir = appSupport.appendingPathComponent("JZLLMContext", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("config.json")
-        config = (try? ConfigStore.load(from: fileURL)) ?? AppConfig.default
+        state = Mutex((try? ConfigStore.load(from: fileURL)) ?? AppConfig.default)
     }
 
     func save() throws {
@@ -27,13 +30,12 @@ final class ConfigStore: @unchecked Sendable {
     }
 
     func update(_ block: (inout AppConfig) -> Void) {
-        block(&config)
+        state.withLock { block(&$0) }
         try? save()
     }
 
     func reset() {
-        let language = config.appLanguage
-        config = AppConfig.makeDefault(language: language)
+        state.withLock { $0 = AppConfig.makeDefault(language: $0.appLanguage) }
         try? FileManager.default.removeItem(at: fileURL)
         try? save()
     }

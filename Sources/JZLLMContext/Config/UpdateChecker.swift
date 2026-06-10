@@ -40,8 +40,24 @@ enum UpdateChecker {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
     }
 
+    // Release scheme appends digits to the minor segment (0.5 → 0.51 → … → 0.61 → 0.70),
+    // so minor compares as a decimal fraction: 0.7 == 0.70 and 0.7 > 0.61.
     static func isNewer(_ candidate: String, than current: String) -> Bool {
-        candidate.compare(current, options: .numeric) == .orderedDescending
+        let a = candidate.split(separator: ".").map(String.init)
+        let b = current.split(separator: ".").map(String.init)
+        for i in 0..<max(a.count, b.count) {
+            var x = i < a.count ? a[i] : "0"
+            var y = i < b.count ? b[i] : "0"
+            if i == 1 {
+                let width = max(x.count, y.count)
+                x = x.padding(toLength: width, withPad: "0", startingAt: 0)
+                y = y.padding(toLength: width, withPad: "0", startingAt: 0)
+            }
+            let xv = Int(x) ?? 0
+            let yv = Int(y) ?? 0
+            if xv != yv { return xv > yv }
+        }
+        return false
     }
 
     static func checkOnLaunch() async {
