@@ -69,6 +69,16 @@ struct SettingsView: View {
         .frame(minWidth: 620, minHeight: 520)
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
+            config = ConfigStore.shared.config
+        }
+        // Keep the local snapshot in sync with edits made outside this window
+        // (e.g. prompt edits via the overlay's ActionDetailSheet) so that
+        // whole-array writes like onSetDefault don't persist stale data.
+        // Deferred via receive(on:) to avoid re-entrant state updates from
+        // this view's own onChange → ConfigStore.update calls.
+        .onReceive(NotificationCenter.default.publisher(for: .configDidChange)
+            .receive(on: DispatchQueue.main)) { _ in
+            config = ConfigStore.shared.config
         }
         .sheet(item: $reviewingProvider) { provider in
             ModelReviewSheet(provider: provider, models: $reviewModels) { saved in
