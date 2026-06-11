@@ -100,7 +100,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
 - **File drag & drop** – drag any file directly onto the panel; the app extracts the text content locally and uses it as context instead of the clipboard. Supported formats: PDF, images (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote, and all plain-text formats (TXT, MD, CSV, JSON, source code, …). Maximum file size: 5 MB. The filename appears in the preview with a × clear button; pressing **Escape** while a file is loaded clears it first (second press closes the panel). File context bypasses the *clipboard ignore* toggle.
 - **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input; action buttons stay disabled until the additional context field contains text
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, an accent-colored refresh icon appears below the eye button; clicking it reloads the clipboard content
-- **Result area** – shown after an action completes; text can be selected with the mouse
+- **Result area** – shown after an action completes; text can be selected with the mouse. The panel grows automatically when a result appears; once you resize the panel by hand, your size is kept and automatic height management stops
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
 - **History** – the clock button in the header shows recent results from the current session; when interaction logging is enabled, an **Open log folder** button appears at the bottom of the history panel
 
@@ -129,19 +129,16 @@ Click the shortcut field, press the desired key combination (must include at lea
 
 ![Settings – Actions](docs/en/screenshot-settings-actions.png)
 
-Manage the actions shown in the overlay panel.
+Manage the actions shown in the overlay panel. The tab uses a master–detail layout: a compact list of actions on the left (enable toggle, name, provider · model, ↩ default marker), and a full editor for the selected action on the right.
 
-- **Add action** – "Add Action" button
-- **Enable/disable** – toggle to the left of the name; disabled actions do not appear in the overlay
-- **Default action** – the ↩ button marks the action triggered by pressing Enter in the context field; only one action can be marked at a time
-- **System prompt** – instructions for the LLM; clipboard content is sent as the user message
+- **Add action** – "Add Action" button; the new action is selected automatically
+- **Enable/disable** – toggle in the list; disabled actions do not appear in the overlay
+- **Default action** – toggle in the editor marks the action triggered by pressing Enter in the context field; only one action can be marked at a time (↩ in the list)
+- **System prompt** – instructions for the LLM with a large editor field; clipboard content is sent as the user message
 - **Provider and model** – select provider and model (see [Custom Models](#custom-models))
-- **Temperature** – slider 0.0–2.0; default 0.7
-- **Ignore clipboard** – when checked, the action always runs without clipboard content; only the additional context field is sent as input (equivalent to toggling the eye button manually)
-- **Copy & Close** – per-action override of the global setting: *Use global setting* / *Always* / *Never*
-- **Max. tokens** – maximum response length
-- **Reordering** – drag & drop to change the order
-- **Delete** – trash button with a confirmation dialog
+- **Parameters** – temperature (slider 0.0–2.0; default 0.7), max. tokens (maximum response length), Copy & Close (per-action override of the global setting: *Use global setting* / *Always* / *Never*), and Ignore clipboard (the action always runs without clipboard content; only the additional context field is sent as input)
+- **Reordering** – drag & drop in the list to change the order
+- **Delete** – button at the bottom of the editor with a confirmation dialog
 - **Import/export actions** – share or back up actions as JSON
 
 All changes are saved immediately.
@@ -517,7 +514,7 @@ This software is provided **"as is"**, without warranty of any kind – express 
 
 Utilita pro macOS menu bar, která zpracovává obsah schránky pomocí různých jazykových modelů. Je určena pro každého, kdo při práci pravidelně používá LLM – překladatele, vývojáře, copywritery i běžné uživatele – a chce mít přístup k AI přímo z klávesnice bez přepínání aplikací.
 
-Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce pošle obsah do LLM a vrátí výsledek. Každá akce má vlastní systémový prompt, provider a model. Funguje s OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI i lokálními modely (Ollama, LM Studio). Všechny akce jsou uživatelsky konfigurovatelné.
+Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce pošle obsah do LLM a vrátí výsledek. Každá akce má vlastní systémový prompt, poskytovatele a model. Funguje s OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI i lokálními modely (Ollama, LM Studio). Všechny akce jsou uživatelsky konfigurovatelné.
 
 ![JZLLMContext – overlay panel](docs/cs/screenshot.png)
 
@@ -532,9 +529,9 @@ Zkopíruješ text nebo obrázek, stiskneš globální zkratku a vybraná akce po
   - [Overlay panel](#overlay-panel-1)
   - [Nastavení – Obecné](#nastavení--obecné)
   - [Nastavení – Akce](#nastavení--akce)
-  - [Nastavení – Providery](#nastavení--providery)
+  - [Nastavení – Poskytovatelé](#nastavení--poskytovatelé)
 - [Vlastní modely](#vlastní-modely)
-- [Vlastní OpenAI-compatible providery](#vlastní-openai-compatible-providery)
+- [Vlastní OpenAI-compatible poskytovatelé](#vlastní-openai-compatible-poskytovatelé)
 - [Odinstalace](#odinstalace)
 - [Technický popis](#technický-popis)
   - [Zpracování souborů](#zpracování-souborů)
@@ -601,7 +598,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
 - **Doplňkový kontext** – volitelné textové pole pro přidání instrukce nad rámec schránky; stiskem **Enter** se spustí výchozí akce; ikona × pro rychlé vymazání
 - **Tlačítka akcí** – jen povolené akce
   - Spinner = akce právě běží
-  - ⚠ = chybí API klíč pro daný provider
+  - ⚠ = chybí API klíč pro daného poskytovatele
   - Číslo = klávesová zkratka; stisknutí `1`–`9` spustí příslušnou akci bez myši
   - ↩ = výchozí akce (spustí se stiskem Enter v poli kontextu)
   - **Zrušit** – zobrazí se při běžící akci; zastaví požadavek
@@ -609,7 +606,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
 - **Přetažení souboru (drag & drop)** – přetáhni libovolný soubor přímo na panel; text se extrahuje lokálně a použije jako kontext místo schránky. Podporované formáty: PDF, obrázky (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote a všechny plain-text formáty (TXT, MD, CSV, JSON, zdrojový kód, …). Maximální velikost: 5 MB. Název souboru se zobrazí v náhledu s tlačítkem × pro odebrání; stisknutím **Escape** při načteném souboru se soubor nejprve vymaže (druhé stisknutí panel zavře). Kontext ze souboru obchází přepínač *ignorovat schránku*.
 - **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext; tlačítka akcí zůstávají neaktivní, dokud pole doplňkového kontextu neobsahuje text
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí ikona obnovení v barvě zvýraznění; kliknutím se znovu načte obsah schránky
-- **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
+- **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší. Panel se při zobrazení výsledku automaticky zvětší; jakmile velikost panelu jednou změníte ručně, zachovává se vaše velikost a automatika se vypne
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
 - **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session; pokud je zapnuto logování interakcí, zobrazí se na konci panelu tlačítko **Otevřít složku logů**
 
@@ -638,59 +635,58 @@ Klikni na pole se zkratkou, stiskni požadovanou kombinaci (musí obsahovat ales
 
 ![Nastavení – Akce](docs/cs/screenshot-settings-actions.png)
 
-Správa akcí zobrazovaných v overlay panelu.
+Správa akcí zobrazovaných v overlay panelu. Záložka používá rozložení seznam–detail: vlevo kompaktní seznam akcí (přepínač povolení, název, poskytovatel · model, značka ↩ výchozí akce), vpravo plnohodnotný editor vybrané akce.
 
-- **Přidání akce** – tlačítko „Přidat akci"
-- **Zapnutí/vypnutí** – přepínač vlevo od názvu; vypnuté akce se v overlay nezobrazí
-- **Výchozí akce** – tlačítko ↩ označí akci spouštěnou stiskem Enter v poli kontextu; označit lze vždy jen jednu
-- **Systémový prompt** – instrukce pro LLM; obsah schránky se posílá jako uživatelská zpráva
-- **Provider a model** – výběr providera a modelu (viz [Vlastní modely](#vlastní-modely))
-- **Teplota** – slider 0.0–2.0; výchozí 0.7
-- **Ignorovat schránku** – je-li zaškrtnuto, akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu (odpovídá ručnímu stisknutí tlačítka oka)
-- **Zkopírovat a zavřít** – per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*
-- **Max. tokenů** – maximální délka odpovědi
-- **Přesouvání** – drag & drop pro změnu pořadí
-- **Mazání** – tlačítko koše s potvrzovacím dialogem
+- **Přidání akce** – tlačítko „Přidat akci"; nová akce se rovnou vybere
+- **Zapnutí/vypnutí** – přepínač v seznamu; vypnuté akce se v overlay nezobrazí
+- **Výchozí akce** – přepínač v editoru označí akci spouštěnou stiskem Enter v poli kontextu; označit lze vždy jen jednu (↩ v seznamu)
+- **Systémový prompt** – instrukce pro LLM s velkým editačním polem; obsah schránky se posílá jako uživatelská zpráva
+- **Poskytovatel a model** – výběr poskytovatele a modelu (viz [Vlastní modely](#vlastní-modely))
+- **Parametry** – teplota (slider 0.0–2.0; výchozí 0.7), max. tokenů (maximální délka odpovědi), Zkopírovat a zavřít (per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*) a Ignorovat schránku (akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu)
+- **Přesouvání** – drag & drop v seznamu pro změnu pořadí
+- **Mazání** – tlačítko ve spodní části editoru s potvrzovacím dialogem
 - **Import/export akcí** – sdílení nebo záloha jako JSON
 
 Všechny změny se ukládají okamžitě.
 
-#### Nastavení – Providery
+#### Nastavení – Poskytovatelé
 
-![Nastavení – Providery](docs/cs/screenshot-settings-providers.png)
+![Nastavení – Poskytovatelé](docs/cs/screenshot-settings-providers.png)
+
+Každý poskytovatel je sbalovací sekce — ve výchozím stavu sbalená pro kompaktní přehled. Hlavička sekce ukazuje ikonu klíče (zelená = API klíč uložen) a počet uložených modelů, takže stav konfigurace je vidět bez rozbalení.
 
 **OpenAI, Anthropic, Google Gemini, xAI Grok** – pole pro API klíč, tlačítko Uložit a **Aktualizovat modely** pro načtení aktuálního seznamu přímo z API.
 
 **Azure AI (slot 1 a slot 2)** – každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
-**Vlastní OpenAI-compatible providery** – libovolný počet vlastních providerů kompatibilních s OpenAI Chat Completions API. Přidej provider tlačítkem **+** a nakonfiguruj: název providera (používá se ve výběru akce a v celém UI), Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `?api-version=…` do URL), **Parametr max. tokenů** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – zvol podle toho, co daný server očekává) a volitelné **Vlastní hlavičky** (extra HTTP hlavičky odeslané s každým požadavkem – pro autentizaci, směrování API nebo specifické požadavky serveru). **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné. Providery lze odebrat tlačítkem smazat; akce používající smazaný provider se automaticky resetují na OpenAI.
+**Vlastní OpenAI-compatible poskytovatelé** – libovolný počet vlastních poskytovatelů kompatibilních s OpenAI Chat Completions API. Přidej poskytovatele tlačítkem **+** a nakonfiguruj: název poskytovatele (používá se ve výběru akce a v celém UI), Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `?api-version=…` do URL), **Parametr max. tokenů** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – zvol podle toho, co daný server očekává) a volitelné **Vlastní hlavičky** (extra HTTP hlavičky odeslané s každým požadavkem – pro autentizaci, směrování API nebo specifické požadavky serveru). **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné. Poskytovatele lze odebrat tlačítkem smazat; akce používající smazaného poskytovatele se automaticky resetují na OpenAI.
 
-**Filtry modelů** – globální filtry platné pro všechny providery. Seznam **Exclude** skryje každý model, jehož ID obsahuje zadaný řetězec (např. přidání `preview` skryje všechny preview modely). Seznam **Include**, je-li neprázdný, zobrazí jen modely, jejichž ID obsahuje alespoň jeden ze zadaných řetězců. Include má přednost před exclude. Filtry se uplatňují ve výběru modelu v akci i v listu Update Models.
+**Filtry modelů** (zobrazené na začátku záložky, protože ovlivňují všechny poskytovatele) – globální filtry platné pro všechny poskytovatele. Seznam **Exclude** skryje každý model, jehož ID obsahuje zadaný řetězec (např. přidání `preview` skryje všechny preview modely). Seznam **Include**, je-li neprázdný, zobrazí jen modely, jejichž ID obsahuje alespoň jeden ze zadaných řetězců. Include má přednost před exclude. Filtry se uplatňují ve výběru modelu v akci i v listu Update Models.
 
-Tlačítko **Ověřit připojení** u každého providera odešle testovací požadavek a zobrazí výsledek.
+Tlačítko **Ověřit připojení** u každého poskytovatele odešle testovací požadavek a zobrazí výsledek.
 
 ---
 
 ### Vlastní modely
 
-Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libovolný model:
+Každý poskytovatel nabízí předdefinovaný seznam modelů a možnost zadat libovolný model:
 
-| Provider | Předdefinované modely |
+| Poskytovatel | Předdefinované modely |
 |----------|----------------------|
 | OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
 | Google Gemini | gemini-3.1-pro, gemini-3-flash-preview, gemini-3.1-flash-lite |
 | xAI Grok | grok-4.20, grok-4.20-non-reasoning, grok-4.1-fast-reasoning |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
-| Vlastní providery | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
+| Vlastní poskytovatelé | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
 
 Výběr vlastního modelu: v nastavení akce otevři výběr modelu → vyber „Vlastní model…" → zadej přesný identifikátor (např. `gpt-4.5-preview`). Hodnota se uloží okamžitě.
 
 ---
 
-### Vlastní OpenAI-compatible providery
+### Vlastní OpenAI-compatible poskytovatelé
 
-Aplikace podporuje libovolný počet vlastních providerů kompatibilních s OpenAI Chat Completions API. Přidej je v **Nastavení → Providery** tlačítkem **+**. Každý provider má nezávislý název, API klíč a konfiguraci.
+Aplikace podporuje libovolný počet vlastních poskytovatelů kompatibilních s OpenAI Chat Completions API. Přidej je v **Nastavení → Poskytovatelé** tlačítkem **+**. Každý poskytovatel má nezávislý název, API klíč a konfiguraci.
 
 **Ollama (lokální modely)**
 ```
@@ -708,7 +704,7 @@ API klíč: (nechat prázdné nebo libovolný řetězec)
 Model:    (název modelu načteného v LM Studio)
 ```
 
-**Jiný cloud provider (např. Together AI)**
+**Jiný cloudový poskytovatel (např. Together AI)**
 ```
 Název:    Together AI
 Base URL: https://api.together.xyz/v1
@@ -752,7 +748,7 @@ security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.gemin
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.grok.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai.apikey"
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.azure_openai_2.apikey"
-# Pro každý vlastní provider nahraď <uuid> UUID providera z config.json:
+# Pro každého vlastního poskytovatele nahraď <uuid> UUID poskytovatele z config.json:
 security delete-generic-password -s "com.jz.JZLLMContext" -a "jzllmcontext.<uuid>.apikey"
 ```
 
@@ -767,10 +763,10 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
 - **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX, XLSX, RTF, PPTX, iWork formáty přes Spotlight) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
-- **Více providerů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible providerů (Ollama, LM Studio, OpenRouter, …)
-- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastní provider, model, teplotu a limit tokenů
+- **Více poskytovatelů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible poskytovatelů (Ollama, LM Studio, OpenRouter, …)
+- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, teplotu a limit tokenů
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
-- **Vlastní modely** – každý provider podporuje zadání libovolného modelu mimo předdefinovaný seznam
+- **Vlastní modely** – každý poskytovatel podporuje zadání libovolného modelu mimo předdefinovaný seznam
 - **Klávesové zkratky** – akce 1–9 lze spustit stiskem příslušné číslice přímo v overlay panelu
 - **Výchozí akce** – jedna akce může být označena jako výchozí; spustí se stiskem Enter v poli doplňkového kontextu
 - **Doplňkový kontext** – volitelné textové pole v overlay pro přidání instrukce nad rámec schránky
@@ -781,9 +777,9 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Spuštění při přihlášení** – volitelná integrace se Service Management
 - **Automatické zkopírování a zavření** – globální přepínač i per-akce přepis (Vždy / Nikdy / Dle globálního nastavení)
 - **Formátování výsledku** – globální přepínač; výsledek lze zobrazit s Markdown formátováním nebo jako prostý text
-- **Aktualizace seznamu modelů online** – tlačítkem v nastavení providerů lze načíst aktuální modely přímo z API; vlastní OpenAI-compatible providery načítají modely z endpointu `/models` na daném serveru
-- **Filtry modelů** – globální seznamy include a exclude filtrů; modely jejichž ID obsahuje exclude řetězec jsou skryty u všech providerů; jsou-li zadány include řetězce, zobrazí se jen shodné modely; filtry se uplatňují ve výběru modelu i v listu Update Models
-- **Vlastní HTTP hlavičky** – každý vlastní provider může posílat libovolné extra HTTP hlavičky s každým požadavkem (pro API routing, autentizaci nebo specifické požadavky jako `HTTP-Referer` na OpenRouter)
+- **Aktualizace seznamu modelů online** – tlačítkem v nastavení poskytovatelů lze načíst aktuální modely přímo z API; vlastní OpenAI-compatible poskytovatelé načítají modely z endpointu `/models` na daném serveru
+- **Filtry modelů** – globální seznamy include a exclude filtrů; modely jejichž ID obsahuje exclude řetězec jsou skryty u všech poskytovatelů; jsou-li zadány include řetězce, zobrazí se jen shodné modely; filtry se uplatňují ve výběru modelu i v listu Update Models
+- **Vlastní HTTP hlavičky** – každý vlastní poskytovatel může posílat libovolné extra HTTP hlavičky s každým požadavkem (pro API routing, autentizaci nebo specifické požadavky jako `HTTP-Referer` na OpenRouter)
 - **Test připojení** – ověří, zda je API klíč a konfigurace funkční
 - **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče ani hodnoty vlastních HTTP hlaviček nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
@@ -795,7 +791,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 #### Požadavky
 
 - macOS 15.0 (Sequoia) nebo novější
-- API klíč alespoň jednoho podporovaného providera
+- API klíč alespoň jednoho podporovaného poskytovatele
 
 #### Instalace a sestavení
 
@@ -873,7 +869,7 @@ Konfigurace (akce, zkratka, Azure/Custom URL) se ukládá do JSON souboru atomic
 
 API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 
-| Provider | Keychain account |
+| Poskytovatel | Keychain account |
 |----------|-----------------|
 | OpenAI | `jzllmcontext.openai.apikey` |
 | Anthropic | `jzllmcontext.anthropic.apikey` |
@@ -881,7 +877,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 | xAI Grok | `jzllmcontext.grok.apikey` |
 | Azure AI slot 1 | `jzllmcontext.azure_openai.apikey` |
 | Azure AI slot 2 | `jzllmcontext.azure_openai_2.apikey` |
-| Vlastní provider | `jzllmcontext.<uuid>.apikey` (UUID přiřazeno při vytvoření providera) |
+| Vlastní poskytovatel | `jzllmcontext.<uuid>.apikey` (UUID přiřazeno při vytvoření poskytovatele) |
 
 #### Struktura konfiguračního souboru
 
@@ -934,11 +930,11 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
 
 Hodnoty `hotkeyKeyCode` a `hotkeyModifiers` jsou kódy Carbon API. Výchozí zkratka Cmd+Shift+Space odpovídá `keyCode: 49`, `modifiers: 768`.
 
-Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, nebo UUID string vlastního providera (např. `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`).
+Poskytovatel se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`, `"azure_openai"`, `"azure_openai_2"`, nebo UUID string vlastního poskytovatele (např. `"a1b2c3d4-e5f6-7890-abcd-ef1234567890"`).
 
-#### Providery a jejich limity
+#### Poskytovatelé a jejich limity
 
-| Provider | Endpoint | Teplota | Poznámka |
+| Poskytovatel | Endpoint | Teplota | Poznámka |
 |----------|----------|---------|----------|
 | OpenAI | `https://api.openai.com/v1/chat/completions` | 0.0–2.0 | Standard Bearer auth |
 | Anthropic | `https://api.anthropic.com/v1/messages` | 0.0–1.0 | Teplota oříznutá na 1.0; header `x-api-key` + `anthropic-version: 2023-06-01` |
@@ -946,7 +942,7 @@ Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"
 | xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
 | Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | Header `api-key: {key}`; model v body ignorován – model určuje deployment |
 | Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý deployment |
-| Vlastní provider (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
+| Vlastní poskytovatel (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
 
 Timeout všech HTTP požadavků: **60 sekund**. Parametr `temperature` se vynechává u o-series reasoning modelů (ID modelu začínající `o1`/`o3`/`o4`), které jinou než výchozí hodnotu odmítají.
 

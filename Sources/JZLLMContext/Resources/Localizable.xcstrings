@@ -446,6 +446,51 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir acción" } }
       }
     },
+    "settings.actions.enabled" : {
+      "comment" : "Toggle in the action detail editor",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Povolená" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enabled" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activada" } }
+      }
+    },
+    "settings.actions.default_toggle" : {
+      "comment" : "Toggle in the action detail editor; Enter runs the default action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce (spustí Enter)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action (runs on Enter)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada (se ejecuta con Enter)" } }
+      }
+    },
+    "settings.actions.empty_selection" : {
+      "comment" : "Detail pane placeholder when no action is selected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte akci ze seznamu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select an action from the list" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Selecciona una acción de la lista" } }
+      }
+    },
+    "settings.actions.empty_list" : {
+      "comment" : "Detail pane placeholder when there are no actions at all",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím žádné akce — přidejte první tlačítkem „Přidat akci\"." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No actions yet — add one with \"Add Action\"." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay acciones — añade una con «Añadir acción»." } }
+      }
+    },
+    "settings.actions.section.parameters" : {
+      "comment" : "Section header in the action detail editor",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Parametry" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Parameters" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Parámetros" } }
+      }
+    },
     "settings.actions.new_name" : {
       "comment" : "Default name for a newly created action",
       "extractionState" : "manual",

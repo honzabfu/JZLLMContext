@@ -47,6 +47,7 @@ struct SettingsView: View {
     @State private var showDeleteProviderAlert = false
     @State private var providerToDelete: CustomProvider? = nil
     @State private var expandedProviders: Set<String> = []
+    @State private var selectedActionID: UUID?
 
     private enum PatternField: Hashable { case label, regex }
     @FocusState private var patternFocus: PatternField?
@@ -390,43 +391,25 @@ struct SettingsView: View {
     // MARK: - Actions Tab
 
     private var actionsTab: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            List {
-                ForEach($config.actions) { $action in
-                    ActionRow(action: $action, onSetDefault: {
-                        let targetID = action.id
-                        for i in config.actions.indices {
-                            config.actions[i].isDefault = config.actions[i].id == targetID
-                        }
-                        ConfigStore.shared.update { $0.actions = config.actions }
-                    }, onDelete: {
-                        config.actions.removeAll { $0.id == action.id }
-                        ConfigStore.shared.update { $0.actions = config.actions }
-                    })
-                }
-                .onMove { from, to in
-                    config.actions.move(fromOffsets: from, toOffset: to)
-                    ConfigStore.shared.update { $0.actions = config.actions }
-                }
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                actionList
+                    .frame(width: 230)
+                Divider()
+                actionDetail
             }
             Divider()
             HStack {
-                Button(L("settings.actions.add")) {
-                    config.actions.append(Action(
-                        name: L("settings.actions.new_name"),
-                        systemPrompt: "",
-                        provider: .openai,
-                        model: "gpt-5.5",
-                        enabled: true
-                    ))
-                    ConfigStore.shared.update { $0.actions = config.actions }
-                }
+                Button(L("settings.actions.add")) { addAction() }
                 Spacer()
                 Button(L("settings.actions.import")) { importActions() }
                 Button(L("settings.actions.export")) { exportActions() }
                     .disabled(config.actions.isEmpty)
             }
             .padding(12)
+        }
+        .onAppear {
+            if selectedActionID == nil { selectedActionID = config.actions.first?.id }
         }
         .alert(L("settings.alert.import_actions.title"), isPresented: $showImportAlert) {
             Button(L("settings.alert.import_actions.add")) {
@@ -438,6 +421,7 @@ struct SettingsView: View {
                 let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
                 config.actions = fresh
                 ConfigStore.shared.update { $0.actions = config.actions }
+                selectedActionID = config.actions.first?.id
             }
             Button(L("common.cancel"), role: .cancel) {}
         } message: {
@@ -445,6 +429,113 @@ struct SettingsView: View {
                         importedActions.count,
                         importedActions.count == 1 ? L("settings.alert.import_actions.singular") : L("settings.alert.import_actions.plural")))
         }
+    }
+
+    private var actionList: some View {
+        List(selection: $selectedActionID) {
+            ForEach(config.actions) { action in
+                HStack(spacing: 8) {
+                    Toggle("", isOn: Binding(
+                        get: { action.enabled },
+                        set: { val in updateAction(action.id) { $0.enabled = val } }
+                    ))
+                    .labelsHidden()
+                    .controlSize(.small)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(action.name.isEmpty ? L("settings.actions.new_name") : action.name)
+                            .lineLimit(1)
+                        Text("\(action.provider.displayName) · \(action.model)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    Spacer()
+                    if action.isDefault {
+                        Image(systemName: "return")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .help(L("action.row.help.is_default"))
+                    }
+                }
+                .padding(.vertical, 2)
+                .tag(action.id)
+            }
+            .onMove { from, to in
+                config.actions.move(fromOffsets: from, toOffset: to)
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+        }
+        .listStyle(.inset)
+    }
+
+    @ViewBuilder
+    private var actionDetail: some View {
+        if let id = selectedActionID, let binding = actionBinding(for: id) {
+            ActionDetailEditor(
+                action: binding,
+                onSetDefault: {
+                    for i in config.actions.indices {
+                        config.actions[i].isDefault = config.actions[i].id == id
+                    }
+                    ConfigStore.shared.update { $0.actions = config.actions }
+                },
+                onDelete: { deleteAction(id) }
+            )
+            // Recreate the editor per selection so its @State model-picker
+            // fields re-sync via onAppear for the newly selected action.
+            .id(id)
+        } else {
+            VStack {
+                Spacer()
+                Text(config.actions.isEmpty ? L("settings.actions.empty_list") : L("settings.actions.empty_selection"))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func actionBinding(for id: UUID) -> Binding<Action>? {
+        guard let current = config.actions.first(where: { $0.id == id }) else { return nil }
+        return Binding(
+            get: { config.actions.first(where: { $0.id == id }) ?? current },
+            set: { newVal in
+                guard let i = config.actions.firstIndex(where: { $0.id == id }) else { return }
+                config.actions[i] = newVal
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+        )
+    }
+
+    private func updateAction(_ id: UUID, _ mutate: (inout Action) -> Void) {
+        guard let i = config.actions.firstIndex(where: { $0.id == id }) else { return }
+        mutate(&config.actions[i])
+        ConfigStore.shared.update { $0.actions = config.actions }
+    }
+
+    private func addAction() {
+        let action = Action(
+            name: L("settings.actions.new_name"),
+            systemPrompt: "",
+            provider: .openai,
+            model: "gpt-5.5",
+            enabled: true
+        )
+        config.actions.append(action)
+        ConfigStore.shared.update { $0.actions = config.actions }
+        selectedActionID = action.id
+    }
+
+    private func deleteAction(_ id: UUID) {
+        guard let idx = config.actions.firstIndex(where: { $0.id == id }) else { return }
+        config.actions.remove(at: idx)
+        ConfigStore.shared.update { $0.actions = config.actions }
+        selectedActionID = config.actions.indices.contains(idx)
+            ? config.actions[idx].id
+            : config.actions.last?.id
     }
 
     // MARK: - Providers Tab
@@ -497,6 +588,7 @@ struct SettingsView: View {
                 Text(L("settings.providers.azure.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $azureKey)
                         .onSubmit { saveKey(azureKey, for: .azureOpenai) }
@@ -740,6 +832,7 @@ struct SettingsView: View {
                     Label(L("settings.providers.custom.delete"), systemImage: "trash")
                         .foregroundStyle(.red)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
                 providerHeader(
                     cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name,
@@ -937,10 +1030,12 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         if let error = fetchError[provider] {
             Text(error)
                 .font(.caption)
                 .foregroundStyle(.red)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -984,10 +1079,12 @@ struct SettingsView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         if let error = testError[provider] {
             Text(error)
                 .font(.caption)
                 .foregroundStyle(.red)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -1019,6 +1116,7 @@ struct SettingsView: View {
                     .foregroundStyle(saved ? .green : .red)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func saveKey(_ key: String, for provider: ProviderType) {
@@ -1272,44 +1370,113 @@ private struct ModelReviewSheet: View {
     }
 }
 
-// MARK: - Action Row
+// MARK: - Action Detail Editor
 
-private struct ActionRow: View {
+private struct ActionDetailEditor: View {
     @Binding var action: Action
     var onSetDefault: () -> Void
     var onDelete: () -> Void
-    @State private var pickerModel: String = ""
-    @State private var customModelText: String = ""
+    @State private var pickerModel: String
+    @State private var customModelText: String
     @State private var confirmDelete = false
 
-    private let customSentinel = "__custom__"
+    private static let customSentinel = "__custom__"
+    private var customSentinel: String { Self.customSentinel }
 
     private var isCustomModel: Bool { pickerModel == customSentinel }
 
+    // The picker state must be seeded in init: the editor is recreated per
+    // selected action via .id(_:), and onAppear does not fire reliably on
+    // those identity swaps, which left the model picker blank.
+    init(action: Binding<Action>, onSetDefault: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self._action = action
+        self.onSetDefault = onSetDefault
+        self.onDelete = onDelete
+        let current = action.wrappedValue
+        let presetIDs = current.provider.effectiveModels().map(\.id)
+        if !presetIDs.isEmpty && presetIDs.contains(current.model) {
+            self._pickerModel = State(initialValue: current.model)
+            self._customModelText = State(initialValue: "")
+        } else {
+            self._pickerModel = State(initialValue: Self.customSentinel)
+            self._customModelText = State(initialValue: current.model)
+        }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Toggle("", isOn: $action.enabled)
-                    .labelsHidden()
-                TextField(L("action.row.name_placeholder"), text: $action.name)
-                    .font(.headline)
-                Spacer()
-                Button {
-                    onSetDefault()
-                } label: {
-                    Image(systemName: action.isDefault ? "return.left" : "return")
-                        .foregroundStyle(action.isDefault ? Color.accentColor : Color.secondary.opacity(0.5))
-                        .fontWeight(action.isDefault ? .semibold : .regular)
+        Form {
+            Section {
+                LabeledContent(L("action.detail.label.name")) {
+                    TextField(L("action.row.name_placeholder"), text: $action.name)
                 }
-                .buttonStyle(.plain)
+                Toggle(L("settings.actions.enabled"), isOn: $action.enabled)
+                Toggle(L("settings.actions.default_toggle"), isOn: Binding(
+                    get: { action.isDefault },
+                    set: { isOn in
+                        if isOn {
+                            onSetDefault()
+                        } else {
+                            action.isDefault = false
+                        }
+                    }
+                ))
                 .help(action.isDefault ? L("action.row.help.is_default") : L("action.row.help.set_default"))
-                Button {
+            }
+            Section {
+                Picker(L("action.detail.label.provider"), selection: $action.provider) {
+                    ForEach(ProviderType.allCases, id: \.self) { provider in
+                        Text(provider.displayName).tag(provider)
+                    }
+                }
+                .onChange(of: action.provider) {
+                    let presets = action.provider.effectiveModels()
+                    if presets.isEmpty {
+                        action.model = ""
+                        pickerModel = customSentinel
+                        customModelText = ""
+                    } else {
+                        let first = presets.first!.id
+                        action.model = first
+                        pickerModel = first
+                        customModelText = ""
+                    }
+                }
+                modelRow
+            }
+            Section(L("action.detail.label.system_prompt")) {
+                TextEditor(text: $action.systemPrompt)
+                    .font(.callout)
+                    .frame(minHeight: 200, maxHeight: 400)
+            }
+            Section(L("settings.actions.section.parameters")) {
+                LabeledContent(String(format: L("action.row.temperature"), action.temperature)) {
+                    Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
+                        .frame(maxWidth: 220)
+                }
+                LabeledContent(L("action.row.max_tokens")) {
+                    HStack {
+                        TextField("", value: $action.maxTokens, format: .number)
+                            .frame(width: 80)
+                            .multilineTextAlignment(.trailing)
+                        Stepper("", value: $action.maxTokens, in: 256...32000, step: 256)
+                            .labelsHidden()
+                    }
+                }
+                Picker(L("action.row.copy_close"), selection: $action.autoCopyClose) {
+                    ForEach(AutoCopyClose.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                Toggle(L("action.row.ignore_clipboard"), isOn: $action.ignoreClipboard)
+                    .help(L("action.row.help.ignore_clipboard"))
+            }
+            Section {
+                Button(role: .destructive) {
                     confirmDelete = true
                 } label: {
-                    Image(systemName: "trash")
-                        .foregroundStyle(.red.opacity(0.8))
+                    Label(L("action.row.delete.button"), systemImage: "trash")
+                        .foregroundStyle(.red)
                 }
-                .buttonStyle(.plain)
                 .confirmationDialog(
                     String(format: L("action.row.delete.confirm"), action.name),
                     isPresented: $confirmDelete,
@@ -1318,25 +1485,9 @@ private struct ActionRow: View {
                     Button(L("action.row.delete.button"), role: .destructive) { onDelete() }
                 }
             }
-
-            providerModelRow
-
-            TextEditor(text: $action.systemPrompt)
-                .font(.callout)
-                .frame(minHeight: 60, maxHeight: 100)
-                .overlay(RoundedRectangle(cornerRadius: UICornerRadius.small).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
-
-            parametersRow
         }
-        .padding(.vertical, 6)
+        .formStyle(.grouped)
         .onAppear { syncPickerFromAction() }
-        .onChange(of: action) {
-            ConfigStore.shared.update { store in
-                if let idx = store.actions.firstIndex(where: { $0.id == action.id }) {
-                    store.actions[idx] = action
-                }
-            }
-        }
     }
 
     private func syncPickerFromAction() {
@@ -1350,105 +1501,37 @@ private struct ActionRow: View {
         }
     }
 
-    private var providerModelRow: some View {
-        HStack(spacing: 6) {
-            Picker("Provider", selection: $action.provider) {
-                ForEach(ProviderType.allCases, id: \.self) { provider in
-                    Text(provider.displayName).tag(provider)
-                }
-            }
-            .labelsHidden()
-            .frame(width: 120)
-            .onChange(of: action.provider) {
-                let presets = action.provider.effectiveModels()
-                if presets.isEmpty {
-                    action.model = ""
-                    pickerModel = customSentinel
-                    customModelText = ""
-                } else {
-                    let first = presets.first!.id
-                    action.model = first
-                    pickerModel = first
-                    customModelText = ""
-                }
-            }
-
-            if action.provider.effectiveModels().isEmpty {
+    @ViewBuilder
+    private var modelRow: some View {
+        if action.provider.effectiveModels().isEmpty {
+            LabeledContent(L("action.detail.label.model")) {
                 TextField(L("action.row.model_placeholder"), text: $customModelText)
-                    .frame(width: 260)
                     .onChange(of: customModelText) {
                         if !customModelText.isEmpty { action.model = customModelText }
                     }
-            } else {
-                Picker("Model", selection: $pickerModel) {
-                    ForEach(action.provider.effectiveModels()) { preset in
-                        Text(preset.isRecommended ? "\(preset.displayName) \(L("action.row.recommended"))" : preset.displayName)
-                            .tag(preset.id)
-                    }
-                    Divider()
-                    Text(L("action.row.custom_model")).tag(customSentinel)
+            }
+        } else {
+            Picker(L("action.detail.label.model"), selection: $pickerModel) {
+                ForEach(action.provider.effectiveModels()) { preset in
+                    Text(preset.isRecommended ? "\(preset.displayName) \(L("action.row.recommended"))" : preset.displayName)
+                        .tag(preset.id)
                 }
-                .labelsHidden()
-                .frame(width: 200)
-                .onChange(of: pickerModel) {
-                    if pickerModel != customSentinel {
-                        action.model = pickerModel
-                        customModelText = ""
-                    }
+                Divider()
+                Text(L("action.row.custom_model")).tag(customSentinel)
+            }
+            .onChange(of: pickerModel) {
+                if pickerModel != customSentinel {
+                    action.model = pickerModel
+                    customModelText = ""
                 }
+            }
 
-                if isCustomModel {
+            if isCustomModel {
+                LabeledContent("") {
                     TextField(L("action.row.model_placeholder"), text: $customModelText)
-                        .frame(width: 160)
                         .onChange(of: customModelText) {
                             if !customModelText.isEmpty { action.model = customModelText }
                         }
-                }
-            }
-        }
-    }
-
-    private var parametersRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(String(format: L("action.row.temperature"), action.temperature))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
-                    .frame(width: 160)
-            }
-
-            Spacer()
-
-            Toggle(L("action.row.ignore_clipboard"), isOn: $action.ignoreClipboard)
-                .toggleStyle(.checkbox)
-                .font(.caption)
-                .help(L("action.row.help.ignore_clipboard"))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(L("action.row.copy_close"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Picker("", selection: $action.autoCopyClose) {
-                    ForEach(AutoCopyClose.allCases, id: \.self) { mode in
-                        Text(mode.displayName).tag(mode)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 120)
-                .pickerStyle(.menu)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(L("action.row.max_tokens"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                HStack {
-                    TextField("", value: $action.maxTokens, format: .number)
-                        .frame(width: 80)
-                        .multilineTextAlignment(.trailing)
-                    Stepper("", value: $action.maxTokens, in: 256...32000, step: 256)
-                        .labelsHidden()
                 }
             }
         }
