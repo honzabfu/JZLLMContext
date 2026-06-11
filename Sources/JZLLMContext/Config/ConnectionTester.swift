@@ -92,7 +92,8 @@ enum ConnectionTester {
         guard let endpointStr, !endpointStr.isEmpty else {
             throw LLMError.missingAPIKey(providerType)
         }
-        let chatURL = try azureChatURL(deploymentBase: endpointStr, legacyDeployment: deploymentName, apiVersion: apiVersion)
+        let chatURL = try azureChatURL(deploymentBase: endpointStr, legacyDeployment: deploymentName,
+                                       apiVersion: apiVersion, provider: providerType)
         try await pingChatCompletions(url: chatURL, apiKey: key, authStyle: .apiKey)
     }
 
@@ -151,20 +152,21 @@ enum ConnectionTester {
         }
     }
 
-    private static func azureChatURL(deploymentBase: String, legacyDeployment: String?, apiVersion: String) throws -> URL {
+    private static func azureChatURL(deploymentBase: String, legacyDeployment: String?, apiVersion: String,
+                                     provider: ProviderType) throws -> URL {
         var base = deploymentBase.hasSuffix("/") ? String(deploymentBase.dropLast()) : deploymentBase
         if base.hasSuffix("/chat/completions") {
             base = String(base.dropLast("/chat/completions".count))
         }
         if !base.contains("/deployments/") {
             guard let dep = legacyDeployment, !dep.isEmpty else {
-                throw LLMError.missingAPIKey(.azureOpenai)
+                throw LLMError.missingAPIKey(provider)
             }
             base = "\(base)/openai/deployments/\(dep)"
         }
         var components = URLComponents(string: "\(base)/chat/completions")
         components?.queryItems = [URLQueryItem(name: "api-version", value: apiVersion)]
-        guard let url = components?.url else { throw LLMError.missingAPIKey(.azureOpenai) }
+        guard let url = components?.url else { throw LLMError.missingAPIKey(provider) }
         return url
     }
 }
