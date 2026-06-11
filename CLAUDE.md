@@ -29,6 +29,8 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 Use `UICornerRadius.small` (4) / `.large` (8) for corner radii instead of magic numbers — keeps overlay/settings rounding consistent.
 
+`OverlayWindowController` manages panel height only until the user resizes the panel by hand: `windowDidEndLiveResize` (fires for drag-resize only, never for programmatic `setFrame`) sets `userResizedPanel`, which disables both `adjustPanelHeight()` on open and the animated `expandForResult()` (triggered from `OverlayView` via the `onResultAppeared` callback). Don't add `setFrame` calls that bypass this flag.
+
 `OverlayWindowController` hides the standard traffic-light window buttons (`standardWindowButton(.closeButton/.miniaturizeButton/.zoomButton)?.isHidden = true`); `OverlayView` provides its own ✕ in the header, so don't re-enable the system buttons.
 
 The context `TextField` (`userContextFocused`) must keep keyboard focus so `.onKeyPress(.return, ...)` triggers the default action — `.defaultFocus($userContextFocused, true)` plus explicit `userContextFocused = true` in both `.onAppear` and `.onChange(of: state.refreshID)` (the panel is created once and reused, so `.onAppear` only fires on the very first show). Icon-only header buttons use `iconButton()` (`.buttonStyle(.plain).focusEffectDisabled()`) so they don't steal this focus or break digit shortcuts.
