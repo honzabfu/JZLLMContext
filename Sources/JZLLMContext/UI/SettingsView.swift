@@ -1052,9 +1052,17 @@ struct SettingsView: View {
     }
 
     private func exportConfig() {
+        // Custom header values often carry Authorization tokens or API keys —
+        // strip them from the export, keeping the keys so the user knows
+        // which headers to re-enter after import.
+        var sanitized = ConfigStore.shared.config
+        for i in sanitized.customProviders.indices {
+            sanitized.customProviders[i].customHeaders =
+                sanitized.customProviders[i].customHeaders.mapValues { _ in "" }
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let data = try? encoder.encode(ConfigStore.shared.config) else { return }
+        guard let data = try? encoder.encode(sanitized) else { return }
         let panel = NSSavePanel()
         panel.title = "Exportovat konfiguraci"
         panel.nameFieldStringValue = "JZLLMContext-config.json"
