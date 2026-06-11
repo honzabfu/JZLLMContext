@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## v0.65 – 2026-06-11
+- Settings: Actions tab redesigned as master–detail — action list on the left, full editor on the right
+- Settings: Providers tab restructured — each provider is a collapsible section
+- Settings: model filter tags wrap to multiple lines instead of overflowing
+- Overlay: panel grows to fit the result; manual window resize is respected and disables automatic sizing
+- Overlay: digit shortcuts 1–9 are blocked while an action is running
+- Overlay: clipboard change indicator no longer triggers on the app's own clipboard writes (auto-copy)
+- Fix: "Ignore clipboard" actions no longer send empty input when there is no manual context
+- Fix: history now records the input actually sent (after clipboard-ignore and context embedding)
+- Fix: Azure slot 2 connection errors are reported under the correct provider
+- Fix: `temperature` is omitted for OpenAI o-series reasoning models (they reject non-default values)
+- Fix: invalid custom sensitive patterns are surfaced with a warning in Settings instead of being silently skipped
+- Fix: history logger recovers when the log file is deleted while the app is running
+- Fix: Settings window picks up edits made elsewhere (e.g. prompt edited via the overlay) instead of overwriting them with stale data
+- Security: custom HTTP header values are stripped from configuration export
+- Czech localization uses „poskytovatel" consistently instead of "provider"
+- README screenshots refreshed (cs + en)
+
 ## v0.64 – 2026-06-10
 - File processing: fixed handling of non-UTF8 text file encodings in `extractText`
 - Update check now correctly compares versions following the `0.x` minor-version scheme (e.g. 0.7 > 0.61), so the manual check no longer offers an "update" to a version that isn't actually newer
