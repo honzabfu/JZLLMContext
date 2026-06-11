@@ -878,7 +878,7 @@ struct SettingsView: View {
         if filters.wrappedValue.isEmpty {
             Text("—").foregroundStyle(.secondary).font(.caption)
         } else {
-            HStack(spacing: 4) {
+            FlowLayout(spacing: 4, lineSpacing: 4) {
                 ForEach(Array(filters.wrappedValue.enumerated()), id: \.offset) { idx, filter in
                     HStack(spacing: 3) {
                         Text(filter).font(.caption)
@@ -892,6 +892,7 @@ struct SettingsView: View {
                     .cornerRadius(UICornerRadius.small)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
