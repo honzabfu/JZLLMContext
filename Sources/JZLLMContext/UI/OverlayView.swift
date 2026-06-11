@@ -119,6 +119,7 @@ struct OverlayView: View {
         }
         .onKeyPress { press in
             guard !userContextFocused,
+                  !engine.isLoading,
                   let digit = Int(press.characters),
                   digit >= 1, digit <= actions.count else { return .ignored }
             runAction(actions[digit - 1])
