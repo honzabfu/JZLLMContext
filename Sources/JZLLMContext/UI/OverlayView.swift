@@ -15,6 +15,7 @@ struct OverlayView: View {
     @State private var isResolvingContext = false
     @State private var contextIsFromOCR = false
     @State private var lastAction: Action?
+    @State private var lastInput: String = ""
     @State private var didCopy = false
     @State private var userContext: String = ""
     @State private var ignoreClipboard: Bool = false
@@ -95,7 +96,7 @@ struct OverlayView: View {
         }
         .onChange(of: engine.completedRunID) { _, completedID in
             guard completedID != nil, !engine.result.isEmpty else { return }
-            HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
+            HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: lastInput, result: engine.result)
             let shouldCopyClose: Bool
             switch lastAction?.autoCopyClose {
             case .always:   shouldCopyClose = true
@@ -528,6 +529,8 @@ struct OverlayView: View {
                 input = text
             }
         }
+        guard !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        lastInput = input
         let cfg = ConfigStore.shared.config
         if cfg.sensitiveContentCheckEnabled {
             // userContext may be embedded into the system prompt via {{kontext}}
