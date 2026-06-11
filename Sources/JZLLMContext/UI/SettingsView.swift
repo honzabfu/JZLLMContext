@@ -46,6 +46,7 @@ struct SettingsView: View {
     @State private var newHeaderValue: [UUID: String] = [:]
     @State private var showDeleteProviderAlert = false
     @State private var providerToDelete: CustomProvider? = nil
+    @State private var expandedProviders: Set<String> = []
 
     private enum PatternField: Hashable { case label, regex }
     @FocusState private var patternFocus: PatternField?
@@ -450,8 +451,13 @@ struct SettingsView: View {
 
     private var providersTab: some View {
         Form {
+            // Model filters first — they shape what every provider's
+            // "Update Models" fetch shows, so they read as global settings.
+            modelFiltersSection
+
             // Built-in providers
-            Section("OpenAI") {
+            providerSection("OpenAI", provider: .openai, hasKey: !openaiKey.isEmpty,
+                            groupTitle: L("settings.providers.section.providers")) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $openaiKey)
                         .onSubmit { saveKey(openaiKey, for: .openai) }
@@ -460,7 +466,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .openai)
                 testConnectionRow(for: .openai, key: openaiKey)
             }
-            Section("Anthropic") {
+            providerSection("Anthropic", provider: .anthropic, hasKey: !anthropicKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $anthropicKey)
                         .onSubmit { saveKey(anthropicKey, for: .anthropic) }
@@ -469,7 +475,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .anthropic)
                 testConnectionRow(for: .anthropic, key: anthropicKey)
             }
-            Section("Google Gemini") {
+            providerSection("Google Gemini", provider: .gemini, hasKey: !geminiKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $geminiKey)
                         .onSubmit { saveKey(geminiKey, for: .gemini) }
@@ -478,7 +484,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .gemini)
                 testConnectionRow(for: .gemini, key: geminiKey)
             }
-            Section("xAI Grok") {
+            providerSection("xAI Grok", provider: .grok, hasKey: !grokKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $grokKey)
                         .onSubmit { saveKey(grokKey, for: .grok) }
@@ -487,7 +493,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .grok)
                 testConnectionRow(for: .grok, key: grokKey)
             }
-            Section("Azure AI (slot 1)") {
+            providerSection("Azure AI (slot 1)", provider: .azureOpenai, hasKey: !azureKey.isEmpty) {
                 Text(L("settings.providers.azure.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -496,7 +502,7 @@ struct SettingsView: View {
                         .onSubmit { saveKey(azureKey, for: .azureOpenai) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
                         get: { config.azureEndpoint ?? "" },
                         set: {
                             config.azureEndpoint = $0.isEmpty ? nil : $0
@@ -505,16 +511,17 @@ struct SettingsView: View {
                     ))
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
                         get: { config.azureDeploymentName ?? "" },
                         set: {
                             config.azureDeploymentName = $0.isEmpty ? nil : $0
                             ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
                         }
                     ))
+                    .help(L("settings.providers.azure.deployment_name_hint"))
                 }
-                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
-                    TextField("", text: Binding(
+                LabeledContent(L("settings.providers.azure.api_version")) {
+                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
                         get: { config.azureAPIVersion ?? "" },
                         set: {
                             config.azureAPIVersion = $0.isEmpty ? nil : $0
@@ -525,13 +532,13 @@ struct SettingsView: View {
                 saveButton(for: .azureOpenai, key: azureKey)
                 testConnectionRow(for: .azureOpenai, key: azureKey)
             }
-            Section("Azure AI (slot 2)") {
+            providerSection("Azure AI (slot 2)", provider: .azureOpenai2, hasKey: !azureKey2.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $azureKey2)
                         .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
                         get: { config.azureEndpoint2 ?? "" },
                         set: {
                             config.azureEndpoint2 = $0.isEmpty ? nil : $0
@@ -540,16 +547,17 @@ struct SettingsView: View {
                     ))
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
                         get: { config.azureDeploymentName2 ?? "" },
                         set: {
                             config.azureDeploymentName2 = $0.isEmpty ? nil : $0
                             ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
                         }
                     ))
+                    .help(L("settings.providers.azure.deployment_name_hint"))
                 }
-                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
-                    TextField("", text: Binding(
+                LabeledContent(L("settings.providers.azure.api_version")) {
+                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
                         get: { config.azureAPIVersion2 ?? "" },
                         set: {
                             config.azureAPIVersion2 = $0.isEmpty ? nil : $0
@@ -580,13 +588,11 @@ struct SettingsView: View {
                                                baseURL: "")
                     config.customProviders.append(newCP)
                     ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    expandedProviders.insert(newCP.id.uuidString)
                 } label: {
                     Label(L("settings.providers.add_custom"), systemImage: "plus")
                 }
             }
-
-            // Model filters
-            modelFiltersSection
         }
         .formStyle(.grouped)
         .onAppear {
@@ -601,6 +607,64 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Collapsible Provider Section
+
+    private func expansionBinding(_ id: String) -> Binding<Bool> {
+        Binding(
+            get: { expandedProviders.contains(id) },
+            set: { expanded in
+                if expanded {
+                    expandedProviders.insert(id)
+                } else {
+                    expandedProviders.remove(id)
+                }
+            }
+        )
+    }
+
+    private func providerSection<Content: View>(
+        _ name: String,
+        provider: ProviderType,
+        hasKey: Bool,
+        showsKeyStatus: Bool = true,
+        groupTitle: String? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        Section {
+            DisclosureGroup(isExpanded: expansionBinding(provider.rawValue)) {
+                content()
+            } label: {
+                providerHeader(name, provider: provider, hasKey: hasKey, showsKeyStatus: showsKeyStatus)
+            }
+        } header: {
+            if let groupTitle {
+                Text(groupTitle)
+            }
+        }
+    }
+
+    private func providerHeader(_ name: String, provider: ProviderType,
+                                hasKey: Bool, showsKeyStatus: Bool) -> some View {
+        HStack(spacing: 8) {
+            Text(name)
+                .fontWeight(.medium)
+            Spacer()
+            if let presets = config.modelPresets[provider.rawValue], !presets.isEmpty {
+                Text(String(format: L("settings.providers.models_saved"), presets.count))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if showsKeyStatus {
+                Image(systemName: hasKey ? "key.fill" : "key")
+                    .font(.caption)
+                    .foregroundStyle(hasKey ? Color.green : Color.secondary)
+                    .help(L(hasKey ? "settings.providers.key_saved" : "settings.providers.key_missing"))
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { expansionBinding(provider.rawValue).wrappedValue.toggle() }
+    }
+
     // MARK: - Custom Provider Section
 
     @ViewBuilder
@@ -613,69 +677,77 @@ struct SettingsView: View {
         )
 
         Section {
-            LabeledContent(L("settings.providers.custom.name")) {
-                TextField("", text: cp.name)
-                    .onChange(of: cp.wrappedValue.name) { _, _ in
+            DisclosureGroup(isExpanded: expansionBinding(cpID.uuidString)) {
+                LabeledContent(L("settings.providers.custom.name")) {
+                    TextField("", text: cp.name)
+                        .onChange(of: cp.wrappedValue.name) { _, _ in
+                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                        }
+                }
+                LabeledContent(L("settings.providers.custom.base_url")) {
+                    TextField("http://localhost:11434/v1", text: cp.baseURL)
+                        .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                        }
+                }
+                LabeledContent(L("settings.providers.custom.api_version")) {
+                    TextField(L("settings.providers.custom.api_version_hint"), text: Binding(
+                        get: { cp.wrappedValue.apiVersion ?? "" },
+                        set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
+                    ))
+                    .help(L("settings.providers.custom.api_version_hint"))
+                    .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
                         ConfigStore.shared.update { $0.customProviders = config.customProviders }
                     }
-            }
-            LabeledContent(L("settings.providers.custom.base_url")) {
-                TextField("https://…", text: cp.baseURL)
-                    .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                }
+                LabeledContent(L("settings.providers.custom.effective_url")) {
+                    Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
+                        .monospaced()
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
+                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .onChange(of: cp.wrappedValue.tokenParamStyle) { _, _ in
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                }
+                Toggle(L("settings.providers.custom.requires_key"), isOn: cp.requiresAPIKey)
+                    .onChange(of: cp.wrappedValue.requiresAPIKey) { _, _ in
                         ConfigStore.shared.update { $0.customProviders = config.customProviders }
                     }
-            }
-            LabeledContent(L("settings.providers.custom.api_version")) {
-                TextField("", text: Binding(
-                    get: { cp.wrappedValue.apiVersion ?? "" },
-                    set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
-                ))
-                .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
-                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                LabeledContent(L("settings.providers.api_key_optional")) {
+                    SecureField("", text: keyBinding)
+                        .onSubmit { saveKey(keyBinding.wrappedValue, for: provider) }
                 }
-            }
-            LabeledContent(L("settings.providers.custom.effective_url")) {
-                Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
-                    .monospaced()
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
-                ForEach(TokenParamStyle.allCases, id: \.self) { style in
-                    Text(style.displayName).tag(style)
+                saveButton(for: provider, key: keyBinding.wrappedValue)
+
+                // Custom headers
+                customHeadersRows(cp: cp, cpID: cpID)
+
+                testConnectionRow(for: provider, key: keyBinding.wrappedValue)
+                fetchModelsRow(for: provider)
+
+                Button(role: .destructive) {
+                    providerToDelete = cp.wrappedValue
+                    showDeleteProviderAlert = true
+                } label: {
+                    Label(L("settings.providers.custom.delete"), systemImage: "trash")
+                        .foregroundStyle(.red)
                 }
-            }
-            .onChange(of: cp.wrappedValue.tokenParamStyle) { _, _ in
-                ConfigStore.shared.update { $0.customProviders = config.customProviders }
-            }
-            Toggle(L("settings.providers.custom.requires_key"), isOn: cp.requiresAPIKey)
-                .onChange(of: cp.wrappedValue.requiresAPIKey) { _, _ in
-                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
-                }
-            LabeledContent(L("settings.providers.api_key_optional")) {
-                SecureField("", text: keyBinding)
-                    .onSubmit { saveKey(keyBinding.wrappedValue, for: provider) }
-            }
-            saveButton(for: provider, key: keyBinding.wrappedValue)
-
-            // Custom headers
-            customHeadersRows(cp: cp, cpID: cpID)
-
-            testConnectionRow(for: provider, key: keyBinding.wrappedValue)
-            fetchModelsRow(for: provider)
-
-            Button(role: .destructive) {
-                providerToDelete = cp.wrappedValue
-                showDeleteProviderAlert = true
             } label: {
-                Label(L("settings.providers.custom.delete"), systemImage: "trash")
-                    .foregroundStyle(.red)
+                providerHeader(
+                    cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name,
+                    provider: provider,
+                    hasKey: !(customProviderKeys[cpID.uuidString] ?? "").isEmpty,
+                    showsKeyStatus: cp.wrappedValue.requiresAPIKey
+                )
             }
-        } header: {
-            Text(cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name)
         }
     }
 
@@ -749,47 +821,56 @@ struct SettingsView: View {
     // MARK: - Model Filters Section
 
     private var modelFiltersSection: some View {
-        Group {
-            Section {
-                filterTagsRow(
-                    filters: $config.modelExcludeFilters,
-                    onRemove: { idx in
-                        config.modelExcludeFilters.remove(at: idx)
-                        ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
-                    }
-                )
-                HStack(spacing: 6) {
-                    TextField(L("settings.providers.model_filter.placeholder"), text: $newExcludeFilter)
-                        .onSubmit { addExcludeFilter() }
-                    Button(L("common.add")) { addExcludeFilter() }
-                        .disabled(newExcludeFilter.isEmpty)
+        Section {
+            modelFilterRow(
+                title: L("settings.providers.model_exclude_filter"),
+                hint: L("settings.providers.model_filter.hint_exclude"),
+                filters: $config.modelExcludeFilters,
+                newFilter: $newExcludeFilter,
+                onAdd: addExcludeFilter,
+                onRemove: { idx in
+                    config.modelExcludeFilters.remove(at: idx)
+                    ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
                 }
-            } header: {
-                Text(L("settings.providers.model_exclude_filter"))
-            } footer: {
-                Text(L("settings.providers.model_filter.hint_exclude"))
-            }
-
-            Section {
-                filterTagsRow(
-                    filters: $config.modelIncludeFilters,
-                    onRemove: { idx in
-                        config.modelIncludeFilters.remove(at: idx)
-                        ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
-                    }
-                )
-                HStack(spacing: 6) {
-                    TextField(L("settings.providers.model_filter.placeholder"), text: $newIncludeFilter)
-                        .onSubmit { addIncludeFilter() }
-                    Button(L("common.add")) { addIncludeFilter() }
-                        .disabled(newIncludeFilter.isEmpty)
+            )
+            modelFilterRow(
+                title: L("settings.providers.model_include_filter"),
+                hint: L("settings.providers.model_filter.hint_include"),
+                filters: $config.modelIncludeFilters,
+                newFilter: $newIncludeFilter,
+                onAdd: addIncludeFilter,
+                onRemove: { idx in
+                    config.modelIncludeFilters.remove(at: idx)
+                    ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
                 }
-            } header: {
-                Text(L("settings.providers.model_include_filter"))
-            } footer: {
-                Text(L("settings.providers.model_filter.hint_include"))
-            }
+            )
+        } header: {
+            Text(L("settings.providers.model_filters"))
+        } footer: {
+            Text(L("settings.providers.model_filters.scope"))
         }
+    }
+
+    @ViewBuilder
+    private func modelFilterRow(title: String, hint: String,
+                                filters: Binding<[String]>, newFilter: Binding<String>,
+                                onAdd: @escaping () -> Void,
+                                onRemove: @escaping (Int) -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .fontWeight(.medium)
+            filterTagsRow(filters: filters, onRemove: onRemove)
+            HStack(spacing: 6) {
+                TextField(L("settings.providers.model_filter.placeholder"), text: newFilter)
+                    .onSubmit { onAdd() }
+                Button(L("common.add")) { onAdd() }
+                    .disabled(newFilter.wrappedValue.isEmpty)
+            }
+            Text(hint)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
     }
 
     @ViewBuilder

@@ -150,13 +150,15 @@ All changes are saved immediately.
 
 ![Settings – Providers](docs/en/screenshot-settings-providers.png)
 
+Each provider is a collapsible section — collapsed by default for a compact overview. The section header shows a key icon (green when an API key is saved) and the number of saved models, so the configuration state is visible without expanding.
+
 **OpenAI, Anthropic, Google Gemini, xAI Grok** – API key field, Save button, and **Update Models** to fetch the current model list directly from the API.
 
 **Azure AI (slot 1 and slot 2)** – each slot represents one deployment in Azure AI Foundry. Enter the API key, Deployment URL, and API version.
 
 **Custom OpenAI-compatible providers** – any number of custom providers compatible with the OpenAI Chat Completions API. Add a provider with the **+** button and configure: provider name (used in the action picker and all UI), Base URL, optionally an API key (leave empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), the **Max tokens parameter** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – select based on what the server expects), and optional **Custom Headers** (extra HTTP headers sent with every request – useful for authentication headers, API routing, or service-specific requirements). **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available. Providers can be removed with the delete button; actions using the deleted provider are automatically reset to OpenAI.
 
-**Model Filters** – global filters that apply across all providers. The **Exclude** list hides any model whose ID contains one of the specified strings (e.g. adding `preview` hides all preview models). The **Include** list, when non-empty, shows only models whose ID contains at least one of the specified strings. Include takes priority over exclude. Filters apply in the action model picker and in the Update Models sheet.
+**Model Filters** (shown at the top of the tab, since they affect every provider) – global filters that apply across all providers. The **Exclude** list hides any model whose ID contains one of the specified strings (e.g. adding `preview` hides all preview models). The **Include** list, when non-empty, shows only models whose ID contains at least one of the specified strings. Include takes priority over exclude. Filters apply in the action model picker and in the Update Models sheet.
 
 The **Verify Connection** button for each provider sends a test request and displays the result.
 
