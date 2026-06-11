@@ -16,6 +16,7 @@
 		22887C026E9224A0D2923C8A /* ConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4788917E973F02208D6DAB08 /* ConnectionTester.swift */; };
 		29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB65AD326E16BF2E0137AABE /* HistoryStore.swift */; };
 		450734B8BB48675A75765886 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D70E3B5C8380F38DF3181F /* OverlayView.swift */; };
+		47495658702DA38EC5C3ED8D /* UIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35651A765620028C04E347AD /* UIConstants.swift */; };
 		4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */; };
 		55A7384824E1E417674390AE /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A0987C8886320AB4C42709 /* AboutView.swift */; };
 		58711DA275804D6B0D2ADA92 /* UpdateState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F7346042278B76B448237 /* UpdateState.swift */; };
@@ -50,6 +51,7 @@
 		22902D0B71BC3BDCD04276DE /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		299358F7A9CBA63430E341F7 /* HotkeyRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorderView.swift; sourceTree = "<group>"; };
 		2B871CF2E7BE6343C453D36B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		35651A765620028C04E347AD /* UIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIConstants.swift; sourceTree = "<group>"; };
 		35D70E3B5C8380F38DF3181F /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		3712CADC923FA76F06AD0828 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3D7F7346042278B76B448237 /* UpdateState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateState.swift; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				35D70E3B5C8380F38DF3181F /* OverlayView.swift */,
 				115B55BB48331930264A2987 /* OverlayWindowController.swift */,
 				2B871CF2E7BE6343C453D36B /* SettingsView.swift */,
+				35651A765620028C04E347AD /* UIConstants.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -323,6 +326,7 @@
 				1548F1816AF1565C5FFBB2FD /* ProviderFactory.swift in Sources */,
 				952A64081E9D90A57A6E9610 /* SensitiveContentDetector.swift in Sources */,
 				849D592AD8198F46B85F160C /* SettingsView.swift in Sources */,
+				47495658702DA38EC5C3ED8D /* UIConstants.swift in Sources */,
 				6D0BBD128118EBEBC031E25C /* UpdateChecker.swift in Sources */,
 				58711DA275804D6B0D2ADA92 /* UpdateState.swift in Sources */,
 			);
@@ -380,7 +384,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.63;
+				MARKETING_VERSION = 0.64;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jz.JZLLMContext;
@@ -464,7 +468,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.63;
+				MARKETING_VERSION = 0.64;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;

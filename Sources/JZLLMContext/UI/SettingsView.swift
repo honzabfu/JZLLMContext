@@ -21,6 +21,7 @@ struct SettingsView: View {
     @State private var azureKey2 = ""
     @State private var customProviderKeys: [String: String] = [:]
     @State private var keySaveStatus: [ProviderType: Bool] = [:]
+    @State private var keySaveStatusResetTasks: [ProviderType: Task<Void, Never>] = [:]
     @State private var launchAtLogin = false
     @State private var importedActions: [Action] = []
     @State private var showImportAlert = false
@@ -136,6 +137,19 @@ struct SettingsView: View {
                         HistoryStore.shared.trim(to: val)
                     }
             }
+            Section(L("settings.general.section.hotkey")) {
+                HStack {
+                    Text(L("settings.general.hotkey_label"))
+                    Spacer()
+                    HotkeyRecorderView(keyCode: $config.hotkeyKeyCode, modifiers: $config.hotkeyModifiers)
+                        .frame(width: 150, height: 26)
+                        .onChange(of: config.hotkeyKeyCode) { saveHotkey() }
+                        .onChange(of: config.hotkeyModifiers) { saveHotkey() }
+                }
+                Text(L("settings.general.hotkey_hint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             Section(L("settings.general.section.language")) {
                 Picker(L("settings.general.language.picker_label"), selection: $config.appLanguage) {
                     ForEach(AppLanguage.allCases, id: \.self) { lang in
@@ -149,45 +163,6 @@ struct SettingsView: View {
                 Text(L("settings.general.language.restart.message"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-            Section(L("settings.general.section.logging")) {
-                Toggle(L("settings.general.logging.toggle"), isOn: $config.historyLogEnabled)
-                    .onChange(of: config.historyLogEnabled) { _, enabled in
-                        if enabled {
-                            if !config.historyLogWarningShown {
-                                config.historyLogEnabled = false
-                                showLogWarning = true
-                            } else if config.historyLogDirectory == nil {
-                                selectLogDirectory()
-                            } else {
-                                ConfigStore.shared.update { $0.historyLogEnabled = true }
-                            }
-                        } else {
-                            ConfigStore.shared.update { $0.historyLogEnabled = false }
-                        }
-                    }
-                if config.historyLogEnabled || config.historyLogDirectory != nil {
-                    HStack {
-                        Text(L("settings.general.logging.directory_label"))
-                            .foregroundStyle(.secondary)
-                        Text(config.historyLogDirectory ?? L("settings.general.logging.no_directory"))
-                            .lineLimit(1)
-                            .truncationMode(.head)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Button(L("settings.general.logging.choose_button")) { selectLogDirectory() }
-                    }
-                    LabeledContent(L("settings.general.logging.prefix_label")) {
-                        TextField("", text: $config.historyLogFilePrefix)
-                            .frame(maxWidth: 200)
-                            .onChange(of: config.historyLogFilePrefix) { _, val in
-                                ConfigStore.shared.update { $0.historyLogFilePrefix = val }
-                                Task { await HistoryLogger.shared.resetHandleCache() }
-                            }
-                    }
-                    Text(L("settings.general.logging.caption"))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
             }
             Section(L("settings.general.section.sensitive")) {
                 Toggle(L("settings.general.sensitive.enabled"), isOn: $config.sensitiveContentCheckEnabled)
@@ -273,27 +248,44 @@ struct SettingsView: View {
                     }
                 }
             }
-            Section(L("settings.general.section.backup")) {
-                Text(L("settings.general.backup.description"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 12) {
-                    Button(L("settings.general.export_config")) { exportConfig() }
-                    Button(L("settings.general.import_config")) { importConfig() }
+            Section(L("settings.general.section.logging")) {
+                Toggle(L("settings.general.logging.toggle"), isOn: $config.historyLogEnabled)
+                    .onChange(of: config.historyLogEnabled) { _, enabled in
+                        if enabled {
+                            if !config.historyLogWarningShown {
+                                config.historyLogEnabled = false
+                                showLogWarning = true
+                            } else if config.historyLogDirectory == nil {
+                                selectLogDirectory()
+                            } else {
+                                ConfigStore.shared.update { $0.historyLogEnabled = true }
+                            }
+                        } else {
+                            ConfigStore.shared.update { $0.historyLogEnabled = false }
+                        }
+                    }
+                if config.historyLogEnabled || config.historyLogDirectory != nil {
+                    HStack {
+                        Text(L("settings.general.logging.directory_label"))
+                            .foregroundStyle(.secondary)
+                        Text(config.historyLogDirectory ?? L("settings.general.logging.no_directory"))
+                            .lineLimit(1)
+                            .truncationMode(.head)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button(L("settings.general.logging.choose_button")) { selectLogDirectory() }
+                    }
+                    LabeledContent(L("settings.general.logging.prefix_label")) {
+                        TextField("", text: $config.historyLogFilePrefix)
+                            .frame(maxWidth: 200)
+                            .onChange(of: config.historyLogFilePrefix) { _, val in
+                                ConfigStore.shared.update { $0.historyLogFilePrefix = val }
+                                Task { await HistoryLogger.shared.resetHandleCache() }
+                            }
+                    }
+                    Text(L("settings.general.logging.caption"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
-            }
-            Section(L("settings.general.section.hotkey")) {
-                HStack {
-                    Text(L("settings.general.hotkey_label"))
-                    Spacer()
-                    HotkeyRecorderView(keyCode: $config.hotkeyKeyCode, modifiers: $config.hotkeyModifiers)
-                        .frame(width: 150, height: 26)
-                        .onChange(of: config.hotkeyKeyCode) { saveHotkey() }
-                        .onChange(of: config.hotkeyModifiers) { saveHotkey() }
-                }
-                Text(L("settings.general.hotkey_hint"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
             Section(L("settings.general.section.updates")) {
                 HStack {
@@ -340,6 +332,15 @@ struct SettingsView: View {
                         ConfigStore.shared.update { $0.autoUpdateCheck = val }
                     }
             }
+            Section(L("settings.general.section.backup")) {
+                Text(L("settings.general.backup.description"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: 12) {
+                    Button(L("settings.general.export_config")) { exportConfig() }
+                    Button(L("settings.general.import_config")) { importConfig() }
+                }
+            }
             Section(L("settings.general.section.reset")) {
                 Text(L("settings.general.reset.description"))
                     .font(.caption)
@@ -350,7 +351,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .padding()
         .alert(L("settings.alert.import_config.title"), isPresented: $showConfigImportAlert) {
             Button(L("settings.alert.import_config.replace"), role: .destructive) {
                 guard let imported = importedConfig else { return }
@@ -458,7 +458,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .openai, key: openaiKey)
                 fetchModelsRow(for: .openai)
-                testConnectionRow(for: .openai)
+                testConnectionRow(for: .openai, key: openaiKey)
             }
             Section("Anthropic") {
                 LabeledContent(L("settings.providers.api_key")) {
@@ -467,7 +467,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .anthropic, key: anthropicKey)
                 fetchModelsRow(for: .anthropic)
-                testConnectionRow(for: .anthropic)
+                testConnectionRow(for: .anthropic, key: anthropicKey)
             }
             Section("Google Gemini") {
                 LabeledContent(L("settings.providers.api_key")) {
@@ -476,7 +476,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .gemini, key: geminiKey)
                 fetchModelsRow(for: .gemini)
-                testConnectionRow(for: .gemini)
+                testConnectionRow(for: .gemini, key: geminiKey)
             }
             Section("xAI Grok") {
                 LabeledContent(L("settings.providers.api_key")) {
@@ -485,7 +485,7 @@ struct SettingsView: View {
                 }
                 saveButton(for: .grok, key: grokKey)
                 fetchModelsRow(for: .grok)
-                testConnectionRow(for: .grok)
+                testConnectionRow(for: .grok, key: grokKey)
             }
             Section("Azure AI (slot 1)") {
                 Text(L("settings.providers.azure.description"))
@@ -523,7 +523,7 @@ struct SettingsView: View {
                     ))
                 }
                 saveButton(for: .azureOpenai, key: azureKey)
-                testConnectionRow(for: .azureOpenai)
+                testConnectionRow(for: .azureOpenai, key: azureKey)
             }
             Section("Azure AI (slot 2)") {
                 LabeledContent(L("settings.providers.api_key")) {
@@ -558,7 +558,7 @@ struct SettingsView: View {
                     ))
                 }
                 saveButton(for: .azureOpenai2, key: azureKey2)
-                testConnectionRow(for: .azureOpenai2)
+                testConnectionRow(for: .azureOpenai2, key: azureKey2)
             }
 
             // Dynamic custom providers
@@ -589,7 +589,6 @@ struct SettingsView: View {
             modelFiltersSection
         }
         .formStyle(.grouped)
-        .padding()
         .onAppear {
             Task { @MainActor in
                 loadKeys()
@@ -665,7 +664,7 @@ struct SettingsView: View {
             // Custom headers
             customHeadersRows(cp: cp, cpID: cpID)
 
-            testConnectionRow(for: provider)
+            testConnectionRow(for: provider, key: keyBinding.wrappedValue)
             fetchModelsRow(for: provider)
 
             Button(role: .destructive) {
@@ -809,7 +808,7 @@ struct SettingsView: View {
                     }
                     .padding(.horizontal, 6).padding(.vertical, 2)
                     .background(Color.secondary.opacity(0.15))
-                    .cornerRadius(4)
+                    .cornerRadius(UICornerRadius.small)
                 }
             }
         }
@@ -877,10 +876,10 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
-    private func testConnectionRow(for provider: ProviderType) -> some View {
+    private func testConnectionRow(for provider: ProviderType, key: String = "") -> some View {
         HStack(spacing: 8) {
             Button {
-                Task { await testConnection(for: provider) }
+                Task { await testConnection(for: provider, key: key) }
             } label: {
                 if isTesting == provider {
                     HStack(spacing: 6) {
@@ -910,7 +909,12 @@ struct SettingsView: View {
         }
     }
 
-    private func testConnection(for provider: ProviderType) async {
+    private func testConnection(for provider: ProviderType, key: String = "") async {
+        // Verifying without saving first would test the stale key from the
+        // Keychain, which is confusing if the user just edited the field.
+        if !key.isEmpty {
+            saveKey(key, for: provider)
+        }
         isTesting = provider
         testResult.removeValue(forKey: provider)
         testError.removeValue(forKey: provider)
@@ -941,6 +945,12 @@ struct SettingsView: View {
             keySaveStatus[provider] = true
         } catch {
             keySaveStatus[provider] = false
+        }
+        keySaveStatusResetTasks[provider]?.cancel()
+        keySaveStatusResetTasks[provider] = Task {
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            keySaveStatus[provider] = nil
         }
     }
 
@@ -1025,7 +1035,7 @@ struct SettingsView: View {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         guard let data = try? encoder.encode(config.actions) else { return }
         let panel = NSSavePanel()
-        panel.title = "Exportovat akce"
+        panel.title = L("settings.actions.export.panel_title")
         panel.nameFieldStringValue = "JZLLMContext-actions.json"
         panel.allowedContentTypes = [.json]
         panel.begin { response in
@@ -1036,7 +1046,7 @@ struct SettingsView: View {
 
     private func importActions() {
         let panel = NSOpenPanel()
-        panel.title = "Importovat akce"
+        panel.title = L("settings.actions.import.panel_title")
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         panel.begin { response in
@@ -1064,7 +1074,7 @@ struct SettingsView: View {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         guard let data = try? encoder.encode(sanitized) else { return }
         let panel = NSSavePanel()
-        panel.title = "Exportovat konfiguraci"
+        panel.title = L("settings.general.export_config.panel_title")
         panel.nameFieldStringValue = "JZLLMContext-config.json"
         panel.allowedContentTypes = [.json]
         panel.begin { response in
@@ -1075,7 +1085,7 @@ struct SettingsView: View {
 
     private func importConfig() {
         let panel = NSOpenPanel()
-        panel.title = "Importovat konfiguraci"
+        panel.title = L("settings.general.import_config.panel_title")
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         panel.begin { response in
@@ -1205,8 +1215,8 @@ private struct ActionRow: View {
                 Button {
                     onSetDefault()
                 } label: {
-                    Image(systemName: action.isDefault ? "return.left" : "return.left")
-                        .foregroundStyle(action.isDefault ? Color.accentColor : Color.secondary.opacity(0.4))
+                    Image(systemName: action.isDefault ? "return.left" : "return")
+                        .foregroundStyle(action.isDefault ? Color.accentColor : Color.secondary.opacity(0.5))
                         .fontWeight(action.isDefault ? .semibold : .regular)
                 }
                 .buttonStyle(.plain)
@@ -1232,7 +1242,7 @@ private struct ActionRow: View {
             TextEditor(text: $action.systemPrompt)
                 .font(.callout)
                 .frame(minHeight: 60, maxHeight: 100)
-                .overlay(RoundedRectangle(cornerRadius: 4).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
+                .overlay(RoundedRectangle(cornerRadius: UICornerRadius.small).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
 
             parametersRow
         }

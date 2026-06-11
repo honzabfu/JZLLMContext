@@ -99,7 +99,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
   - **Right-click** on an action – context menu: *Run* / *View Prompt* / *Edit*
 - **File drag & drop** – drag any file directly onto the panel; the app extracts the text content locally and uses it as context instead of the clipboard. Supported formats: PDF, images (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote, and all plain-text formats (TXT, MD, CSV, JSON, source code, …). Maximum file size: 5 MB. The filename appears in the preview with a × clear button; pressing **Escape** while a file is loaded clears it first (second press closes the panel). File context bypasses the *clipboard ignore* toggle.
 - **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input; action buttons stay disabled until the additional context field contains text
-- **Clipboard change indicator** – if the clipboard content changes while the panel is open, a blue refresh icon appears below the eye button; clicking it reloads the clipboard content
+- **Clipboard change indicator** – if the clipboard content changes while the panel is open, an accent-colored refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
 - **History** – the clock button in the header shows recent results from the current session; when interaction logging is enabled, an **Open log folder** button appears at the bottom of the history panel
@@ -606,7 +606,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
   - **Pravé tlačítko myši** na akci – kontextové menu: *Spustit* / *Zobrazit prompt* / *Upravit*
 - **Přetažení souboru (drag & drop)** – přetáhni libovolný soubor přímo na panel; text se extrahuje lokálně a použije jako kontext místo schránky. Podporované formáty: PDF, obrázky (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote a všechny plain-text formáty (TXT, MD, CSV, JSON, zdrojový kód, …). Maximální velikost: 5 MB. Název souboru se zobrazí v náhledu s tlačítkem × pro odebrání; stisknutím **Escape** při načteném souboru se soubor nejprve vymaže (druhé stisknutí panel zavře). Kontext ze souboru obchází přepínač *ignorovat schránku*.
 - **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext; tlačítka akcí zůstávají neaktivní, dokud pole doplňkového kontextu neobsahuje text
-- **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí modrá ikona obnovení; kliknutím se znovu načte obsah schránky
+- **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí ikona obnovení v barvě zvýraznění; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
 - **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session; pokud je zapnuto logování interakcí, zobrazí se na konci panelu tlačítko **Otevřít složku logů**
@@ -773,7 +773,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Výchozí akce** – jedna akce může být označena jako výchozí; spustí se stiskem Enter v poli doplňkového kontextu
 - **Doplňkový kontext** – volitelné textové pole v overlay pro přidání instrukce nad rámec schránky
 - **Ignorování schránky** – tlačítko v overlay přepne do režimu bez schránky; LLM dostane jen doplňkový kontext; jednotlivé akce mohou mít toto nastavení trvale zapnuto přes checkbox *Ignorovat schránku* v nastavení akce
-- **Detekce změny schránky** – při otevřeném panelu aplikace sleduje schránku; pokud se obsah změní, zobrazí se modrá ikona obnovení umožňující okamžité znovunačtení
+- **Detekce změny schránky** – při otevřeném panelu aplikace sleduje schránku; pokud se obsah změní, zobrazí se ikona obnovení v barvě zvýraznění umožňující okamžité znovunačtení
 - **Proměnné v promptech** – `{{datum}}`, `{{jazyk}}`, `{{kontext}}` se v systémovém promptu nahradí aktuální hodnotou před odesláním
 - **Historie výsledků** – session-only; poslední výsledky dostupné přes tlačítko hodin v overlay panelu (0–10 záznamů)
 - **Spuštění při přihlášení** – volitelná integrace se Service Management

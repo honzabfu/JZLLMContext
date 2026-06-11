@@ -107,7 +107,7 @@ struct AboutView: View {
             .padding(.horizontal, 7)
             .padding(.vertical, 3)
             .background(Color.secondary.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.small))
     }
 
     private var flowArrow: some View {
@@ -172,7 +172,7 @@ struct AboutView: View {
     private var footer: some View {
         VStack(spacing: 10) {
             VStack(spacing: 4) {
-                Text("Autor: Jan Žák")
+                Text(L("about.footer.author"))
                     .font(.callout)
                 Link("jan-zak.cz", destination: URL(string: "https://jan-zak.cz")!)
                     .font(.callout)

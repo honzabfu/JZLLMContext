@@ -47,6 +47,14 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Acerca de" } }
       }
     },
+    "about.footer.author" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Autor: Jan Žák" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Author: Jan Žák" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Autor: Jan Žák" } }
+      }
+    },
 
     "settings.tab.general" : {
       "extractionState" : "manual",
@@ -259,12 +267,28 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar configuración…" } }
       }
     },
+    "settings.general.export_config.panel_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat konfiguraci" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Configuration" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar configuración" } }
+      }
+    },
     "settings.general.import_config" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat konfiguraci…" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration…" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar configuración…" } }
+      }
+    },
+    "settings.general.import_config.panel_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat konfiguraci" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Configuration" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar configuración" } }
       }
     },
     "settings.general.section.hotkey" : {
@@ -439,12 +463,28 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar acciones…" } }
       }
     },
+    "settings.actions.import.panel_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Importovat akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Import Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Importar acciones" } }
+      }
+    },
     "settings.actions.export" : {
       "extractionState" : "manual",
       "localizations" : {
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat akce…" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Actions…" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar acciones…" } }
+      }
+    },
+    "settings.actions.export.panel_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Exportovat akce" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Export Actions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Exportar acciones" } }
       }
     },
     "settings.alert.import_actions.title" : {
@@ -769,6 +809,15 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias" } }
       }
     },
+    "overlay.help.history" : {
+      "comment" : "Tooltip/accessibility label for the history toggle button in overlay",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "History" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial" } }
+      }
+    },
     "overlay.history.empty" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -831,6 +880,22 @@
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Schránka je prázdná" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Clipboard is empty" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "El portapapeles está vacío" } }
+      }
+    },
+    "overlay.clipboard.empty_hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zkopírujte text (Cmd+C) nebo sem přetáhněte soubor." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy text (Cmd+C) or drag a file here." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copia texto (Cmd+C) o arrastra un archivo aquí." } }
+      }
+    },
+    "overlay.drop.hint" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pusťte soubor — obsah se použije jako kontext" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Drop the file — its content will be used as context" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suelta el archivo — su contenido se usará como contexto" } }
       }
     },
     "overlay.clipboard.file_loading" : {

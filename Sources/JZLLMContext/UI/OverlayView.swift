@@ -27,9 +27,11 @@ struct OverlayView: View {
     @State private var pendingSend: PendingSend? = nil
     @State private var droppedFileURL: URL? = nil
     @State private var resolveTask: Task<Void, Never>? = nil
+    @State private var copyResetTask: Task<Void, Never>? = nil
     @State private var isDragTargeted: Bool = false
     @State private var contextSourceName: String? = nil
     @FocusState private var userContextFocused: Bool
+    @FocusState private var resultAreaFocused: Bool
 
     private var actions: [Action] { ConfigStore.shared.actions.filter(\.enabled) }
     private var defaultAction: Action? { actions.first(where: \.isDefault) ?? actions.first }
@@ -81,14 +83,35 @@ struct OverlayView: View {
         }
         .overlay(alignment: .center) {
             if isDragTargeted {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.accentColor, lineWidth: 2)
-                    .padding(4)
-                    .allowsHitTesting(false)
+                ZStack {
+                    RoundedRectangle(cornerRadius: UICornerRadius.large)
+                        .fill(.regularMaterial)
+                    RoundedRectangle(cornerRadius: UICornerRadius.large)
+                        .stroke(Color.accentColor, lineWidth: 2)
+                    VStack(spacing: 8) {
+                        Image(systemName: "doc.badge.plus")
+                            .font(.largeTitle)
+                            .foregroundStyle(Color.accentColor)
+                        Text(L("overlay.drop.hint"))
+                            .font(.callout)
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(24)
+                }
+                .padding(4)
+                .allowsHitTesting(false)
             }
         }
-        .onAppear { resolveContext() }
-        .onChange(of: state.refreshID) { resolveContext() }
+        .defaultFocus($userContextFocused, true)
+        .onAppear {
+            resolveContext()
+            userContextFocused = true
+        }
+        .onChange(of: state.refreshID) {
+            resolveContext()
+            userContextFocused = true
+        }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             let current = NSPasteboard.general.changeCount
             if current != knownClipboardChangeCount {
@@ -150,12 +173,14 @@ struct OverlayView: View {
                 .foregroundStyle(.tertiary)
             Spacer()
             if updateState.isAvailable, let url = updateState.updateURL {
+                let updateLabel = updateState.updateVersion.map { String(format: L("menu.update.available"), $0) } ?? ""
                 Button { NSWorkspace.shared.open(url) } label: {
                     Image(systemName: "info.circle")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Color.accentColor)
                 }
                 .iconButton()
-                .help(updateState.updateVersion.map { String(format: L("menu.update.available"), $0) } ?? "")
+                .help(updateLabel)
+                .accessibilityLabel(updateLabel)
             }
             Button(action: onOpenSettings) {
                 Image(systemName: "gearshape")
@@ -163,18 +188,24 @@ struct OverlayView: View {
             }
             .iconButton()
             .help(L("overlay.help.settings"))
+            .accessibilityLabel(L("overlay.help.settings"))
             if ConfigStore.shared.config.historyLimit > 0 {
                 Button { showHistory.toggle() } label: {
                     Image(systemName: showHistory ? "clock.fill" : "clock")
                         .foregroundStyle(showHistory ? .primary : .secondary)
                 }
                 .iconButton()
+                .help(L("overlay.help.history"))
+                .accessibilityLabel(L("overlay.help.history"))
+                .accessibilityAddTraits(showHistory ? .isSelected : [])
             }
             Button(action: onClose) {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.secondary)
             }
             .iconButton()
+            .help(L("overlay.result.close"))
+            .accessibilityLabel(L("overlay.result.close"))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -246,7 +277,7 @@ struct OverlayView: View {
                 .padding(.top, 2)
             TextField(L("overlay.context.placeholder"), text: $userContext, axis: .vertical)
                 .focused($userContextFocused)
-                .font(.caption)
+                .font(.callout)
                 .lineLimit(1...3)
                 .frame(maxWidth: .infinity)
                 .onKeyPress(.return, phases: .down) { press in
@@ -265,11 +296,12 @@ struct OverlayView: View {
                 }
                 .iconButton()
                 .help(L("overlay.help.clear_context"))
+                .accessibilityLabel(L("overlay.help.clear_context"))
             }
         }
         .padding(8)
         .background(Color(nsColor: .controlBackgroundColor))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.large))
     }
 
     private var contextPreview: some View {
@@ -296,12 +328,20 @@ struct OverlayView: View {
                         Text(text.prefix(300) + (text.count > 300 ? "…" : ""))
                             .foregroundStyle(contextSourceName != nil ? .secondary : .primary)
                     }
-                } else {
-                    Text(contextError ?? L("overlay.clipboard.empty"))
+                } else if let error = contextError {
+                    Text(error)
                         .foregroundStyle(.secondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L("overlay.clipboard.empty"))
+                            .foregroundStyle(.secondary)
+                        Text(L("overlay.clipboard.empty_hint"))
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
             }
-            .font(.caption)
+            .font(.callout)
             .lineLimit(4)
             .frame(maxWidth: .infinity, alignment: .leading)
             VStack(spacing: 4) {
@@ -317,24 +357,33 @@ struct OverlayView: View {
                     }
                     .iconButton()
                     .help(L("overlay.file.clear"))
+                    .accessibilityLabel(L("overlay.file.clear"))
                 } else {
                     Button {
                         ignoreClipboard.toggle()
                     } label: {
-                        Image(systemName: ignoreClipboard ? "eye.slash" : "eye")
-                            .foregroundStyle(ignoreClipboard ? .primary : .secondary)
+                        Image(systemName: "eye.slash")
+                            .foregroundStyle(ignoreClipboard ? Color.accentColor : .secondary)
                             .font(.caption)
+                            .padding(4)
+                            .background(
+                                RoundedRectangle(cornerRadius: UICornerRadius.small)
+                                    .fill(ignoreClipboard ? Color.accentColor.opacity(0.15) : Color.clear)
+                            )
                     }
                     .iconButton()
+                    .accessibilityLabel(L("overlay.help.ignore_clipboard"))
+                    .accessibilityAddTraits(ignoreClipboard ? .isSelected : [])
                     .help(ignoreClipboard ? L("overlay.help.use_clipboard") : L("overlay.help.ignore_clipboard"))
                     if clipboardChanged && !ignoreClipboard {
                         Button { resolveContext() } label: {
                             Image(systemName: "arrow.clockwise")
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color.accentColor)
                                 .font(.caption)
                         }
                         .iconButton()
                         .help(L("overlay.help.clipboard_changed"))
+                        .accessibilityLabel(L("overlay.help.clipboard_changed"))
                         .transition(.scale.combined(with: .opacity))
                     }
                 }
@@ -343,7 +392,7 @@ struct OverlayView: View {
         }
         .padding(8)
         .background(Color(nsColor: .controlBackgroundColor).opacity(ignoreClipboard && contextSourceName == nil ? 0.4 : 1))
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.large))
     }
 
     private var actionButtons: some View {
@@ -388,17 +437,13 @@ struct OverlayView: View {
                 } else {
                     if isDefaultAction {
                         Image(systemName: "return")
-                            .foregroundStyle(.secondary)
                             .font(.caption)
+                            .keyHintBadge()
                     }
                     if let hint = keyHint {
                         Text(hint)
                             .font(.caption.monospacedDigit())
-                            .foregroundStyle(.tertiary)
-                    } else if !isDefaultAction {
-                        Image(systemName: "arrow.right")
-                            .foregroundStyle(.tertiary)
-                            .font(.caption)
+                            .keyHintBadge()
                     }
                 }
             }
@@ -427,7 +472,7 @@ struct OverlayView: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                     Text(error)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.primary)
                 }
                 HStack(spacing: 8) {
                     if let action = lastAction {
@@ -445,23 +490,31 @@ struct OverlayView: View {
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(8)
+                            .focusable()
+                            .focused($resultAreaFocused)
                     } else {
                         Text(result)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(8)
                             .font(.body)
+                            .focusable()
+                            .focused($resultAreaFocused)
                     }
                 }
                 .frame(maxHeight: .infinity)
                 .background(Color(nsColor: .textBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.large))
 
                 HStack {
                     Button(didCopy ? L("overlay.result.copied") : L("overlay.result.copy")) {
                         copyResult()
                     }
-                    .keyboardShortcut("c", modifiers: .command)
+                    // When the result area has focus (e.g. user is selecting text),
+                    // rebind to an unused key so Cmd+C falls through to the
+                    // system's text-selection copy instead. An empty modifier
+                    // set does NOT disable the shortcut in SwiftUI.
+                    .keyboardShortcut(resultAreaFocused ? KeyEquivalent(Character(UnicodeScalar(0))) : "c", modifiers: .command)
                     Spacer()
                     Button(L("overlay.result.close")) { onClose() }
                 }
@@ -570,6 +623,12 @@ struct OverlayView: View {
         knownClipboardChangeCount = NSPasteboard.general.changeCount
         clipboardChanged = false
         didCopy = true
+        copyResetTask?.cancel()
+        copyResetTask = Task {
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else { return }
+            didCopy = false
+        }
     }
 
     private func handleDroppedFile(url: URL) {
@@ -599,8 +658,28 @@ struct OverlayView: View {
 }
 
 private extension View {
+    /// Plain icon-only button. Disables the focus ring/Tab stop so these
+    /// buttons don't steal keyboard focus from the context field — Return
+    /// must keep triggering the default action via `userContextField`'s
+    /// `.onKeyPress(.return, ...)`, and digit shortcuts must keep working.
     func iconButton() -> some View {
-        self.buttonStyle(.plain).focusEffectDisabled()
+        self.buttonStyle(.plain)
+            .focusEffectDisabled()
+    }
+
+    /// Renders a small "key cap"-style badge for action shortcut hints
+    /// (digit shortcuts and the default-action return icon).
+    func keyHintBadge() -> some View {
+        self
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1)
+            .background(Color.secondary.opacity(0.15))
+            .overlay(
+                RoundedRectangle(cornerRadius: UICornerRadius.small)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.small))
     }
 }
 
@@ -639,7 +718,7 @@ private struct SensitiveWarningSheet: View {
             }
             .padding(10)
             .background(Color(nsColor: .controlBackgroundColor))
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: UICornerRadius.large))
             HStack {
                 Button(L("common.cancel"), role: .cancel) { onCancel() }
                 Spacer()

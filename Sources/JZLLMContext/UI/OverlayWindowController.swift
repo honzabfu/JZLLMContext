@@ -60,6 +60,10 @@ final class OverlayWindowController: NSObject {
         panel.titleVisibility = .hidden
         panel.isMovableByWindowBackground = true
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        // OverlayView provides its own ✕ close button in the header bar.
+        panel.standardWindowButton(.closeButton)?.isHidden = true
+        panel.standardWindowButton(.miniaturizeButton)?.isHidden = true
+        panel.standardWindowButton(.zoomButton)?.isHidden = true
 
         let overlayView = OverlayView(state: state, onClose: { [weak self] in
             self?.hideOverlay()

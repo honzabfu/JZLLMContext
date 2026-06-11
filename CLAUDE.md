@@ -25,6 +25,18 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 `OpenAIProvider` omits the `temperature` parameter for o-series reasoning models (model id matching `^o\d`) — they reject non-default values with HTTP 400. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
 
+## UI conventions (overlay)
+
+Use `UICornerRadius.small` (4) / `.large` (8) for corner radii instead of magic numbers — keeps overlay/settings rounding consistent.
+
+`OverlayWindowController` hides the standard traffic-light window buttons (`standardWindowButton(.closeButton/.miniaturizeButton/.zoomButton)?.isHidden = true`); `OverlayView` provides its own ✕ in the header, so don't re-enable the system buttons.
+
+The context `TextField` (`userContextFocused`) must keep keyboard focus so `.onKeyPress(.return, ...)` triggers the default action — `.defaultFocus($userContextFocused, true)` plus explicit `userContextFocused = true` in both `.onAppear` and `.onChange(of: state.refreshID)` (the panel is created once and reused, so `.onAppear` only fires on the very first show). Icon-only header buttons use `iconButton()` (`.buttonStyle(.plain).focusEffectDisabled()`) so they don't steal this focus or break digit shortcuts.
+
+The result area is `.focusable()`/`.focused($resultAreaFocused)` so users can text-select within it; while it has focus, the **Copy** button's Cmd+C shortcut is rebound to an unused key equivalent (an empty modifier set does not disable a SwiftUI `.keyboardShortcut`) so Cmd+C falls through to normal text-selection copy.
+
+`testConnectionRow` saves the API key field to Keychain before testing — otherwise "Test connection" would verify the stale stored key after an unsaved edit.
+
 ## File processing
 
 Files enter via two paths — both call `ContextResolver.extractText(from:)`:
