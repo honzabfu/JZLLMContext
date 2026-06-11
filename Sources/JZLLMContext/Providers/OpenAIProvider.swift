@@ -32,6 +32,12 @@ struct OpenAIProvider: LLMProvider {
         self.extraHeaders = extraHeaders
     }
 
+    // o-series reasoning models (o1, o3, o4-mini, …) reject any non-default
+    // temperature with HTTP 400, so the parameter is omitted for them
+    private var supportsTemperature: Bool {
+        model.range(of: #"^o\d"#, options: .regularExpression) == nil
+    }
+
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
             let task = Task.detached {
@@ -55,6 +61,7 @@ struct OpenAIProvider: LLMProvider {
                             .init(role: "user", content: userContent)
                         ],
                         temperature: temperature,
+                        includeTemperature: supportsTemperature,
                         maxTokens: maxTokens,
                         tokenParamStyle: tokenParamStyle
                     )
@@ -103,6 +110,7 @@ private struct OpenAIChatRequest: Encodable {
     let model: String
     let messages: [Message]
     let temperature: Double
+    let includeTemperature: Bool
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
     let stream: Bool = true
@@ -114,7 +122,9 @@ private struct OpenAIChatRequest: Encodable {
         var c = encoder.container(keyedBy: DynamicKey.self)
         try c.encode(model,       forKey: .init("model"))
         try c.encode(messages,    forKey: .init("messages"))
-        try c.encode(temperature, forKey: .init("temperature"))
+        if includeTemperature {
+            try c.encode(temperature, forKey: .init("temperature"))
+        }
         try c.encode(stream,      forKey: .init("stream"))
         try c.encode(maxTokens,   forKey: .init(tokenParamStyle.parameterName))
     }
