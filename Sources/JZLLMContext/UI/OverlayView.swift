@@ -252,7 +252,7 @@ struct OverlayView: View {
                     guard press.modifiers.isEmpty,
                           let action = defaultAction,
                           !engine.isLoading,
-                          ignoreClipboard || contextText != nil else { return .ignored }
+                          hasInput(for: action) else { return .ignored }
                     runAction(action)
                     return .handled
                 }
@@ -404,7 +404,7 @@ struct OverlayView: View {
             .padding(.vertical, 2)
         }
         .buttonStyle(.bordered)
-        .disabled(engine.isLoading || (!(ignoreClipboard || (actionModel?.ignoreClipboard ?? false)) && contextText == nil))
+        .disabled(engine.isLoading || !hasInput(for: actionModel))
         .help({
             guard let a = actionModel else { return "" }
             return a.systemPrompt.count > 200 ? String(a.systemPrompt.prefix(200)) + "…" : a.systemPrompt
@@ -508,6 +508,15 @@ struct OverlayView: View {
             }
             isResolvingContext = false
         }
+    }
+
+    /// Mirrors the input selection in runAction(_:): manual context when the
+    /// clipboard is ignored, clipboard/file text otherwise.
+    private func hasInput(for action: Action?) -> Bool {
+        if (ignoreClipboard || (action?.ignoreClipboard ?? false)) && droppedFileURL == nil {
+            return !userContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return contextText != nil
     }
 
     private func runAction(_ action: Action) {
