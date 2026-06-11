@@ -15,6 +15,9 @@ final class OverlayWindowController: NSObject {
     private var panel: NSPanel?
     private let state = OverlayState()
     var onOpenSettings: (() -> Void)?
+    /// Set once the user resizes the panel by hand; from then on the
+    /// automatic height management backs off and their size wins.
+    private var userResizedPanel = false
 
     func showOverlay() {
         if panel == nil {
@@ -22,13 +25,31 @@ final class OverlayWindowController: NSObject {
             panel?.center()
         }
         state.triggerRefresh()
-        adjustPanelHeight()
+        if !userResizedPanel {
+            adjustPanelHeight()
+        }
         panel?.makeKeyAndOrderFront(nil)
     }
 
     private func adjustPanelHeight() {
         let actionCount = ConfigStore.shared.actions.filter(\.enabled).count
         let targetHeight = CGFloat(min(max(160 + actionCount * 44, 280), 620))
+        setPanelHeight(targetHeight, animate: false)
+    }
+
+    /// Grows the panel when a result arrives so the result area gets
+    /// usable space instead of squeezing under the action list.
+    private func expandForResult() {
+        guard !userResizedPanel, let panel else { return }
+        let maxHeight = ((panel.screen ?? NSScreen.main)?.visibleFrame.height ?? 800) - 40
+        let target = min(max(panel.frame.height, 560), maxHeight)
+        if target > panel.frame.height {
+            setPanelHeight(target, animate: true)
+        }
+    }
+
+    /// Resizes the panel keeping its top edge in place, clamped to the screen.
+    private func setPanelHeight(_ targetHeight: CGFloat, animate: Bool) {
         guard let panel = panel, panel.frame.height != targetHeight else { return }
         let currentFrame = panel.frame
         let newY = currentFrame.maxY - targetHeight
@@ -38,7 +59,8 @@ final class OverlayWindowController: NSObject {
         } else {
             clampedY = newY
         }
-        panel.setFrame(NSRect(x: currentFrame.minX, y: clampedY, width: currentFrame.width, height: targetHeight), display: true)
+        panel.setFrame(NSRect(x: currentFrame.minX, y: clampedY, width: currentFrame.width, height: targetHeight),
+                       display: true, animate: animate)
     }
 
     func hideOverlay() {
@@ -70,8 +92,19 @@ final class OverlayWindowController: NSObject {
         }, onOpenSettings: { [weak self] in
             self?.hideOverlay()
             self?.onOpenSettings?()
+        }, onResultAppeared: { [weak self] in
+            self?.expandForResult()
         })
         panel.contentView = NSHostingView(rootView: overlayView)
+        panel.delegate = self
         return panel
+    }
+}
+
+extension OverlayWindowController: NSWindowDelegate {
+    // Fires only for user-driven drag resizing, not for programmatic
+    // setFrame calls — exactly the signal that the user picked a size.
+    func windowDidEndLiveResize(_ notification: Notification) {
+        userResizedPanel = true
     }
 }

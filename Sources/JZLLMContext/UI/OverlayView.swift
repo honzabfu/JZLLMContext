@@ -6,6 +6,7 @@ struct OverlayView: View {
     @ObservedObject var state: OverlayState
     let onClose: () -> Void
     let onOpenSettings: () -> Void
+    let onResultAppeared: () -> Void
 
     @StateObject private var engine = ActionEngine()
     @ObservedObject private var history = HistoryStore.shared
@@ -117,6 +118,9 @@ struct OverlayView: View {
             if current != knownClipboardChangeCount {
                 clipboardChanged = true
             }
+        }
+        .onChange(of: displayedResult != nil) { _, hasDisplayedResult in
+            if hasDisplayedResult { onResultAppeared() }
         }
         .onChange(of: engine.completedRunID) { _, completedID in
             guard completedID != nil, !engine.result.isEmpty else { return }

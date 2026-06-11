@@ -75,7 +75,7 @@
     "settings.tab.providers" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Providery" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poskytovatelé" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Providers" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedores" } }
       }
@@ -432,7 +432,7 @@
     "settings.alert.reset.message" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tato akce odstraní všechny akce, globální zkratku, nastavení providerů a ostatní volby. API klíče v Keychainu zůstanou zachovány. Akci nelze vrátit zpět." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Tato akce odstraní všechny akce, globální zkratku, nastavení poskytovatelů a ostatní volby. API klíče v Keychainu zůstanou zachovány. Akci nelze vrátit zpět." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This action will remove all actions, the global shortcut, provider settings, and other options. API keys in the Keychain will remain. This cannot be undone." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Esta acción eliminará todas las acciones, el atajo global, la configuración de proveedores y otras opciones. Las claves API en el Llavero se conservarán. Esta acción no se puede deshacer." } }
       }
@@ -444,6 +444,51 @@
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat akci" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Add Action" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir acción" } }
+      }
+    },
+    "settings.actions.enabled" : {
+      "comment" : "Toggle in the action detail editor",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Povolená" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enabled" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activada" } }
+      }
+    },
+    "settings.actions.default_toggle" : {
+      "comment" : "Toggle in the action detail editor; Enter runs the default action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výchozí akce (spustí Enter)" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Default action (runs on Enter)" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acción predeterminada (se ejecuta con Enter)" } }
+      }
+    },
+    "settings.actions.empty_selection" : {
+      "comment" : "Detail pane placeholder when no action is selected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vyberte akci ze seznamu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Select an action from the list" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Selecciona una acción de la lista" } }
+      }
+    },
+    "settings.actions.empty_list" : {
+      "comment" : "Detail pane placeholder when there are no actions at all",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zatím žádné akce — přidejte první tlačítkem „Přidat akci\"." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No actions yet — add one with \"Add Action\"." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay acciones — añade una con «Añadir acción»." } }
+      }
+    },
+    "settings.actions.section.parameters" : {
+      "comment" : "Section header in the action detail editor",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Parametry" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Parameters" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Parámetros" } }
       }
     },
     "settings.actions.new_name" : {
@@ -663,48 +708,84 @@
       }
     },
     "settings.providers.azure.deployment_url" : {
-      "comment" : "TextField placeholder",
+      "comment" : "Row label",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL (např. https://hub.openai.azure.com/openai/deployments/muj-model)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL (e.g. https://hub.openai.azure.com/openai/deployments/my-model)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL del deployment (ej. https://hub.openai.azure.com/openai/deployments/mi-modelo)" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL del deployment" } }
+      }
+    },
+    "settings.providers.azure.deployment_url_placeholder" : {
+      "comment" : "TextField placeholder: example deployment URL",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/muj-model" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/my-model" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/mi-modelo" } }
       }
     },
     "settings.providers.azure.deployment_name" : {
-      "comment" : "TextField placeholder",
+      "comment" : "Row label",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name (jen pokud výše zadáváš pouze resource URL)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name (only if entering resource URL above)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del deployment (solo si introduces la URL del recurso arriba)" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Deployment name" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nombre del deployment" } }
+      }
+    },
+    "settings.providers.azure.deployment_name_hint" : {
+      "comment" : "TextField placeholder + tooltip for the deployment name field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "jen pokud výše zadáváš pouze resource URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "only if entering just the resource URL above" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "solo si introduces solo la URL del recurso arriba" } }
       }
     },
     "settings.providers.azure.api_version" : {
+      "comment" : "Row label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API" } }
+      }
+    },
+    "settings.providers.azure.api_version_placeholder" : {
       "comment" : "TextField placeholder. %@ = default version string",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze (výchozí: %@)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (default: %@)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API (predeterminada: %@)" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "výchozí: %@" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "default: %@" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "predeterminada: %@" } }
       }
     },
     "settings.providers.custom.base_url" : {
-      "comment" : "TextField placeholder",
+      "comment" : "Row label",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Base URL (např. http://localhost:11434/v1)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Base URL (e.g. http://localhost:11434/v1)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL base (ej. http://localhost:11434/v1)" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Base URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Base URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL base" } }
       }
     },
     "settings.providers.custom.api_version" : {
-      "comment" : "TextField placeholder",
+      "comment" : "Row label",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze (volitelné, přidá ?api-version=…)" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version (optional, adds ?api-version=…)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API (opcional, añade ?api-version=…)" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API verze" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API version" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión de API" } }
+      }
+    },
+    "settings.providers.custom.api_version_hint" : {
+      "comment" : "TextField placeholder + tooltip for the custom provider API version field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "volitelné, přidá ?api-version=…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "optional, adds ?api-version=…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "opcional, añade ?api-version=…" } }
       }
     },
     "settings.providers.custom.effective_url" : {
@@ -737,6 +818,24 @@
         "cs" : { "stringUnit" : { "state" : "translated", "value" : "Aktualizovat modely" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Update Models" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizar modelos" } }
+      }
+    },
+    "settings.providers.key_missing" : {
+      "comment" : "Tooltip on the key icon in a collapsed provider header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API klíč není uložen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No API key saved" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin clave API guardada" } }
+      }
+    },
+    "settings.providers.key_saved" : {
+      "comment" : "Tooltip on the key icon in a collapsed provider header",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "API klíč uložen" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API key saved" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Clave API guardada" } }
       }
     },
     "settings.providers.models_saved" : {
@@ -1063,7 +1162,7 @@
     "action.detail.label.provider" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poskytovatel" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedor" } }
       }
@@ -1162,7 +1261,7 @@
       "comment" : "Markdown bold used for provider names",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pro cloudové providery (**OpenAI**, **Anthropic**) si vytvoř účet a vygeneruj API klíč. Vlastní nebo lokální modely (**Ollama**, **LM Studio**) žádný klíč nevyžadují." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Pro cloudové poskytovatele (**OpenAI**, **Anthropic**) si vytvoř účet a vygeneruj API klíč. Vlastní nebo lokální modely (**Ollama**, **LM Studio**) žádný klíč nevyžadují." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "For cloud providers (**OpenAI**, **Anthropic**), create an account and generate an API key. Custom or local models (**Ollama**, **LM Studio**) don't require a key." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Para proveedores en la nube (**OpenAI**, **Anthropic**), crea una cuenta y genera una clave API. Los modelos locales o personalizados (**Ollama**, **LM Studio**) no requieren clave." } }
       }
@@ -1170,7 +1269,7 @@
     "about.setup.step2.title" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nakonfiguruj provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nakonfiguruj poskytovatele" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Configure a provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Configura un proveedor" } }
       }
@@ -1179,7 +1278,7 @@
       "comment" : "Markdown bold used for UI element names",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení → záložka **Providery** → zadej adresu endpointu (pokud je potřeba) a API klíč → klikni **Uložit**." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavení → záložka **Poskytovatelé** → zadej adresu endpointu (pokud je potřeba) a API klíč → klikni **Uložit**." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings → **Providers** tab → enter endpoint URL (if needed) and API key → click **Save**." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias → pestaña **Proveedores** → introduce la URL del endpoint (si es necesario) y la clave API → haz clic en **Guardar**." } }
       }
@@ -1414,7 +1513,7 @@
     "settings.providers.custom.new_name" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nový provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nový poskytovatel" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "New Provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo proveedor" } }
       }
@@ -1422,7 +1521,7 @@
     "settings.providers.custom.unnamed" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nepojmenovaný provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nepojmenovaný poskytovatel" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Unnamed Provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedor sin nombre" } }
       }
@@ -1462,7 +1561,7 @@
     "settings.providers.custom.delete" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat poskytovatele" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar proveedor" } }
       }
@@ -1470,7 +1569,7 @@
     "settings.providers.custom.delete_confirm_title" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat provider?" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebrat poskytovatele?" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Remove provider?" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Eliminar proveedor?" } }
       }
@@ -1478,7 +1577,7 @@
     "settings.providers.custom.delete_confirm_message" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebere provider „%@\" včetně API klíče. Akce používající tento provider budou přepnuty na OpenAI." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Odebere poskytovatele „%@\" včetně API klíče. Akce používající tohoto poskytovatele budou přepnuty na OpenAI." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "This will remove provider \"%@\" and its API key. Actions using this provider will be reset to OpenAI." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Se eliminará el proveedor \"%@\" y su clave API. Las acciones que usen este proveedor se restablecerán a OpenAI." } }
       }
@@ -1486,7 +1585,7 @@
     "settings.providers.add_custom" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat vlastní provider" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Přidat vlastního poskytovatele" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Add custom provider" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir proveedor personalizado" } }
       }
@@ -1494,9 +1593,27 @@
     "settings.providers.model_filters" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtr modelů" } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtry modelů" } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Model filters" } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Filtros de modelos" } }
+      }
+    },
+    "settings.providers.model_filters.scope" : {
+      "comment" : "Footer under the model filters section explaining global scope",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Filtry platí pro nabídku modelů u všech poskytovatelů — v nastavení akcí i při aktualizaci modelů." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filters apply to the model lists of all providers — in action settings and when updating models." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los filtros se aplican a las listas de modelos de todos los proveedores — en la configuración de acciones y al actualizar modelos." } }
+      }
+    },
+    "settings.providers.section.providers" : {
+      "comment" : "Group header above the provider sections",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Poskytovatelé" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Providers" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Proveedores" } }
       }
     },
     "settings.providers.model_exclude_filter" : {
@@ -1526,7 +1643,7 @@
     "settings.providers.model_filter.hint_exclude" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skryje modely jejichž ID obsahuje daný řetězec (u všech providerů)." } },
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Skryje modely jejichž ID obsahuje daný řetězec (u všech poskytovatelů)." } },
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Hides models whose ID contains the given string (across all providers)." } },
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Oculta modelos cuyo ID contiene la cadena dada (en todos los proveedores)." } }
       }

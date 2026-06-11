@@ -25,9 +25,23 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 `OpenAIProvider` omits the `temperature` parameter for o-series reasoning models (model id matching `^o\d`) — they reject non-default values with HTTP 400. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
 
+## Localization
+
+Czech (`cs`) strings in `Localizable.xcstrings` use „poskytovatel/poskytovatelé", never the anglicism „provider" — applies to all new cs strings (en keeps "Provider", es "Proveedor"). Code identifiers (`ProviderType`, `customProviders`, the `provider` JSON key) stay English.
+
+## UI conventions (settings)
+
+The Actions tab is master–detail: `actionList` (selection by action id) + `ActionDetailEditor`, which is recreated per selection via `.id(selectedActionID)`. Its model-picker `@State` must be seeded in `init` with `State(initialValue:)` — `onAppear` does not fire reliably on `.id` identity swaps and left the picker blank.
+
+Provider sections in the Providers tab are collapsible `DisclosureGroup`s (`providerSection` helper; expansion keyed by `provider.rawValue` in `expandedProviders`). Rows inside a `DisclosureGroup` do not fill the row width — button/text rows there need `.frame(maxWidth: .infinity, alignment: .leading)` or they render centered.
+
+Use `FlowLayout` (UIConstants.swift) for wrapping chip/tag rows instead of a plain `HStack` that would overflow.
+
 ## UI conventions (overlay)
 
 Use `UICornerRadius.small` (4) / `.large` (8) for corner radii instead of magic numbers — keeps overlay/settings rounding consistent.
+
+`OverlayWindowController` manages panel height only until the user resizes the panel by hand: `windowDidEndLiveResize` (fires for drag-resize only, never for programmatic `setFrame`) sets `userResizedPanel`, which disables both `adjustPanelHeight()` on open and the animated `expandForResult()` (triggered from `OverlayView` via the `onResultAppeared` callback). Don't add `setFrame` calls that bypass this flag.
 
 `OverlayWindowController` hides the standard traffic-light window buttons (`standardWindowButton(.closeButton/.miniaturizeButton/.zoomButton)?.isHidden = true`); `OverlayView` provides its own ✕ in the header, so don't re-enable the system buttons.
 

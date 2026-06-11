@@ -46,6 +46,8 @@ struct SettingsView: View {
     @State private var newHeaderValue: [UUID: String] = [:]
     @State private var showDeleteProviderAlert = false
     @State private var providerToDelete: CustomProvider? = nil
+    @State private var expandedProviders: Set<String> = []
+    @State private var selectedActionID: UUID?
 
     private enum PatternField: Hashable { case label, regex }
     @FocusState private var patternFocus: PatternField?
@@ -389,43 +391,25 @@ struct SettingsView: View {
     // MARK: - Actions Tab
 
     private var actionsTab: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            List {
-                ForEach($config.actions) { $action in
-                    ActionRow(action: $action, onSetDefault: {
-                        let targetID = action.id
-                        for i in config.actions.indices {
-                            config.actions[i].isDefault = config.actions[i].id == targetID
-                        }
-                        ConfigStore.shared.update { $0.actions = config.actions }
-                    }, onDelete: {
-                        config.actions.removeAll { $0.id == action.id }
-                        ConfigStore.shared.update { $0.actions = config.actions }
-                    })
-                }
-                .onMove { from, to in
-                    config.actions.move(fromOffsets: from, toOffset: to)
-                    ConfigStore.shared.update { $0.actions = config.actions }
-                }
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                actionList
+                    .frame(width: 230)
+                Divider()
+                actionDetail
             }
             Divider()
             HStack {
-                Button(L("settings.actions.add")) {
-                    config.actions.append(Action(
-                        name: L("settings.actions.new_name"),
-                        systemPrompt: "",
-                        provider: .openai,
-                        model: "gpt-5.5",
-                        enabled: true
-                    ))
-                    ConfigStore.shared.update { $0.actions = config.actions }
-                }
+                Button(L("settings.actions.add")) { addAction() }
                 Spacer()
                 Button(L("settings.actions.import")) { importActions() }
                 Button(L("settings.actions.export")) { exportActions() }
                     .disabled(config.actions.isEmpty)
             }
             .padding(12)
+        }
+        .onAppear {
+            if selectedActionID == nil { selectedActionID = config.actions.first?.id }
         }
         .alert(L("settings.alert.import_actions.title"), isPresented: $showImportAlert) {
             Button(L("settings.alert.import_actions.add")) {
@@ -437,6 +421,7 @@ struct SettingsView: View {
                 let fresh = importedActions.map { var a = $0; a.id = UUID(); return a }
                 config.actions = fresh
                 ConfigStore.shared.update { $0.actions = config.actions }
+                selectedActionID = config.actions.first?.id
             }
             Button(L("common.cancel"), role: .cancel) {}
         } message: {
@@ -446,12 +431,124 @@ struct SettingsView: View {
         }
     }
 
+    private var actionList: some View {
+        List(selection: $selectedActionID) {
+            ForEach(config.actions) { action in
+                HStack(spacing: 8) {
+                    Toggle("", isOn: Binding(
+                        get: { action.enabled },
+                        set: { val in updateAction(action.id) { $0.enabled = val } }
+                    ))
+                    .labelsHidden()
+                    .controlSize(.small)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(action.name.isEmpty ? L("settings.actions.new_name") : action.name)
+                            .lineLimit(1)
+                        Text("\(action.provider.displayName) · \(action.model)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                    }
+                    Spacer()
+                    if action.isDefault {
+                        Image(systemName: "return")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .help(L("action.row.help.is_default"))
+                    }
+                }
+                .padding(.vertical, 2)
+                .tag(action.id)
+            }
+            .onMove { from, to in
+                config.actions.move(fromOffsets: from, toOffset: to)
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+        }
+        .listStyle(.inset)
+    }
+
+    @ViewBuilder
+    private var actionDetail: some View {
+        if let id = selectedActionID, let binding = actionBinding(for: id) {
+            ActionDetailEditor(
+                action: binding,
+                onSetDefault: {
+                    for i in config.actions.indices {
+                        config.actions[i].isDefault = config.actions[i].id == id
+                    }
+                    ConfigStore.shared.update { $0.actions = config.actions }
+                },
+                onDelete: { deleteAction(id) }
+            )
+            // Recreate the editor per selection so its @State model-picker
+            // fields re-sync via onAppear for the newly selected action.
+            .id(id)
+        } else {
+            VStack {
+                Spacer()
+                Text(config.actions.isEmpty ? L("settings.actions.empty_list") : L("settings.actions.empty_selection"))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func actionBinding(for id: UUID) -> Binding<Action>? {
+        guard let current = config.actions.first(where: { $0.id == id }) else { return nil }
+        return Binding(
+            get: { config.actions.first(where: { $0.id == id }) ?? current },
+            set: { newVal in
+                guard let i = config.actions.firstIndex(where: { $0.id == id }) else { return }
+                config.actions[i] = newVal
+                ConfigStore.shared.update { $0.actions = config.actions }
+            }
+        )
+    }
+
+    private func updateAction(_ id: UUID, _ mutate: (inout Action) -> Void) {
+        guard let i = config.actions.firstIndex(where: { $0.id == id }) else { return }
+        mutate(&config.actions[i])
+        ConfigStore.shared.update { $0.actions = config.actions }
+    }
+
+    private func addAction() {
+        let action = Action(
+            name: L("settings.actions.new_name"),
+            systemPrompt: "",
+            provider: .openai,
+            model: "gpt-5.5",
+            enabled: true
+        )
+        config.actions.append(action)
+        ConfigStore.shared.update { $0.actions = config.actions }
+        selectedActionID = action.id
+    }
+
+    private func deleteAction(_ id: UUID) {
+        guard let idx = config.actions.firstIndex(where: { $0.id == id }) else { return }
+        config.actions.remove(at: idx)
+        ConfigStore.shared.update { $0.actions = config.actions }
+        selectedActionID = config.actions.indices.contains(idx)
+            ? config.actions[idx].id
+            : config.actions.last?.id
+    }
+
     // MARK: - Providers Tab
 
     private var providersTab: some View {
         Form {
+            // Model filters first — they shape what every provider's
+            // "Update Models" fetch shows, so they read as global settings.
+            modelFiltersSection
+
             // Built-in providers
-            Section("OpenAI") {
+            providerSection("OpenAI", provider: .openai, hasKey: !openaiKey.isEmpty,
+                            groupTitle: L("settings.providers.section.providers")) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $openaiKey)
                         .onSubmit { saveKey(openaiKey, for: .openai) }
@@ -460,7 +557,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .openai)
                 testConnectionRow(for: .openai, key: openaiKey)
             }
-            Section("Anthropic") {
+            providerSection("Anthropic", provider: .anthropic, hasKey: !anthropicKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $anthropicKey)
                         .onSubmit { saveKey(anthropicKey, for: .anthropic) }
@@ -469,7 +566,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .anthropic)
                 testConnectionRow(for: .anthropic, key: anthropicKey)
             }
-            Section("Google Gemini") {
+            providerSection("Google Gemini", provider: .gemini, hasKey: !geminiKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $geminiKey)
                         .onSubmit { saveKey(geminiKey, for: .gemini) }
@@ -478,7 +575,7 @@ struct SettingsView: View {
                 fetchModelsRow(for: .gemini)
                 testConnectionRow(for: .gemini, key: geminiKey)
             }
-            Section("xAI Grok") {
+            providerSection("xAI Grok", provider: .grok, hasKey: !grokKey.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $grokKey)
                         .onSubmit { saveKey(grokKey, for: .grok) }
@@ -487,16 +584,17 @@ struct SettingsView: View {
                 fetchModelsRow(for: .grok)
                 testConnectionRow(for: .grok, key: grokKey)
             }
-            Section("Azure AI (slot 1)") {
+            providerSection("Azure AI (slot 1)", provider: .azureOpenai, hasKey: !azureKey.isEmpty) {
                 Text(L("settings.providers.azure.description"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $azureKey)
                         .onSubmit { saveKey(azureKey, for: .azureOpenai) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
                         get: { config.azureEndpoint ?? "" },
                         set: {
                             config.azureEndpoint = $0.isEmpty ? nil : $0
@@ -505,16 +603,17 @@ struct SettingsView: View {
                     ))
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
                         get: { config.azureDeploymentName ?? "" },
                         set: {
                             config.azureDeploymentName = $0.isEmpty ? nil : $0
                             ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
                         }
                     ))
+                    .help(L("settings.providers.azure.deployment_name_hint"))
                 }
-                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
-                    TextField("", text: Binding(
+                LabeledContent(L("settings.providers.azure.api_version")) {
+                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
                         get: { config.azureAPIVersion ?? "" },
                         set: {
                             config.azureAPIVersion = $0.isEmpty ? nil : $0
@@ -525,13 +624,13 @@ struct SettingsView: View {
                 saveButton(for: .azureOpenai, key: azureKey)
                 testConnectionRow(for: .azureOpenai, key: azureKey)
             }
-            Section("Azure AI (slot 2)") {
+            providerSection("Azure AI (slot 2)", provider: .azureOpenai2, hasKey: !azureKey2.isEmpty) {
                 LabeledContent(L("settings.providers.api_key")) {
                     SecureField("", text: $azureKey2)
                         .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
                         get: { config.azureEndpoint2 ?? "" },
                         set: {
                             config.azureEndpoint2 = $0.isEmpty ? nil : $0
@@ -540,16 +639,17 @@ struct SettingsView: View {
                     ))
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField("", text: Binding(
+                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
                         get: { config.azureDeploymentName2 ?? "" },
                         set: {
                             config.azureDeploymentName2 = $0.isEmpty ? nil : $0
                             ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
                         }
                     ))
+                    .help(L("settings.providers.azure.deployment_name_hint"))
                 }
-                LabeledContent(String(format: L("settings.providers.azure.api_version"), AppConfig.defaultAzureAPIVersion)) {
-                    TextField("", text: Binding(
+                LabeledContent(L("settings.providers.azure.api_version")) {
+                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
                         get: { config.azureAPIVersion2 ?? "" },
                         set: {
                             config.azureAPIVersion2 = $0.isEmpty ? nil : $0
@@ -580,13 +680,11 @@ struct SettingsView: View {
                                                baseURL: "")
                     config.customProviders.append(newCP)
                     ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    expandedProviders.insert(newCP.id.uuidString)
                 } label: {
                     Label(L("settings.providers.add_custom"), systemImage: "plus")
                 }
             }
-
-            // Model filters
-            modelFiltersSection
         }
         .formStyle(.grouped)
         .onAppear {
@@ -601,6 +699,64 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Collapsible Provider Section
+
+    private func expansionBinding(_ id: String) -> Binding<Bool> {
+        Binding(
+            get: { expandedProviders.contains(id) },
+            set: { expanded in
+                if expanded {
+                    expandedProviders.insert(id)
+                } else {
+                    expandedProviders.remove(id)
+                }
+            }
+        )
+    }
+
+    private func providerSection<Content: View>(
+        _ name: String,
+        provider: ProviderType,
+        hasKey: Bool,
+        showsKeyStatus: Bool = true,
+        groupTitle: String? = nil,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        Section {
+            DisclosureGroup(isExpanded: expansionBinding(provider.rawValue)) {
+                content()
+            } label: {
+                providerHeader(name, provider: provider, hasKey: hasKey, showsKeyStatus: showsKeyStatus)
+            }
+        } header: {
+            if let groupTitle {
+                Text(groupTitle)
+            }
+        }
+    }
+
+    private func providerHeader(_ name: String, provider: ProviderType,
+                                hasKey: Bool, showsKeyStatus: Bool) -> some View {
+        HStack(spacing: 8) {
+            Text(name)
+                .fontWeight(.medium)
+            Spacer()
+            if let presets = config.modelPresets[provider.rawValue], !presets.isEmpty {
+                Text(String(format: L("settings.providers.models_saved"), presets.count))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if showsKeyStatus {
+                Image(systemName: hasKey ? "key.fill" : "key")
+                    .font(.caption)
+                    .foregroundStyle(hasKey ? Color.green : Color.secondary)
+                    .help(L(hasKey ? "settings.providers.key_saved" : "settings.providers.key_missing"))
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { expansionBinding(provider.rawValue).wrappedValue.toggle() }
+    }
+
     // MARK: - Custom Provider Section
 
     @ViewBuilder
@@ -613,69 +769,78 @@ struct SettingsView: View {
         )
 
         Section {
-            LabeledContent(L("settings.providers.custom.name")) {
-                TextField("", text: cp.name)
-                    .onChange(of: cp.wrappedValue.name) { _, _ in
+            DisclosureGroup(isExpanded: expansionBinding(cpID.uuidString)) {
+                LabeledContent(L("settings.providers.custom.name")) {
+                    TextField("", text: cp.name)
+                        .onChange(of: cp.wrappedValue.name) { _, _ in
+                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                        }
+                }
+                LabeledContent(L("settings.providers.custom.base_url")) {
+                    TextField("http://localhost:11434/v1", text: cp.baseURL)
+                        .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                        }
+                }
+                LabeledContent(L("settings.providers.custom.api_version")) {
+                    TextField(L("settings.providers.custom.api_version_hint"), text: Binding(
+                        get: { cp.wrappedValue.apiVersion ?? "" },
+                        set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
+                    ))
+                    .help(L("settings.providers.custom.api_version_hint"))
+                    .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
                         ConfigStore.shared.update { $0.customProviders = config.customProviders }
                     }
-            }
-            LabeledContent(L("settings.providers.custom.base_url")) {
-                TextField("https://…", text: cp.baseURL)
-                    .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                }
+                LabeledContent(L("settings.providers.custom.effective_url")) {
+                    Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
+                        .monospaced()
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
+                    ForEach(TokenParamStyle.allCases, id: \.self) { style in
+                        Text(style.displayName).tag(style)
+                    }
+                }
+                .onChange(of: cp.wrappedValue.tokenParamStyle) { _, _ in
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                }
+                Toggle(L("settings.providers.custom.requires_key"), isOn: cp.requiresAPIKey)
+                    .onChange(of: cp.wrappedValue.requiresAPIKey) { _, _ in
                         ConfigStore.shared.update { $0.customProviders = config.customProviders }
                     }
-            }
-            LabeledContent(L("settings.providers.custom.api_version")) {
-                TextField("", text: Binding(
-                    get: { cp.wrappedValue.apiVersion ?? "" },
-                    set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
-                ))
-                .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
-                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                LabeledContent(L("settings.providers.api_key_optional")) {
+                    SecureField("", text: keyBinding)
+                        .onSubmit { saveKey(keyBinding.wrappedValue, for: provider) }
                 }
-            }
-            LabeledContent(L("settings.providers.custom.effective_url")) {
-                Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
-                    .monospaced()
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
-                ForEach(TokenParamStyle.allCases, id: \.self) { style in
-                    Text(style.displayName).tag(style)
+                saveButton(for: provider, key: keyBinding.wrappedValue)
+
+                // Custom headers
+                customHeadersRows(cp: cp, cpID: cpID)
+
+                testConnectionRow(for: provider, key: keyBinding.wrappedValue)
+                fetchModelsRow(for: provider)
+
+                Button(role: .destructive) {
+                    providerToDelete = cp.wrappedValue
+                    showDeleteProviderAlert = true
+                } label: {
+                    Label(L("settings.providers.custom.delete"), systemImage: "trash")
+                        .foregroundStyle(.red)
                 }
-            }
-            .onChange(of: cp.wrappedValue.tokenParamStyle) { _, _ in
-                ConfigStore.shared.update { $0.customProviders = config.customProviders }
-            }
-            Toggle(L("settings.providers.custom.requires_key"), isOn: cp.requiresAPIKey)
-                .onChange(of: cp.wrappedValue.requiresAPIKey) { _, _ in
-                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
-                }
-            LabeledContent(L("settings.providers.api_key_optional")) {
-                SecureField("", text: keyBinding)
-                    .onSubmit { saveKey(keyBinding.wrappedValue, for: provider) }
-            }
-            saveButton(for: provider, key: keyBinding.wrappedValue)
-
-            // Custom headers
-            customHeadersRows(cp: cp, cpID: cpID)
-
-            testConnectionRow(for: provider, key: keyBinding.wrappedValue)
-            fetchModelsRow(for: provider)
-
-            Button(role: .destructive) {
-                providerToDelete = cp.wrappedValue
-                showDeleteProviderAlert = true
+                .frame(maxWidth: .infinity, alignment: .leading)
             } label: {
-                Label(L("settings.providers.custom.delete"), systemImage: "trash")
-                    .foregroundStyle(.red)
+                providerHeader(
+                    cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name,
+                    provider: provider,
+                    hasKey: !(customProviderKeys[cpID.uuidString] ?? "").isEmpty,
+                    showsKeyStatus: cp.wrappedValue.requiresAPIKey
+                )
             }
-        } header: {
-            Text(cp.wrappedValue.name.isEmpty ? L("settings.providers.custom.unnamed") : cp.wrappedValue.name)
         }
     }
 
@@ -749,47 +914,56 @@ struct SettingsView: View {
     // MARK: - Model Filters Section
 
     private var modelFiltersSection: some View {
-        Group {
-            Section {
-                filterTagsRow(
-                    filters: $config.modelExcludeFilters,
-                    onRemove: { idx in
-                        config.modelExcludeFilters.remove(at: idx)
-                        ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
-                    }
-                )
-                HStack(spacing: 6) {
-                    TextField(L("settings.providers.model_filter.placeholder"), text: $newExcludeFilter)
-                        .onSubmit { addExcludeFilter() }
-                    Button(L("common.add")) { addExcludeFilter() }
-                        .disabled(newExcludeFilter.isEmpty)
+        Section {
+            modelFilterRow(
+                title: L("settings.providers.model_exclude_filter"),
+                hint: L("settings.providers.model_filter.hint_exclude"),
+                filters: $config.modelExcludeFilters,
+                newFilter: $newExcludeFilter,
+                onAdd: addExcludeFilter,
+                onRemove: { idx in
+                    config.modelExcludeFilters.remove(at: idx)
+                    ConfigStore.shared.update { $0.modelExcludeFilters = config.modelExcludeFilters }
                 }
-            } header: {
-                Text(L("settings.providers.model_exclude_filter"))
-            } footer: {
-                Text(L("settings.providers.model_filter.hint_exclude"))
-            }
-
-            Section {
-                filterTagsRow(
-                    filters: $config.modelIncludeFilters,
-                    onRemove: { idx in
-                        config.modelIncludeFilters.remove(at: idx)
-                        ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
-                    }
-                )
-                HStack(spacing: 6) {
-                    TextField(L("settings.providers.model_filter.placeholder"), text: $newIncludeFilter)
-                        .onSubmit { addIncludeFilter() }
-                    Button(L("common.add")) { addIncludeFilter() }
-                        .disabled(newIncludeFilter.isEmpty)
+            )
+            modelFilterRow(
+                title: L("settings.providers.model_include_filter"),
+                hint: L("settings.providers.model_filter.hint_include"),
+                filters: $config.modelIncludeFilters,
+                newFilter: $newIncludeFilter,
+                onAdd: addIncludeFilter,
+                onRemove: { idx in
+                    config.modelIncludeFilters.remove(at: idx)
+                    ConfigStore.shared.update { $0.modelIncludeFilters = config.modelIncludeFilters }
                 }
-            } header: {
-                Text(L("settings.providers.model_include_filter"))
-            } footer: {
-                Text(L("settings.providers.model_filter.hint_include"))
-            }
+            )
+        } header: {
+            Text(L("settings.providers.model_filters"))
+        } footer: {
+            Text(L("settings.providers.model_filters.scope"))
         }
+    }
+
+    @ViewBuilder
+    private func modelFilterRow(title: String, hint: String,
+                                filters: Binding<[String]>, newFilter: Binding<String>,
+                                onAdd: @escaping () -> Void,
+                                onRemove: @escaping (Int) -> Void) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .fontWeight(.medium)
+            filterTagsRow(filters: filters, onRemove: onRemove)
+            HStack(spacing: 6) {
+                TextField(L("settings.providers.model_filter.placeholder"), text: newFilter)
+                    .onSubmit { onAdd() }
+                Button(L("common.add")) { onAdd() }
+                    .disabled(newFilter.wrappedValue.isEmpty)
+            }
+            Text(hint)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 2)
     }
 
     @ViewBuilder
@@ -797,7 +971,7 @@ struct SettingsView: View {
         if filters.wrappedValue.isEmpty {
             Text("—").foregroundStyle(.secondary).font(.caption)
         } else {
-            HStack(spacing: 4) {
+            FlowLayout(spacing: 4, lineSpacing: 4) {
                 ForEach(Array(filters.wrappedValue.enumerated()), id: \.offset) { idx, filter in
                     HStack(spacing: 3) {
                         Text(filter).font(.caption)
@@ -811,6 +985,7 @@ struct SettingsView: View {
                     .cornerRadius(UICornerRadius.small)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -855,10 +1030,12 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         if let error = fetchError[provider] {
             Text(error)
                 .font(.caption)
                 .foregroundStyle(.red)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -902,10 +1079,12 @@ struct SettingsView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         if let error = testError[provider] {
             Text(error)
                 .font(.caption)
                 .foregroundStyle(.red)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
@@ -937,6 +1116,7 @@ struct SettingsView: View {
                     .foregroundStyle(saved ? .green : .red)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func saveKey(_ key: String, for provider: ProviderType) {
@@ -1190,44 +1370,113 @@ private struct ModelReviewSheet: View {
     }
 }
 
-// MARK: - Action Row
+// MARK: - Action Detail Editor
 
-private struct ActionRow: View {
+private struct ActionDetailEditor: View {
     @Binding var action: Action
     var onSetDefault: () -> Void
     var onDelete: () -> Void
-    @State private var pickerModel: String = ""
-    @State private var customModelText: String = ""
+    @State private var pickerModel: String
+    @State private var customModelText: String
     @State private var confirmDelete = false
 
-    private let customSentinel = "__custom__"
+    private static let customSentinel = "__custom__"
+    private var customSentinel: String { Self.customSentinel }
 
     private var isCustomModel: Bool { pickerModel == customSentinel }
 
+    // The picker state must be seeded in init: the editor is recreated per
+    // selected action via .id(_:), and onAppear does not fire reliably on
+    // those identity swaps, which left the model picker blank.
+    init(action: Binding<Action>, onSetDefault: @escaping () -> Void, onDelete: @escaping () -> Void) {
+        self._action = action
+        self.onSetDefault = onSetDefault
+        self.onDelete = onDelete
+        let current = action.wrappedValue
+        let presetIDs = current.provider.effectiveModels().map(\.id)
+        if !presetIDs.isEmpty && presetIDs.contains(current.model) {
+            self._pickerModel = State(initialValue: current.model)
+            self._customModelText = State(initialValue: "")
+        } else {
+            self._pickerModel = State(initialValue: Self.customSentinel)
+            self._customModelText = State(initialValue: current.model)
+        }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Toggle("", isOn: $action.enabled)
-                    .labelsHidden()
-                TextField(L("action.row.name_placeholder"), text: $action.name)
-                    .font(.headline)
-                Spacer()
-                Button {
-                    onSetDefault()
-                } label: {
-                    Image(systemName: action.isDefault ? "return.left" : "return")
-                        .foregroundStyle(action.isDefault ? Color.accentColor : Color.secondary.opacity(0.5))
-                        .fontWeight(action.isDefault ? .semibold : .regular)
+        Form {
+            Section {
+                LabeledContent(L("action.detail.label.name")) {
+                    TextField(L("action.row.name_placeholder"), text: $action.name)
                 }
-                .buttonStyle(.plain)
+                Toggle(L("settings.actions.enabled"), isOn: $action.enabled)
+                Toggle(L("settings.actions.default_toggle"), isOn: Binding(
+                    get: { action.isDefault },
+                    set: { isOn in
+                        if isOn {
+                            onSetDefault()
+                        } else {
+                            action.isDefault = false
+                        }
+                    }
+                ))
                 .help(action.isDefault ? L("action.row.help.is_default") : L("action.row.help.set_default"))
-                Button {
+            }
+            Section {
+                Picker(L("action.detail.label.provider"), selection: $action.provider) {
+                    ForEach(ProviderType.allCases, id: \.self) { provider in
+                        Text(provider.displayName).tag(provider)
+                    }
+                }
+                .onChange(of: action.provider) {
+                    let presets = action.provider.effectiveModels()
+                    if presets.isEmpty {
+                        action.model = ""
+                        pickerModel = customSentinel
+                        customModelText = ""
+                    } else {
+                        let first = presets.first!.id
+                        action.model = first
+                        pickerModel = first
+                        customModelText = ""
+                    }
+                }
+                modelRow
+            }
+            Section(L("action.detail.label.system_prompt")) {
+                TextEditor(text: $action.systemPrompt)
+                    .font(.callout)
+                    .frame(minHeight: 200, maxHeight: 400)
+            }
+            Section(L("settings.actions.section.parameters")) {
+                LabeledContent(String(format: L("action.row.temperature"), action.temperature)) {
+                    Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
+                        .frame(maxWidth: 220)
+                }
+                LabeledContent(L("action.row.max_tokens")) {
+                    HStack {
+                        TextField("", value: $action.maxTokens, format: .number)
+                            .frame(width: 80)
+                            .multilineTextAlignment(.trailing)
+                        Stepper("", value: $action.maxTokens, in: 256...32000, step: 256)
+                            .labelsHidden()
+                    }
+                }
+                Picker(L("action.row.copy_close"), selection: $action.autoCopyClose) {
+                    ForEach(AutoCopyClose.allCases, id: \.self) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                Toggle(L("action.row.ignore_clipboard"), isOn: $action.ignoreClipboard)
+                    .help(L("action.row.help.ignore_clipboard"))
+            }
+            Section {
+                Button(role: .destructive) {
                     confirmDelete = true
                 } label: {
-                    Image(systemName: "trash")
-                        .foregroundStyle(.red.opacity(0.8))
+                    Label(L("action.row.delete.button"), systemImage: "trash")
+                        .foregroundStyle(.red)
                 }
-                .buttonStyle(.plain)
                 .confirmationDialog(
                     String(format: L("action.row.delete.confirm"), action.name),
                     isPresented: $confirmDelete,
@@ -1236,25 +1485,9 @@ private struct ActionRow: View {
                     Button(L("action.row.delete.button"), role: .destructive) { onDelete() }
                 }
             }
-
-            providerModelRow
-
-            TextEditor(text: $action.systemPrompt)
-                .font(.callout)
-                .frame(minHeight: 60, maxHeight: 100)
-                .overlay(RoundedRectangle(cornerRadius: UICornerRadius.small).strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5))
-
-            parametersRow
         }
-        .padding(.vertical, 6)
+        .formStyle(.grouped)
         .onAppear { syncPickerFromAction() }
-        .onChange(of: action) {
-            ConfigStore.shared.update { store in
-                if let idx = store.actions.firstIndex(where: { $0.id == action.id }) {
-                    store.actions[idx] = action
-                }
-            }
-        }
     }
 
     private func syncPickerFromAction() {
@@ -1268,105 +1501,37 @@ private struct ActionRow: View {
         }
     }
 
-    private var providerModelRow: some View {
-        HStack(spacing: 6) {
-            Picker("Provider", selection: $action.provider) {
-                ForEach(ProviderType.allCases, id: \.self) { provider in
-                    Text(provider.displayName).tag(provider)
-                }
-            }
-            .labelsHidden()
-            .frame(width: 120)
-            .onChange(of: action.provider) {
-                let presets = action.provider.effectiveModels()
-                if presets.isEmpty {
-                    action.model = ""
-                    pickerModel = customSentinel
-                    customModelText = ""
-                } else {
-                    let first = presets.first!.id
-                    action.model = first
-                    pickerModel = first
-                    customModelText = ""
-                }
-            }
-
-            if action.provider.effectiveModels().isEmpty {
+    @ViewBuilder
+    private var modelRow: some View {
+        if action.provider.effectiveModels().isEmpty {
+            LabeledContent(L("action.detail.label.model")) {
                 TextField(L("action.row.model_placeholder"), text: $customModelText)
-                    .frame(width: 260)
                     .onChange(of: customModelText) {
                         if !customModelText.isEmpty { action.model = customModelText }
                     }
-            } else {
-                Picker("Model", selection: $pickerModel) {
-                    ForEach(action.provider.effectiveModels()) { preset in
-                        Text(preset.isRecommended ? "\(preset.displayName) \(L("action.row.recommended"))" : preset.displayName)
-                            .tag(preset.id)
-                    }
-                    Divider()
-                    Text(L("action.row.custom_model")).tag(customSentinel)
+            }
+        } else {
+            Picker(L("action.detail.label.model"), selection: $pickerModel) {
+                ForEach(action.provider.effectiveModels()) { preset in
+                    Text(preset.isRecommended ? "\(preset.displayName) \(L("action.row.recommended"))" : preset.displayName)
+                        .tag(preset.id)
                 }
-                .labelsHidden()
-                .frame(width: 200)
-                .onChange(of: pickerModel) {
-                    if pickerModel != customSentinel {
-                        action.model = pickerModel
-                        customModelText = ""
-                    }
+                Divider()
+                Text(L("action.row.custom_model")).tag(customSentinel)
+            }
+            .onChange(of: pickerModel) {
+                if pickerModel != customSentinel {
+                    action.model = pickerModel
+                    customModelText = ""
                 }
+            }
 
-                if isCustomModel {
+            if isCustomModel {
+                LabeledContent("") {
                     TextField(L("action.row.model_placeholder"), text: $customModelText)
-                        .frame(width: 160)
                         .onChange(of: customModelText) {
                             if !customModelText.isEmpty { action.model = customModelText }
                         }
-                }
-            }
-        }
-    }
-
-    private var parametersRow: some View {
-        HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(String(format: L("action.row.temperature"), action.temperature))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
-                    .frame(width: 160)
-            }
-
-            Spacer()
-
-            Toggle(L("action.row.ignore_clipboard"), isOn: $action.ignoreClipboard)
-                .toggleStyle(.checkbox)
-                .font(.caption)
-                .help(L("action.row.help.ignore_clipboard"))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(L("action.row.copy_close"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Picker("", selection: $action.autoCopyClose) {
-                    ForEach(AutoCopyClose.allCases, id: \.self) { mode in
-                        Text(mode.displayName).tag(mode)
-                    }
-                }
-                .labelsHidden()
-                .frame(width: 120)
-                .pickerStyle(.menu)
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(L("action.row.max_tokens"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                HStack {
-                    TextField("", value: $action.maxTokens, format: .number)
-                        .frame(width: 80)
-                        .multilineTextAlignment(.trailing)
-                    Stepper("", value: $action.maxTokens, in: 256...32000, step: 256)
-                        .labelsHidden()
                 }
             }
         }
