@@ -209,6 +209,11 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                                 .truncationMode(.middle)
+                            if !pattern.isValidRegex {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
+                                    .help(L("settings.general.sensitive.invalid_regex"))
+                            }
                             Spacer()
                             Button(role: .destructive) {
                                 config.customSensitivePatterns.removeAll { $0.id == pattern.id }
