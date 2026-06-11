@@ -37,7 +37,12 @@ enum SensitiveContentDetector {
 
     static func detect(text: String, customPatterns: [SensitivePattern]) -> [SensitiveMatch] {
         (builtInPatterns + customPatterns).compactMap { pattern in
-            guard let regex = try? NSRegularExpression(pattern: pattern.pattern) else { return nil }
+            guard let regex = try? NSRegularExpression(pattern: pattern.pattern) else {
+                // Imported configs can carry patterns the add-time UI validation
+                // never saw — the user must learn the pattern isn't protecting them
+                fputs("[SensitiveContentDetector] Skipping invalid pattern „\(pattern.label)“: \(pattern.pattern)\n", stderr)
+                return nil
+            }
             let range = NSRange(text.startIndex..., in: text)
             guard let match = regex.firstMatch(in: text, range: range),
                   let matchRange = Range(match.range, in: text) else { return nil }

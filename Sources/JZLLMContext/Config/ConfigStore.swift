@@ -2,6 +2,10 @@ import Carbon
 import Foundation
 import Synchronization
 
+extension Notification.Name {
+    static let configDidChange = Notification.Name("JZLLMContextConfigDidChange")
+}
+
 final class ConfigStore: Sendable {
     static let shared = ConfigStore()
 
@@ -32,12 +36,14 @@ final class ConfigStore: Sendable {
     func update(_ block: (inout AppConfig) -> Void) {
         state.withLock { block(&$0) }
         try? save()
+        NotificationCenter.default.post(name: .configDidChange, object: nil)
     }
 
     func reset() {
         state.withLock { $0 = AppConfig.makeDefault(language: $0.appLanguage) }
         try? FileManager.default.removeItem(at: fileURL)
         try? save()
+        NotificationCenter.default.post(name: .configDidChange, object: nil)
     }
 
     private static func load(from url: URL) throws -> AppConfig {

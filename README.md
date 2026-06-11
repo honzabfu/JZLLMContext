@@ -98,7 +98,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
   - **Cancel** – shown while an action is running; stops the request
   - **Right-click** on an action – context menu: *Run* / *View Prompt* / *Edit*
 - **File drag & drop** – drag any file directly onto the panel; the app extracts the text content locally and uses it as context instead of the clipboard. Supported formats: PDF, images (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote, and all plain-text formats (TXT, MD, CSV, JSON, source code, …). Maximum file size: 5 MB. The filename appears in the preview with a × clear button; pressing **Escape** while a file is loaded clears it first (second press closes the panel). File context bypasses the *clipboard ignore* toggle.
-- **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input
+- **Clipboard ignore** – the eye button next to the preview toggles clipboard-free mode; actions receive only the additional context as input; action buttons stay disabled until the additional context field contains text
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, a blue refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
@@ -117,8 +117,8 @@ Pressing the shortcut again while the panel is open reloads the clipboard conten
 - **Check for Updates** – checks whether a newer version is available
 - **Automatically check for updates at launch** – enables/disables the automatic version check on every launch
 - **Log interactions to Markdown files** – opt-in; when enabled, every completed action is appended to a dated `.md` file (`YYYY-MM-DD.md`) in the directory you choose; each entry contains the action name, model, input, and response. An optional **File name prefix** is prepended to the file name. A sensitive-data warning is shown the first time you enable this feature.
-- **Sensitive Content Detection** – enabled by default; scans clipboard text against built-in and custom regex patterns (API keys, tokens, private keys) before sending to the LLM. If a match is found, a confirmation sheet lists the matched values so you can cancel or send anyway. Custom patterns (label + regex) can be added in Settings; built-in patterns cover OpenAI, Anthropic, Google, GitHub, AWS keys, Bearer tokens, and private keys.
-- **Configuration Backup** – export/import the full configuration as JSON; API keys are not included
+- **Sensitive Content Detection** – enabled by default; scans clipboard text against built-in and custom regex patterns (API keys, tokens, private keys) before sending to the LLM. If a match is found, a confirmation sheet lists the matched values so you can cancel or send anyway. Custom patterns (label + regex) can be added in Settings; built-in patterns cover OpenAI, Anthropic, Google, GitHub, AWS keys, Bearer tokens, and private keys. Invalid custom patterns (e.g. from an imported configuration) are skipped and marked with a warning icon in Settings.
+- **Configuration Backup** – export/import the full configuration as JSON; API keys and custom HTTP header values are not included
 - **Reset Settings** – restores the default configuration; API keys in the Keychain are preserved
 
 **Global Shortcut**
@@ -170,8 +170,8 @@ Each provider offers a predefined model list and the option to enter any model m
 |----------|------------------|
 | OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
-| Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
-| xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
+| Google Gemini | gemini-3.1-pro, gemini-3-flash-preview, gemini-3.1-flash-lite |
+| xAI Grok | grok-4.20, grok-4.20-non-reasoning, grok-4.1-fast-reasoning |
 | Azure AI (slot 1 / slot 2) | – (model is determined by the deployment configuration) |
 | Custom providers | fetched via Update Models (if server supports `/models`); manual entry always available |
 
@@ -276,7 +276,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Model filters** – global include and exclude filter lists; models whose ID contains an exclude string are hidden across all providers; if any include strings are set, only matching models are shown; filters apply in the model picker and the Update Models sheet
 - **Custom HTTP headers** – each custom provider can send arbitrary extra HTTP headers with every request (useful for API routing, authentication, or service-specific requirements like `HTTP-Referer` on OpenRouter)
 - **Connection test** – verifies that the API key and configuration are working
-- **Configuration backup** – export/import the full configuration as JSON; API keys are not exported
+- **Configuration backup** – export/import the full configuration as JSON; API keys and custom HTTP header values are not exported
 - **Configuration reset** – restore default settings with one click; API keys in the Keychain are preserved
 - **Interaction logging** – opt-in; appends each completed action (action name, model, input, response) to a dated Markdown file in a user-defined directory; optional file name prefix; sensitive-data warning on first enable
 - **Sensitive content detection** – regex scanner that checks clipboard text against built-in patterns (OpenAI/Anthropic/Google/GitHub/AWS API keys, Bearer tokens, private keys) and user-defined label+regex patterns before sending to the LLM; a confirmation sheet shows matched values and requires explicit approval; patterns persist in the configuration
@@ -452,7 +452,7 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`,
 | Azure AI (slot 2) | same as slot 1, different config | 0.0–2.0 | Independent slot for a second deployment |
 | Custom provider (any) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protocol; API key, API version, and custom headers are all optional; supports Ollama, LM Studio, OpenRouter, Together AI, etc. |
 
-All HTTP requests time out after **60 seconds**.
+All HTTP requests time out after **60 seconds**. The `temperature` parameter is omitted for o-series reasoning models (model IDs starting with `o1`/`o3`/`o4`), which reject non-default values.
 
 #### OCR Pipeline
 
@@ -491,7 +491,7 @@ You are a document analyst. Process the provided content and return:
 Adapt the output structure to the document type.
 ```
 
-Suggested settings: model with a large context window (e.g. `gemini-2.5-flash` or `claude-sonnet-4.6`), max tokens 2048, temperature 0.3. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
+Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 2048, temperature 0.3. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
 
 #### Global Shortcut
 
@@ -605,7 +605,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
   - **Zrušit** – zobrazí se při běžící akci; zastaví požadavek
   - **Pravé tlačítko myši** na akci – kontextové menu: *Spustit* / *Zobrazit prompt* / *Upravit*
 - **Přetažení souboru (drag & drop)** – přetáhni libovolný soubor přímo na panel; text se extrahuje lokálně a použije jako kontext místo schránky. Podporované formáty: PDF, obrázky (OCR), DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote a všechny plain-text formáty (TXT, MD, CSV, JSON, zdrojový kód, …). Maximální velikost: 5 MB. Název souboru se zobrazí v náhledu s tlačítkem × pro odebrání; stisknutím **Escape** při načteném souboru se soubor nejprve vymaže (druhé stisknutí panel zavře). Kontext ze souboru obchází přepínač *ignorovat schránku*.
-- **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext
+- **Ignorování schránky** – tlačítko oka vedle náhledu přepne panel do režimu bez schránky; akce dostanou jako vstup jen doplňkový kontext; tlačítka akcí zůstávají neaktivní, dokud pole doplňkového kontextu neobsahuje text
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí modrá ikona obnovení; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
@@ -624,8 +624,8 @@ Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a 
 - **Zkontrolovat aktualizace** – ověří, zda je dostupná novější verze
 - **Automaticky kontrolovat aktualizace při spuštění** – zapíná/vypíná automatickou kontrolu nové verze při každém spuštění aplikace
 - **Ukládat interakce do Markdown souborů** – opt-in; při zapnutí se každá dokončená akce zapíše do datovaného souboru `.md` (`YYYY-MM-DD.md`) ve zvoleném adresáři; každý záznam obsahuje název akce, model, vstup a odpověď. Volitelný **Prefix názvu souboru** se přidá na začátek názvu souboru. Při prvním zapnutí se zobrazí upozornění na citlivá data.
-- **Detekce citlivého obsahu** – výchozí stav zapnuto; před odesláním textu ze schránky do LLM zkontroluje obsah vůči vestavěným i vlastním regex vzorům (API klíče, tokeny, privátní klíče). Pokud je nalezena shoda, zobrazí se potvrzovací dialog se seznamem nalezených hodnot – lze zrušit nebo odeslat přesto. Vlastní vzory (název + regex) lze přidávat v Nastavení; vestavěné vzory pokrývají klíče OpenAI, Anthropic, Google, GitHub, AWS, Bearer tokeny a privátní klíče.
-- **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou zahrnuty
+- **Detekce citlivého obsahu** – výchozí stav zapnuto; před odesláním textu ze schránky do LLM zkontroluje obsah vůči vestavěným i vlastním regex vzorům (API klíče, tokeny, privátní klíče). Pokud je nalezena shoda, zobrazí se potvrzovací dialog se seznamem nalezených hodnot – lze zrušit nebo odeslat přesto. Vlastní vzory (název + regex) lze přidávat v Nastavení; vestavěné vzory pokrývají klíče OpenAI, Anthropic, Google, GitHub, AWS, Bearer tokeny a privátní klíče. Nevalidní vlastní vzory (např. z importované konfigurace) se přeskočí a v Nastavení jsou označeny varovnou ikonou.
+- **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče ani hodnoty vlastních HTTP hlaviček nejsou zahrnuty
 - **Resetovat nastavení** – obnoví výchozí konfiguraci; API klíče v Keychainu zůstanou zachovány
 
 **Globální zkratka**
@@ -677,8 +677,8 @@ Každý provider nabízí předdefinovaný seznam modelů a možnost zadat libov
 |----------|----------------------|
 | OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
 | Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
-| Google Gemini | gemini-2.5-pro, gemini-2.5-flash, gemini-2.0-flash (legacy) |
-| xAI Grok | grok-3, grok-3-mini, grok-2 (legacy) |
+| Google Gemini | gemini-3.1-pro, gemini-3-flash-preview, gemini-3.1-flash-lite |
+| xAI Grok | grok-4.20, grok-4.20-non-reasoning, grok-4.1-fast-reasoning |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
 | Vlastní providery | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
 
@@ -783,7 +783,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Filtry modelů** – globální seznamy include a exclude filtrů; modely jejichž ID obsahuje exclude řetězec jsou skryty u všech providerů; jsou-li zadány include řetězce, zobrazí se jen shodné modely; filtry se uplatňují ve výběru modelu i v listu Update Models
 - **Vlastní HTTP hlavičky** – každý vlastní provider může posílat libovolné extra HTTP hlavičky s každým požadavkem (pro API routing, autentizaci nebo specifické požadavky jako `HTTP-Referer` na OpenRouter)
 - **Test připojení** – ověří, zda je API klíč a konfigurace funkční
-- **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče nejsou exportovány
+- **Záloha konfigurace** – export/import celé konfigurace jako JSON; API klíče ani hodnoty vlastních HTTP hlaviček nejsou exportovány
 - **Reset konfigurace** – obnoví výchozí nastavení jedním kliknutím; API klíče v Keychainu zůstanou
 - **Logování interakcí** – opt-in; každá dokončená akce (název, model, vstup, odpověď) se zapíše do datovaného Markdown souboru ve zvoleném adresáři; volitelný prefix názvu souboru; upozornění na citlivá data při prvním zapnutí
 - **Detekce citlivého obsahu** – regex skener kontrolující text ze schránky před odesláním do LLM vůči vestavěným (OpenAI/Anthropic/Google/GitHub/AWS API klíče, Bearer tokeny, privátní klíče) a uživatelsky definovaným vzorům; potvrzovací dialog zobrazí nalezené hodnoty a vyžaduje výslovný souhlas; vzory jsou uloženy v konfiguraci
@@ -946,7 +946,7 @@ Provider se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"
 | Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý deployment |
 | Vlastní provider (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
 
-Timeout všech HTTP požadavků: **60 sekund**.
+Timeout všech HTTP požadavků: **60 sekund**. Parametr `temperature` se vynechává u o-series reasoning modelů (ID modelu začínající `o1`/`o3`/`o4`), které jinou než výchozí hodnotu odmítají.
 
 #### OCR pipeline
 
@@ -985,7 +985,7 @@ Jsi analytik dokumentů. Zpracuj přiložený obsah a vrať:
 Přizpůsob strukturu výstupu typu dokumentu.
 ```
 
-Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-2.5-flash` nebo `claude-sonnet-4.6`), max tokenů 2048, teplota 0,3. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
+Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 2048, teplota 0,3. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
 
 #### Globální zkratka
 

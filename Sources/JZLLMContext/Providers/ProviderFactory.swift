@@ -21,7 +21,8 @@ enum ProviderFactory {
             }
             let chatURL = try azureChatURL(deploymentBase: endpointStr,
                                            legacyDeployment: config.azureDeploymentName,
-                                           apiVersion: config.azureAPIVersion ?? AppConfig.defaultAzureAPIVersion)
+                                           apiVersion: config.azureAPIVersion ?? AppConfig.defaultAzureAPIVersion,
+                                           provider: .azureOpenai)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
                                   authStyle: .apiKey, temperature: action.temperature,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
@@ -36,7 +37,8 @@ enum ProviderFactory {
             }
             let chatURL = try azureChatURL(deploymentBase: endpointStr,
                                            legacyDeployment: config.azureDeploymentName2,
-                                           apiVersion: config.azureAPIVersion2 ?? AppConfig.defaultAzureAPIVersion)
+                                           apiVersion: config.azureAPIVersion2 ?? AppConfig.defaultAzureAPIVersion,
+                                           provider: .azureOpenai2)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
                                   authStyle: .apiKey, temperature: action.temperature,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
@@ -99,7 +101,8 @@ enum ProviderFactory {
         return url
     }
 
-    private static func azureChatURL(deploymentBase: String, legacyDeployment: String?, apiVersion: String) throws -> URL {
+    private static func azureChatURL(deploymentBase: String, legacyDeployment: String?, apiVersion: String,
+                                     provider: ProviderType) throws -> URL {
         var base = deploymentBase.hasSuffix("/") ? String(deploymentBase.dropLast()) : deploymentBase
 
         if base.hasSuffix("/chat/completions") {
@@ -108,14 +111,14 @@ enum ProviderFactory {
 
         if !base.contains("/deployments/") {
             guard let dep = legacyDeployment, !dep.isEmpty else {
-                throw LLMError.missingAPIKey(.azureOpenai)
+                throw LLMError.missingAPIKey(provider)
             }
             base = "\(base)/openai/deployments/\(dep)"
         }
 
         var components = URLComponents(string: "\(base)/chat/completions")
         components?.queryItems = [URLQueryItem(name: "api-version", value: apiVersion)]
-        guard let url = components?.url else { throw LLMError.missingAPIKey(.azureOpenai) }
+        guard let url = components?.url else { throw LLMError.missingAPIKey(provider) }
         return url
     }
 }

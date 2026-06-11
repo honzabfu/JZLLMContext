@@ -15,6 +15,7 @@ struct OverlayView: View {
     @State private var isResolvingContext = false
     @State private var contextIsFromOCR = false
     @State private var lastAction: Action?
+    @State private var lastInput: String = ""
     @State private var didCopy = false
     @State private var userContext: String = ""
     @State private var ignoreClipboard: Bool = false
@@ -25,6 +26,7 @@ struct OverlayView: View {
     @State private var actionDetailMode: ActionDetailMode? = nil
     @State private var pendingSend: PendingSend? = nil
     @State private var droppedFileURL: URL? = nil
+    @State private var resolveTask: Task<Void, Never>? = nil
     @State private var isDragTargeted: Bool = false
     @State private var contextSourceName: String? = nil
     @FocusState private var userContextFocused: Bool
@@ -95,7 +97,7 @@ struct OverlayView: View {
         }
         .onChange(of: engine.completedRunID) { _, completedID in
             guard completedID != nil, !engine.result.isEmpty else { return }
-            HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: contextText ?? "", result: engine.result)
+            HistoryStore.shared.add(actionName: lastAction?.name ?? "", input: lastInput, result: engine.result)
             let shouldCopyClose: Bool
             switch lastAction?.autoCopyClose {
             case .always:   shouldCopyClose = true
@@ -119,6 +121,7 @@ struct OverlayView: View {
         }
         .onKeyPress { press in
             guard !userContextFocused,
+                  !engine.isLoading,
                   let digit = Int(press.characters),
                   digit >= 1, digit <= actions.count else { return .ignored }
             runAction(actions[digit - 1])
@@ -250,7 +253,7 @@ struct OverlayView: View {
                     guard press.modifiers.isEmpty,
                           let action = defaultAction,
                           !engine.isLoading,
-                          ignoreClipboard || contextText != nil else { return .ignored }
+                          hasInput(for: action) else { return .ignored }
                     runAction(action)
                     return .handled
                 }
@@ -402,7 +405,7 @@ struct OverlayView: View {
             .padding(.vertical, 2)
         }
         .buttonStyle(.bordered)
-        .disabled(engine.isLoading || (!(ignoreClipboard || (actionModel?.ignoreClipboard ?? false)) && contextText == nil))
+        .disabled(engine.isLoading || !hasInput(for: actionModel))
         .help({
             guard let a = actionModel else { return "" }
             return a.systemPrompt.count > 200 ? String(a.systemPrompt.prefix(200)) + "…" : a.systemPrompt
@@ -495,8 +498,12 @@ struct OverlayView: View {
         let pb = NSPasteboard.general
         contextIsFromOCR = pb.string(forType: .string)?.isEmpty != false
             && NSImage(pasteboard: pb) != nil
-        Task {
+        resolveTask?.cancel()
+        resolveTask = Task {
             let result = await ContextResolver.resolve()
+            // A re-opened overlay starts a new resolve; the superseded one
+            // must not race it for contextText
+            guard !Task.isCancelled else { return }
             switch result {
             case .text(let text, let isOCR):
                 contextText = text
@@ -506,6 +513,15 @@ struct OverlayView: View {
             }
             isResolvingContext = false
         }
+    }
+
+    /// Mirrors the input selection in runAction(_:): manual context when the
+    /// clipboard is ignored, clipboard/file text otherwise.
+    private func hasInput(for action: Action?) -> Bool {
+        if (ignoreClipboard || (action?.ignoreClipboard ?? false)) && droppedFileURL == nil {
+            return !userContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return contextText != nil
     }
 
     private func runAction(_ action: Action) {
@@ -527,6 +543,8 @@ struct OverlayView: View {
                 input = text
             }
         }
+        guard !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        lastInput = input
         let cfg = ConfigStore.shared.config
         if cfg.sensitiveContentCheckEnabled {
             // userContext may be embedded into the system prompt via {{kontext}}
@@ -548,10 +566,14 @@ struct OverlayView: View {
         guard let text = displayedResult else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
+        // Our own write must not trip the external clipboard-change indicator
+        knownClipboardChangeCount = NSPasteboard.general.changeCount
+        clipboardChanged = false
         didCopy = true
     }
 
     private func handleDroppedFile(url: URL) {
+        resolveTask?.cancel()
         Task {
             droppedFileURL = url
             contextSourceName = url.lastPathComponent

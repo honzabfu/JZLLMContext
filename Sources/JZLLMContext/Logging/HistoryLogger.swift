@@ -34,6 +34,11 @@ actor HistoryLogger {
 
             let isNewFile = !FileManager.default.fileExists(atPath: filePath)
             if isNewFile {
+                // The file may have been deleted while a handle was cached;
+                // the stale handle would keep writing into the unlinked inode
+                if let stale = handleCache.removeValue(forKey: filePath) {
+                    try? stale.close()
+                }
                 FileManager.default.createFile(atPath: filePath, contents: nil)
             }
 
@@ -53,7 +58,9 @@ actor HistoryLogger {
             handle.seekToEndOfFile()
             try handle.write(contentsOf: data)
         } catch {
-            handleCache[filePath] = nil
+            if let stale = handleCache.removeValue(forKey: filePath) {
+                try? stale.close()
+            }
             fputs("[HistoryLogger] \(error)\n", stderr)
         }
     }

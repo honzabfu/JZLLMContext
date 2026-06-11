@@ -246,9 +246,9 @@
     "settings.general.backup.description" : {
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zahrnuje: akce, globální zkratku, nastavení Azure endpointů, výběr modelů a ostatní volby. Nezahrnuje API klíče (ty zůstávají v Keychainu)." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Includes: actions, global shortcut, Azure endpoint settings, model selection, and other options. Does not include API keys (those remain in the Keychain)." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Incluye: acciones, atajo global, configuración de endpoints de Azure, selección de modelos y otras opciones. No incluye claves API (permanecen en el Llavero)." } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Zahrnuje: akce, globální zkratku, nastavení Azure endpointů, výběr modelů a ostatní volby. Nezahrnuje API klíče (ty zůstávají v Keychainu) ani hodnoty vlastních HTTP hlaviček." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Includes: actions, global shortcut, Azure endpoint settings, model selection, and other options. Does not include API keys (those remain in the Keychain) or custom HTTP header values." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Incluye: acciones, atajo global, configuración de endpoints de Azure, selección de modelos y otras opciones. No incluye claves API (permanecen en el Llavero) ni los valores de cabeceras HTTP personalizadas." } }
       }
     },
     "settings.general.export_config" : {

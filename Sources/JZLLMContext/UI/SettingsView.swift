@@ -69,6 +69,16 @@ struct SettingsView: View {
         .frame(minWidth: 620, minHeight: 520)
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
+            config = ConfigStore.shared.config
+        }
+        // Keep the local snapshot in sync with edits made outside this window
+        // (e.g. prompt edits via the overlay's ActionDetailSheet) so that
+        // whole-array writes like onSetDefault don't persist stale data.
+        // Deferred via receive(on:) to avoid re-entrant state updates from
+        // this view's own onChange → ConfigStore.update calls.
+        .onReceive(NotificationCenter.default.publisher(for: .configDidChange)
+            .receive(on: DispatchQueue.main)) { _ in
+            config = ConfigStore.shared.config
         }
         .sheet(item: $reviewingProvider) { provider in
             ModelReviewSheet(provider: provider, models: $reviewModels) { saved in
@@ -209,6 +219,11 @@ struct SettingsView: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                                 .truncationMode(.middle)
+                            if !pattern.isValidRegex {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.orange)
+                                    .help(L("settings.general.sensitive.invalid_regex"))
+                            }
                             Spacer()
                             Button(role: .destructive) {
                                 config.customSensitivePatterns.removeAll { $0.id == pattern.id }
@@ -1037,9 +1052,17 @@ struct SettingsView: View {
     }
 
     private func exportConfig() {
+        // Custom header values often carry Authorization tokens or API keys —
+        // strip them from the export, keeping the keys so the user knows
+        // which headers to re-enter after import.
+        var sanitized = ConfigStore.shared.config
+        for i in sanitized.customProviders.indices {
+            sanitized.customProviders[i].customHeaders =
+                sanitized.customProviders[i].customHeaders.mapValues { _ in "" }
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let data = try? encoder.encode(ConfigStore.shared.config) else { return }
+        guard let data = try? encoder.encode(sanitized) else { return }
         let panel = NSSavePanel()
         panel.title = "Exportovat konfiguraci"
         panel.nameFieldStringValue = "JZLLMContext-config.json"
