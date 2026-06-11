@@ -549,6 +549,9 @@ struct OverlayView: View {
         guard let text = displayedResult else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
+        // Our own write must not trip the external clipboard-change indicator
+        knownClipboardChangeCount = NSPasteboard.general.changeCount
+        clipboardChanged = false
         didCopy = true
     }
 
