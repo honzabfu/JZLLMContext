@@ -26,6 +26,7 @@ struct OverlayView: View {
     @State private var actionDetailMode: ActionDetailMode? = nil
     @State private var pendingSend: PendingSend? = nil
     @State private var droppedFileURL: URL? = nil
+    @State private var resolveTask: Task<Void, Never>? = nil
     @State private var isDragTargeted: Bool = false
     @State private var contextSourceName: String? = nil
     @FocusState private var userContextFocused: Bool
@@ -497,8 +498,12 @@ struct OverlayView: View {
         let pb = NSPasteboard.general
         contextIsFromOCR = pb.string(forType: .string)?.isEmpty != false
             && NSImage(pasteboard: pb) != nil
-        Task {
+        resolveTask?.cancel()
+        resolveTask = Task {
             let result = await ContextResolver.resolve()
+            // A re-opened overlay starts a new resolve; the superseded one
+            // must not race it for contextText
+            guard !Task.isCancelled else { return }
             switch result {
             case .text(let text, let isOCR):
                 contextText = text
@@ -568,6 +573,7 @@ struct OverlayView: View {
     }
 
     private func handleDroppedFile(url: URL) {
+        resolveTask?.cancel()
         Task {
             droppedFileURL = url
             contextSourceName = url.lastPathComponent
