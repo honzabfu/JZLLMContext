@@ -142,9 +142,11 @@ enum ContextResolver {
                 let pipe = Pipe()
                 proc.standardOutput = pipe; proc.standardError = Pipe()
                 guard (try? proc.run()) != nil else { continuation.resume(returning: nil); return }
+                // Drain the pipe before waitUntilExit — output beyond the ~64 KB pipe
+                // buffer would otherwise block the child, deadlocking both processes
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 proc.waitUntilExit()
                 guard proc.terminationStatus == 0 else { continuation.resume(returning: nil); return }
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
                 continuation.resume(returning: data.isEmpty ? nil : data)
             }
         }
@@ -165,8 +167,9 @@ enum ContextResolver {
                     let lsPipe = Pipe()
                     ls.standardOutput = lsPipe; ls.standardError = Pipe()
                     guard (try? ls.run()) != nil else { continuation.resume(returning: nil); return }
-                    ls.waitUntilExit()
+                    // Drain before waitUntilExit (see unzipEntry)
                     let listing = String(data: lsPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                    ls.waitUntilExit()
                     xmlPaths = listing.components(separatedBy: "\n")
                         .map { $0.trimmingCharacters(in: .whitespaces) }
                         .filter { $0.hasPrefix("ppt/slides/slide") && $0.hasSuffix(".xml") }
@@ -183,9 +186,11 @@ enum ContextResolver {
                     let pipe = Pipe()
                     proc.standardOutput = pipe; proc.standardError = Pipe()
                     guard (try? proc.run()) != nil else { continue }
+                    // Drain before waitUntilExit (see unzipEntry)
+                    let data = pipe.fileHandleForReading.readDataToEndOfFile()
                     proc.waitUntilExit()
                     guard proc.terminationStatus == 0,
-                          let xml = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+                          let xml = String(data: data, encoding: .utf8)
                     else { continue }
                     allStrings.append(contentsOf: xmlTextContent(xml, tag: textTag))
                 }
@@ -202,6 +207,13 @@ enum ContextResolver {
         var result: [String] = []
         var pos = xml.startIndex
         while let matchRange = xml.range(of: open, range: pos..<xml.endIndex) {
+            guard matchRange.upperBound < xml.endIndex else { break }
+            // Prefix match only — "<a:t" must not match "<a:tabLst" or "<a:tab/>"
+            let next = xml[matchRange.upperBound]
+            guard next == ">" || next == "/" || next.isWhitespace else {
+                pos = matchRange.upperBound
+                continue
+            }
             guard let angleClose = xml.range(of: ">", range: matchRange.upperBound..<xml.endIndex) else { break }
             if xml[matchRange.upperBound..<angleClose.lowerBound].hasSuffix("/") { pos = angleClose.upperBound; continue }
             guard let endTag = xml.range(of: close, range: angleClose.upperBound..<xml.endIndex) else { break }
