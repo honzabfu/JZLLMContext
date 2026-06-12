@@ -256,7 +256,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 - **Global shortcut** – opens the overlay panel with clipboard content from anywhere (default: Cmd+Shift+Space)
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
-- **File drag & drop** – drag files directly onto the overlay panel; PDF (PDFKit), images (OCR), structured documents (DOCX, XLSX, RTF, PPTX, iWork formats via Spotlight), and all plain-text formats; maximum 5 MB per file; file content replaces clipboard context
+- **File drag & drop** – drag files directly onto the overlay panel; PDF (PDFKit), images (OCR), structured documents (DOCX/RTF/ODT/HTML via textutil, XLSX/PPTX via embedded XML, iWork formats), and all plain-text formats; maximum 5 MB per file; file content replaces clipboard context
 - **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), unlimited custom OpenAI-compatible providers (Ollama, LM Studio, OpenRouter, …)
 - **Custom actions** – any number of actions with system prompts; each has its own provider, model, temperature, and token limit
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
@@ -470,7 +470,10 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 |--------|------------------|
 | PDF | PDFKit — iterates all pages, joins text with `\n` |
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (same pipeline as clipboard images) |
-| DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
+| DOC, DOCX, RTF, RTFD, ODT, HTML | `textutil -convert txt` |
+| XLSX, PPTX | `unzip` of the embedded XML (`xl/sharedStrings.xml`, `ppt/slides/slide*.xml`) + text-tag extraction |
+| Pages, Numbers, Keynote | `QuickLook/Preview.pdf` via PDFKit; fallback: OCR of the embedded `preview.jpg` |
+| XLS and other formats | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
 | TXT, MD, CSV, JSON, source code, … | encoding auto-detected (BOM / Foundation heuristics); fallback chain: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
 
 **Size limit:** 5 MB (file size on disk). Files exceeding this limit are rejected immediately with an error.
@@ -762,7 +765,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
-- **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX, XLSX, RTF, PPTX, iWork formáty přes Spotlight) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
+- **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX/RTF/ODT/HTML přes textutil, XLSX/PPTX přes vnořené XML, iWork formáty) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
 - **Více poskytovatelů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible poskytovatelů (Ollama, LM Studio, OpenRouter, …)
 - **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, teplotu a limit tokenů
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
@@ -963,7 +966,10 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 |--------|----------------|
 | PDF | PDFKit — iteruje všechny stránky, spojí text pomocí `\n` |
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (stejná pipeline jako u obrázků ze schránky) |
-| DOCX, XLSX, RTF, HTML, PPTX, Pages, Numbers, Keynote | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
+| DOC, DOCX, RTF, RTFD, ODT, HTML | `textutil -convert txt` |
+| XLSX, PPTX | `unzip` vnořeného XML (`xl/sharedStrings.xml`, `ppt/slides/slide*.xml`) + extrakce textových tagů |
+| Pages, Numbers, Keynote | `QuickLook/Preview.pdf` přes PDFKit; záloha: OCR vnořeného `preview.jpg` |
+| XLS a další formáty | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
 | TXT, MD, CSV, JSON, zdrojový kód, … | kódování auto-detekováno (BOM / Foundation heuristiky); fallback: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
 
 **Limit velikosti:** 5 MB (velikost souboru na disku). Soubory přes tento limit jsou okamžitě odmítnuty s chybou.
