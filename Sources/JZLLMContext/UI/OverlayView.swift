@@ -578,7 +578,13 @@ struct OverlayView: View {
         if (ignoreClipboard || (action?.ignoreClipboard ?? false)) && droppedFileURL == nil {
             return !userContext.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
-        return contextText != nil
+        // Trim like runAction(_:) does — whitespace-only clipboard text would
+        // otherwise enable actions whose run then silently no-ops
+        guard let text = contextText else { return false }
+        if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return true }
+        // Whitespace-only text still forms a valid input when the typed context
+        // gets appended to it (runAction skips the append for {{kontext}} prompts)
+        return !userContext.isEmpty && action.map { !$0.systemPrompt.contains("{{kontext}}") } ?? false
     }
 
     private func runAction(_ action: Action) {
