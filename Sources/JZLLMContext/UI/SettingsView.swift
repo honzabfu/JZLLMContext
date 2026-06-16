@@ -131,13 +131,18 @@ struct SettingsView: View {
                     .onChange(of: config.markdownOutput) { _, val in
                         ConfigStore.shared.update { $0.markdownOutput = val }
                     }
-                Stepper(String(format: L("settings.general.history_limit"),
-                               config.historyLimit == 0 ? L("settings.general.history_off") : "\(config.historyLimit)"),
-                        value: $config.historyLimit, in: 0...10)
-                    .onChange(of: config.historyLimit) { _, val in
-                        ConfigStore.shared.update { $0.historyLimit = val }
-                        HistoryStore.shared.trim(to: val)
+                LabeledContent(L("settings.general.history_limit")) {
+                    HStack(spacing: 4) {
+                        Text(config.historyLimit == 0 ? L("settings.general.history_off") : "\(config.historyLimit)")
+                            .foregroundStyle(.secondary)
+                        Stepper("", value: $config.historyLimit, in: 0...10)
+                            .labelsHidden()
+                            .onChange(of: config.historyLimit) { _, val in
+                                ConfigStore.shared.update { $0.historyLimit = val }
+                                HistoryStore.shared.trim(to: val)
+                            }
                     }
+                }
             }
             Section(L("settings.general.section.hotkey")) {
                 HStack {
@@ -594,32 +599,52 @@ struct SettingsView: View {
                         .onSubmit { saveKey(azureKey, for: .azureOpenai) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
-                        get: { config.azureEndpoint ?? "" },
-                        set: {
-                            config.azureEndpoint = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
-                        }
-                    ))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureEndpoint ?? "" },
+                            set: {
+                                config.azureEndpoint = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureEndpoint = config.azureEndpoint }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(L("settings.providers.azure.deployment_url_placeholder"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
-                        get: { config.azureDeploymentName ?? "" },
-                        set: {
-                            config.azureDeploymentName = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
-                        }
-                    ))
-                    .help(L("settings.providers.azure.deployment_name_hint"))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureDeploymentName ?? "" },
+                            set: {
+                                config.azureDeploymentName = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureDeploymentName = config.azureDeploymentName }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(L("settings.providers.azure.deployment_name_hint"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.azure.api_version")) {
-                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
-                        get: { config.azureAPIVersion ?? "" },
-                        set: {
-                            config.azureAPIVersion = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureAPIVersion = config.azureAPIVersion }
-                        }
-                    ))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureAPIVersion ?? "" },
+                            set: {
+                                config.azureAPIVersion = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureAPIVersion = config.azureAPIVersion }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 saveButton(for: .azureOpenai, key: azureKey)
                 testConnectionRow(for: .azureOpenai, key: azureKey)
@@ -630,32 +655,52 @@ struct SettingsView: View {
                         .onSubmit { saveKey(azureKey2, for: .azureOpenai2) }
                 }
                 LabeledContent(L("settings.providers.azure.deployment_url")) {
-                    TextField(L("settings.providers.azure.deployment_url_placeholder"), text: Binding(
-                        get: { config.azureEndpoint2 ?? "" },
-                        set: {
-                            config.azureEndpoint2 = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
-                        }
-                    ))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureEndpoint2 ?? "" },
+                            set: {
+                                config.azureEndpoint2 = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureEndpoint2 = config.azureEndpoint2 }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(L("settings.providers.azure.deployment_url_placeholder"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.azure.deployment_name")) {
-                    TextField(L("settings.providers.azure.deployment_name_hint"), text: Binding(
-                        get: { config.azureDeploymentName2 ?? "" },
-                        set: {
-                            config.azureDeploymentName2 = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
-                        }
-                    ))
-                    .help(L("settings.providers.azure.deployment_name_hint"))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureDeploymentName2 ?? "" },
+                            set: {
+                                config.azureDeploymentName2 = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureDeploymentName2 = config.azureDeploymentName2 }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(L("settings.providers.azure.deployment_name_hint"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.azure.api_version")) {
-                    TextField(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion), text: Binding(
-                        get: { config.azureAPIVersion2 ?? "" },
-                        set: {
-                            config.azureAPIVersion2 = $0.isEmpty ? nil : $0
-                            ConfigStore.shared.update { $0.azureAPIVersion2 = config.azureAPIVersion2 }
-                        }
-                    ))
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { config.azureAPIVersion2 ?? "" },
+                            set: {
+                                config.azureAPIVersion2 = $0.isEmpty ? nil : $0
+                                ConfigStore.shared.update { $0.azureAPIVersion2 = config.azureAPIVersion2 }
+                            }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        Text(String(format: L("settings.providers.azure.api_version_placeholder"), AppConfig.defaultAzureAPIVersion))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 saveButton(for: .azureOpenai2, key: azureKey2)
                 testConnectionRow(for: .azureOpenai2, key: azureKey2)
@@ -777,20 +822,33 @@ struct SettingsView: View {
                         }
                 }
                 LabeledContent(L("settings.providers.custom.base_url")) {
-                    TextField("http://localhost:11434/v1", text: cp.baseURL)
-                        .onChange(of: cp.wrappedValue.baseURL) { _, _ in
-                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
-                        }
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: cp.baseURL)
+                            .multilineTextAlignment(.leading)
+                            .onChange(of: cp.wrappedValue.baseURL) { _, _ in
+                                ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                            }
+                        Text(AttributedString("http://localhost:11434/v1"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.custom.api_version")) {
-                    TextField(L("settings.providers.custom.api_version_hint"), text: Binding(
-                        get: { cp.wrappedValue.apiVersion ?? "" },
-                        set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
-                    ))
-                    .help(L("settings.providers.custom.api_version_hint"))
-                    .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
-                        ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                    VStack(alignment: .leading, spacing: 2) {
+                        TextField("", text: Binding(
+                            get: { cp.wrappedValue.apiVersion ?? "" },
+                            set: { cp.apiVersion.wrappedValue = $0.isEmpty ? nil : $0 }
+                        ))
+                        .multilineTextAlignment(.leading)
+                        .onChange(of: cp.wrappedValue.apiVersion) { _, _ in
+                            ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                        }
+                        Text(L("settings.providers.custom.api_version_hint"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 LabeledContent(L("settings.providers.custom.effective_url")) {
                     Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))

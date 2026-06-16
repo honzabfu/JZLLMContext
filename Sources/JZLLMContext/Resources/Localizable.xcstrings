@@ -106,12 +106,12 @@
       }
     },
     "settings.general.history_limit" : {
-      "comment" : "Stepper label. %@ = count string or 'off'",
+      "comment" : "Stepper label (value shown separately on right)",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků: %@" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history: %@" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados: %@" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Historie výsledků" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Result history" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Historial de resultados" } }
       }
     },
     "settings.general.history_off" : {
@@ -717,12 +717,12 @@
       }
     },
     "settings.providers.azure.deployment_url_placeholder" : {
-      "comment" : "TextField placeholder: example deployment URL",
+      "comment" : "TextField placeholder: schematic deployment URL pattern",
       "extractionState" : "manual",
       "localizations" : {
-        "cs" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/muj-model" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/my-model" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "https://hub.openai.azure.com/openai/deployments/mi-modelo" } }
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "https://…openai.azure.com/openai/deployments/…" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "https://…openai.azure.com/openai/deployments/…" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "https://…openai.azure.com/openai/deployments/…" } }
       }
     },
     "settings.providers.azure.deployment_name" : {
