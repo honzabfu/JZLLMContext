@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v0.66 – 2026-06-16
+
 ## v0.65 – 2026-06-11
 - Settings: Actions tab redesigned as master–detail — action list on the left, full editor on the right
 - Settings: Providers tab restructured — each provider is a collapsible section
