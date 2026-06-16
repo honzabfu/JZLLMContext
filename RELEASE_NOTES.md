@@ -3,6 +3,9 @@
 ## Unreleased
 
 ## v0.66 – 2026-06-16
+- Fix: XLSX and PPTX extraction deadlocked when file content exceeded the ~64 KB pipe buffer — unzip output is now drained before `waitUntilExit()`
+- Fix: PPTX text extraction injected raw XML from tab-stop elements (`<a:tabLst>`) — tag matching now requires a delimiter after the tag name so `<a:t` no longer matches `<a:tabLst`
+- Fix: action buttons could be enabled for whitespace-only clipboard content, whose run then silently no-opped — `hasInput` now trims clipboard text consistently with `runAction`
 
 ## v0.65 – 2026-06-11
 - Settings: Actions tab redesigned as master–detail — action list on the left, full editor on the right
