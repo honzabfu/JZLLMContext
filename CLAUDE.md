@@ -45,6 +45,8 @@ Use `UICornerRadius.small` (4) / `.large` (8) for corner radii instead of magic 
 
 `OverlayWindowController` hides the standard traffic-light window buttons (`standardWindowButton(.closeButton/.miniaturizeButton/.zoomButton)?.isHidden = true`); `OverlayView` provides its own ✕ in the header, so don't re-enable the system buttons.
 
+`headerBar` shows app name, version, and — when `lastAction != nil` — the model used by that action (`.caption2`, `.tertiary`). `lastAction` is reset to `nil` inside `.onChange(of: state.refreshID)` so the model label is absent on every fresh panel open and appears only after the first action runs.
+
 `hasInput(for:)` must mirror the input selection in `runAction(_:)` exactly (including whitespace trimming and the typed-context append branch) — any divergence either enables action buttons whose press silently no-ops, or disables runs that would succeed.
 
 The context `TextField` (`userContextFocused`) must keep keyboard focus so `.onKeyPress(.return, ...)` triggers the default action — `.defaultFocus($userContextFocused, true)` plus explicit `userContextFocused = true` in both `.onAppear` and `.onChange(of: state.refreshID)` (the panel is created once and reused, so `.onAppear` only fires on the very first show). Icon-only header buttons use `iconButton()` (`.buttonStyle(.plain).focusEffectDisabled()`) so they don't steal this focus or break digit shortcuts.

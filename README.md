@@ -102,6 +102,7 @@ The panel is a floating window displayed above all other apps, visible on all Sp
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, an accent-colored refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse. The panel grows automatically when a result appears; once you resize the panel by hand, your size is kept and automatic height management stops
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
+- **Header bar** – shows the app name, version, and — after the first action runs — the model used for that action; clears on every new panel open
 - **History** – the clock button in the header shows recent results from the current session; when interaction logging is enabled, an **Open log folder** button appears at the bottom of the history panel
 
 Pressing the shortcut again while the panel is open reloads the clipboard content and resets the result.
@@ -611,6 +612,7 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí ikona obnovení v barvě zvýraznění; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší. Panel se při zobrazení výsledku automaticky zvětší; jakmile velikost panelu jednou změníte ručně, zachovává se vaše velikost a automatika se vypne
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
+- **Záhlaví** – zobrazuje název aplikace, verzi a — po spuštění první akce — model použitý pro tuto akci; při každém novém otevření panelu se vymaže
 - **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session; pokud je zapnuto logování interakcí, zobrazí se na konci panelu tlačítko **Otevřít složku logů**
 
 Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a resetuje výsledek.

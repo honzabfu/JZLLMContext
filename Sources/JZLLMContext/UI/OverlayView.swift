@@ -112,6 +112,7 @@ struct OverlayView: View {
         .onChange(of: state.refreshID) {
             resolveContext()
             userContextFocused = true
+            lastAction = nil
         }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             let current = NSPasteboard.general.changeCount
@@ -175,6 +176,14 @@ struct OverlayView: View {
             Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
+            if let action = lastAction {
+                Text("·")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
+                Text(action.model)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
             Spacer()
             if updateState.isAvailable, let url = updateState.updateURL {
                 let updateLabel = updateState.updateVersion.map { String(format: L("menu.update.available"), $0) } ?? ""
@@ -212,7 +221,7 @@ struct OverlayView: View {
             .accessibilityLabel(L("overlay.result.close"))
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
     }
 
     private var historyPanel: some View {

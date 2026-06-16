@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.67 – 2026-06-16
+- Overlay: header bar now shows the model name used by the last action; clears on every new panel open
+
 ## v0.66 – 2026-06-16
 - Fix: XLSX and PPTX extraction deadlocked when file content exceeded the ~64 KB pipe buffer — unzip output is now drained before `waitUntilExit()`
 - Fix: PPTX text extraction injected raw XML from tab-stop elements (`<a:tabLst>`) — tag matching now requires a delimiter after the tag name so `<a:t` no longer matches `<a:tabLst`
