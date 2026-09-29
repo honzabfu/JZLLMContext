@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.69 – 2026-09-29
+- Dev: local Debug builds now sign with a stable Apple Development identity instead of ad-hoc, so Keychain no longer re-prompts for the login password after every rebuild (distributed release build is unchanged — still unsigned)
+
 ## v0.68 – 2026-09-29
 - Fix: custom OpenAI-compatible providers on the local network (e.g. a remote LM Studio server) got no response over plain HTTP — App Transport Security now allows local-network HTTP connections
 
