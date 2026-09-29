@@ -28,5 +28,10 @@
 	<string>JZLLMContext potřebuje přístup k accessibility API pro čtení vybraného textu.</string>
 	<key>NSScreenCaptureDescription</key>
 	<string>JZLLMContext potřebuje přístup k záznamu obrazovky pro OCR snímků.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
