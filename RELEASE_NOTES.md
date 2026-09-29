@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v0.68 – 2026-09-29
+- Fix: custom OpenAI-compatible providers on the local network (e.g. a remote LM Studio server) got no response over plain HTTP — App Transport Security now allows local-network HTTP connections
+
 ## v0.67 – 2026-06-16
 - Overlay: header bar now shows the model name used by the last action; clears on every new panel open
 
