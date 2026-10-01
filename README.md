@@ -674,7 +674,7 @@ Každý poskytovatel je sbalovací sekce — ve výchozím stavu sbalená pro ko
 
 **Azure AI (slot 1 a slot 2)** – každý slot reprezentuje jedno nasazení (deployment) v Azure AI Foundry. Zadej API klíč, Deployment URL a API verzi.
 
-**Vlastní OpenAI-compatible poskytovatelé** – libovolný počet vlastních poskytovatelů kompatibilních s OpenAI Chat Completions API. Přidej poskytovatele tlačítkem **+** a nakonfiguruj: název poskytovatele (používá se ve výběru akce a v celém UI), Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `?api-version=…` do URL), **Parametr max. tokenů** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – zvol podle toho, co daný server očekává) a volitelné **Vlastní hlavičky** (extra HTTP hlavičky odeslané s každým požadavkem – pro autentizaci, směrování API nebo specifické požadavky serveru). **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné. Poskytovatele lze odebrat tlačítkem smazat; akce používající smazaného poskytovatele se automaticky resetují na OpenAI.
+**Vlastní OpenAI-compatible poskytovatelé** – libovolný počet vlastních poskytovatelů kompatibilních s OpenAI Chat Completions API. Přidej poskytovatele tlačítkem **+** a nakonfiguruj: název poskytovatele (používá se ve výběru akce a v celém UI), Base URL, volitelně API klíč (pro lokální modely lze nechat prázdné), volitelně **API verzi** (přidá parametr `?api-version=…` do URL), volitelně **Cestu pro chat** / **Cestu pro modely** (nahradí výchozí cesty `chat/completions` / `models` — relativně k Base URL, nebo celé URL; výsledné adresy se zobrazují pod poli), **Parametr max. tokenů** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – zvol podle toho, co daný server očekává) a volitelné **Vlastní hlavičky** (extra HTTP hlavičky odeslané s každým požadavkem – pro autentizaci, směrování API nebo specifické požadavky serveru). **Aktualizovat modely** načte seznam modelů z endpointu `/models` na daném serveru (funguje s Ollama, LM Studio a většinou OpenAI-compatible serverů); ruční zadání modelu v akci zůstává vždy dostupné. Poskytovatele lze odebrat tlačítkem smazat; akce používající smazaného poskytovatele se automaticky resetují na OpenAI.
 
 **Filtry modelů** (zobrazené na začátku záložky, protože ovlivňují všechny poskytovatele) – globální filtry platné pro všechny poskytovatele. Seznam **Exclude** skryje každý model, jehož ID obsahuje zadaný řetězec (např. přidání `preview` skryje všechny preview modely). Seznam **Include**, je-li neprázdný, zobrazí jen modely, jejichž ID obsahuje alespoň jeden ze zadaných řetězců. Include má přednost před exclude. Filtry se uplatňují ve výběru modelu v akci i v listu Update Models.
 
@@ -703,12 +703,22 @@ Výběr vlastního modelu: v nastavení akce otevři výběr modelu → vyber �
 
 Aplikace podporuje libovolný počet vlastních poskytovatelů kompatibilních s OpenAI Chat Completions API. Přidej je v **Nastavení → Poskytovatelé** tlačítkem **+**. Každý poskytovatel má nezávislý název, API klíč a konfiguraci.
 
+Požadavky i odpovědi musí být ve formátu OpenAI Chat Completions. **Cesta pro chat** / **Cesta pro modely** pomůže, když server používá formát OpenAI na nestandardních cestách, ale nezprovozní jiný formát API (např. nativní Ollama `/api/chat`) — v takovém případě použij OpenAI-kompatibilní endpoint serveru. Volba nativního formátu API je evidovaná v [#25](https://github.com/honzabfu/JZLLMContext/issues/25).
+
 **Ollama (lokální modely)**
 ```
 Název:    Ollama
 Base URL: http://localhost:11434/v1
 API klíč: (nechat prázdné)
 Model:    llama3.2, mistral, ...
+```
+
+**Ollama Cloud**
+```
+Název:    Ollama Cloud
+Base URL: https://ollama.com/v1
+API klíč: <tvůj API klíč z ollama.com>
+Model:    gemma4:31b, deepseek-v4.1-flash, ...
 ```
 
 **LM Studio**

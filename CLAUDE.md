@@ -11,6 +11,8 @@ xcodebuild -scheme JZLLMContext -configuration Debug build
 
 Use `/rebuild` to build and relaunch the app, `/release` to publish a new GitHub release.
 
+Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys.
+
 ## Swift 6 strict concurrency
 
 All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must satisfy the compiler — no `@unchecked Sendable` shortcuts without a clear reason.
@@ -24,6 +26,10 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 ## Providers
 
 `OpenAIProvider` omits the `temperature` parameter for o-series reasoning models (model id matching `^o\d`) — they reject non-default values with HTTP 400. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
+
+Custom (OpenAI-compatible) provider URLs are built only by `CustomProvider.chatURL` / `modelsURL` (`AppConfig.swift`): `baseURL` + optional `chatPath`/`modelsPath` override (relative, or absolute http(s) URL) + `?api-version=` on chat only. `ProviderFactory`, `ConnectionTester`, `ModelFetcher` and the settings preview all use them — don't reintroduce local URL concatenation. Only the OpenAI request/response format is supported; a native API format picker is planned in issue #25.
+
+`Info.plist` sets `NSAppTransportSecurity` → `NSAllowsLocalNetworking` so custom providers on the LAN (LM Studio, Ollama on another machine) work over plain HTTP; public hosts still require HTTPS.
 
 ## Localization
 
