@@ -202,8 +202,7 @@ enum ModelFetcher {
 
     private static func fetchCustomOpenAI(provider: ProviderType, config cp: CustomProvider) async throws -> [FetchedModel] {
         guard !cp.baseURL.isEmpty else { throw ModelFetchError.missingBaseURL }
-        let base = cp.baseURL.hasSuffix("/") ? String(cp.baseURL.dropLast()) : cp.baseURL
-        guard let url = URL(string: "\(base)/models") else {
+        guard let url = cp.modelsURL else {
             throw ModelFetchError.invalidResponse
         }
         var request = URLRequest(url: url)

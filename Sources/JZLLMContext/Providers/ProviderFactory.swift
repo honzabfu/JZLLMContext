@@ -76,7 +76,7 @@ enum ProviderFactory {
                 throw LLMError.missingAPIKey(provider)
             }
             let apiKey = (try? KeychainStore.load(for: provider)) ?? ""
-            let chatURL = try customChatURL(baseURLStr: cp.baseURL, apiVersion: cp.apiVersion, provider: provider)
+            guard let chatURL = cp.chatURL else { throw LLMError.missingAPIKey(provider) }
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
                                   authStyle: .bearer, temperature: action.temperature,
                                   maxTokens: action.maxTokens, tokenParamStyle: cp.tokenParamStyle,
@@ -84,21 +84,6 @@ enum ProviderFactory {
         }
 
         throw LLMError.missingAPIKey(provider)
-    }
-
-    private static func customChatURL(baseURLStr: String, apiVersion: String?, provider: ProviderType) throws -> URL {
-        var base = baseURLStr.hasSuffix("/") ? String(baseURLStr.dropLast()) : baseURLStr
-        if !base.hasSuffix("/chat/completions") {
-            base += "/chat/completions"
-        }
-        if let version = apiVersion, !version.isEmpty {
-            var components = URLComponents(string: base)
-            components?.queryItems = [URLQueryItem(name: "api-version", value: version)]
-            guard let url = components?.url else { throw LLMError.missingAPIKey(provider) }
-            return url
-        }
-        guard let url = URL(string: base) else { throw LLMError.missingAPIKey(provider) }
-        return url
     }
 
     private static func azureChatURL(deploymentBase: String, legacyDeployment: String?, apiVersion: String,

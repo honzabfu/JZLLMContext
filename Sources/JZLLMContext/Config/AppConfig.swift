@@ -76,6 +76,10 @@ struct CustomProvider: Codable, Identifiable, Sendable {
     var name: String
     var baseURL: String
     var apiVersion: String?
+    /// Overrides the default `chat/completions` path — relative to `baseURL`, or an absolute http(s) URL.
+    var chatPath: String?
+    /// Overrides the default `models` path — relative to `baseURL`, or an absolute http(s) URL.
+    var modelsPath: String?
     var tokenParamStyle: TokenParamStyle
     var requiresAPIKey: Bool
     var customHeaders: [String: String]
@@ -85,6 +89,8 @@ struct CustomProvider: Codable, Identifiable, Sendable {
         name: String,
         baseURL: String,
         apiVersion: String? = nil,
+        chatPath: String? = nil,
+        modelsPath: String? = nil,
         tokenParamStyle: TokenParamStyle = .maxTokens,
         requiresAPIKey: Bool = false,
         customHeaders: [String: String] = [:]
@@ -93,9 +99,55 @@ struct CustomProvider: Codable, Identifiable, Sendable {
         self.name = name
         self.baseURL = baseURL
         self.apiVersion = apiVersion
+        self.chatPath = chatPath
+        self.modelsPath = modelsPath
         self.tokenParamStyle = tokenParamStyle
         self.requiresAPIKey = requiresAPIKey
         self.customHeaders = customHeaders
+    }
+}
+
+extension CustomProvider {
+    static let defaultChatPath = "chat/completions"
+    static let defaultModelsPath = "models"
+
+    /// Chat endpoint: `baseURL` + `chatPath` (default `chat/completions`), plus `?api-version=` when set.
+    /// A `baseURL` that already ends in `/chat/completions` is used as-is when no override is given.
+    var chatURL: URL? {
+        guard let url = Self.resolve(base: trimmedBase, path: chatPath, defaultPath: Self.defaultChatPath) else {
+            return nil
+        }
+        guard let version = apiVersion, !version.isEmpty,
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url }
+        components.queryItems = (components.queryItems ?? []) + [URLQueryItem(name: "api-version", value: version)]
+        return components.url
+    }
+
+    /// Models endpoint: `baseURL` + `modelsPath` (default `models`).
+    var modelsURL: URL? {
+        Self.resolve(base: trimmedBase, path: modelsPath, defaultPath: Self.defaultModelsPath)
+    }
+
+    /// `baseURL` without a trailing slash and without a pasted-in `/chat/completions` suffix.
+    private var trimmedBase: String {
+        var base = baseURL.trimmingCharacters(in: .whitespaces)
+        while base.hasSuffix("/") { base.removeLast() }
+        if base.hasSuffix("/" + Self.defaultChatPath) {
+            base.removeLast(Self.defaultChatPath.count + 1)
+        }
+        return base
+    }
+
+    private static func resolve(base: String, path: String?, defaultPath: String) -> URL? {
+        let override = path?.trimmingCharacters(in: .whitespaces) ?? ""
+        let lower = override.lowercased()
+        if lower.hasPrefix("http://") || lower.hasPrefix("https://") {
+            return URL(string: override)
+        }
+        guard !base.isEmpty else { return nil }
+        var relative = override.isEmpty ? defaultPath : override
+        while relative.hasPrefix("/") { relative.removeFirst() }
+        return URL(string: relative.isEmpty ? base : "\(base)/\(relative)")
     }
 }
 

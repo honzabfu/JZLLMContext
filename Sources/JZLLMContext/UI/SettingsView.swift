@@ -850,14 +850,15 @@ struct SettingsView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                customPathRow(L("settings.providers.custom.chat_path"),
+                              path: cp.chatPath, defaultPath: CustomProvider.defaultChatPath)
+                customPathRow(L("settings.providers.custom.models_path"),
+                              path: cp.modelsPath, defaultPath: CustomProvider.defaultModelsPath)
                 LabeledContent(L("settings.providers.custom.effective_url")) {
-                    Text(effectiveChatURL(baseURL: cp.wrappedValue.baseURL, apiVersion: cp.wrappedValue.apiVersion))
-                        .monospaced()
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                        .lineLimit(1)
-                        .truncationMode(.middle)
+                    effectiveURLText(cp.wrappedValue.chatURL)
+                }
+                LabeledContent(L("settings.providers.custom.effective_models_url")) {
+                    effectiveURLText(cp.wrappedValue.modelsURL)
                 }
                 Picker(L("settings.providers.token_param"), selection: cp.tokenParamStyle) {
                     ForEach(TokenParamStyle.allCases, id: \.self) { style in
@@ -1205,18 +1206,34 @@ struct SettingsView: View {
         }
     }
 
-    private func effectiveChatURL(baseURL: String, apiVersion: String?) -> String {
-        guard !baseURL.isEmpty else { return "—" }
-        var base = baseURL.hasSuffix("/") ? String(baseURL.dropLast()) : baseURL
-        if !base.hasSuffix("/chat/completions") {
-            base += "/chat/completions"
+    /// Optional endpoint path override for a custom provider; an empty field falls back to `defaultPath`.
+    private func customPathRow(_ label: String, path: Binding<String?>, defaultPath: String) -> some View {
+        LabeledContent(label) {
+            VStack(alignment: .leading, spacing: 2) {
+                TextField(defaultPath, text: Binding(
+                    get: { path.wrappedValue ?? "" },
+                    set: { path.wrappedValue = $0.trimmingCharacters(in: .whitespaces).isEmpty ? nil : $0 }
+                ))
+                .multilineTextAlignment(.leading)
+                .onChange(of: path.wrappedValue) { _, _ in
+                    ConfigStore.shared.update { $0.customProviders = config.customProviders }
+                }
+                Text(L("settings.providers.custom.path_hint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        if let version = apiVersion, !version.isEmpty {
-            var components = URLComponents(string: base)
-            components?.queryItems = [URLQueryItem(name: "api-version", value: version)]
-            return components?.url?.absoluteString ?? base
-        }
-        return base
+    }
+
+    private func effectiveURLText(_ url: URL?) -> some View {
+        Text(url?.absoluteString ?? "—")
+            .monospaced()
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .textSelection(.enabled)
+            .lineLimit(1)
+            .truncationMode(.middle)
     }
 
     // MARK: - Helpers

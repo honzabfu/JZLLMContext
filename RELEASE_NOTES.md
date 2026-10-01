@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Unreleased
+- Settings: custom providers can override the chat and models endpoint paths (relative to Base URL or a full URL); the effective models URL is shown alongside the chat URL
+- Fix: "Update models" for a custom provider whose Base URL ends in `/chat/completions` queried a wrong URL — it now strips the suffix like "Test connection" does
 
 ## v0.69 – 2026-09-29
 - Dev: local Debug builds now sign with a stable Apple Development identity instead of ad-hoc, so Keychain no longer re-prompts for the login password after every rebuild (distributed release build is unchanged — still unsigned)

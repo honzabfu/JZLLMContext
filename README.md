@@ -154,7 +154,7 @@ Each provider is a collapsible section — collapsed by default for a compact ov
 
 **Azure AI (slot 1 and slot 2)** – each slot represents one deployment in Azure AI Foundry. Enter the API key, Deployment URL, and API version.
 
-**Custom OpenAI-compatible providers** – any number of custom providers compatible with the OpenAI Chat Completions API. Add a provider with the **+** button and configure: provider name (used in the action picker and all UI), Base URL, optionally an API key (leave empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), the **Max tokens parameter** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – select based on what the server expects), and optional **Custom Headers** (extra HTTP headers sent with every request – useful for authentication headers, API routing, or service-specific requirements). **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available. Providers can be removed with the delete button; actions using the deleted provider are automatically reset to OpenAI.
+**Custom OpenAI-compatible providers** – any number of custom providers compatible with the OpenAI Chat Completions API. Add a provider with the **+** button and configure: provider name (used in the action picker and all UI), Base URL, optionally an API key (leave empty for local models), optionally an **API version** (appends `?api-version=…` to the URL), optional **Chat path** / **Models path** overrides (replace the default `chat/completions` / `models` paths — relative to the Base URL or a full URL; the resulting URLs are shown below the fields), the **Max tokens parameter** (`max_tokens`, `max_completion_tokens`, `max_output_tokens`, `max_new_tokens` – select based on what the server expects), and optional **Custom Headers** (extra HTTP headers sent with every request – useful for authentication headers, API routing, or service-specific requirements). **Update Models** fetches the model list from the server's `/models` endpoint (compatible with Ollama, LM Studio, and most OpenAI-compatible servers); manual model entry per action always remains available. Providers can be removed with the delete button; actions using the deleted provider are automatically reset to OpenAI.
 
 **Model Filters** (shown at the top of the tab, since they affect every provider) – global filters that apply across all providers. The **Exclude** list hides any model whose ID contains one of the specified strings (e.g. adding `preview` hides all preview models). The **Include** list, when non-empty, shows only models whose ID contains at least one of the specified strings. Include takes priority over exclude. Filters apply in the action model picker and in the Update Models sheet.
 
@@ -183,12 +183,22 @@ To use a custom model: in the action settings, open the model picker → select 
 
 The app supports any number of custom providers compatible with the OpenAI Chat Completions API. Add them in **Settings → Providers** using the **+** button. Each provider has an independent name, API key, and configuration.
 
+Requests and responses must use the OpenAI Chat Completions format. The **Chat path** / **Models path** overrides help when a server uses the OpenAI format at non-standard paths, but they do not make a different API format work (e.g. the native Ollama `/api/chat` API) — use the server's OpenAI-compatible endpoint instead. Native API format selection is tracked in [#25](https://github.com/honzabfu/JZLLMContext/issues/25).
+
 **Ollama (local models)**
 ```
 Name:     Ollama
 Base URL: http://localhost:11434/v1
 API key:  (leave empty)
 Model:    llama3.2, mistral, ...
+```
+
+**Ollama Cloud**
+```
+Name:     Ollama Cloud
+Base URL: https://ollama.com/v1
+API key:  <your ollama.com API key>
+Model:    gemma4:31b, deepseek-v4.1-flash, ...
 ```
 
 **LM Studio**

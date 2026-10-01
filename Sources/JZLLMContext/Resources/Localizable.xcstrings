@@ -796,6 +796,41 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "URL efectiva" } }
       }
     },
+    "settings.providers.custom.chat_path" : {
+      "comment" : "Row label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cesta pro chat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Chat path" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ruta de chat" } }
+      }
+    },
+    "settings.providers.custom.models_path" : {
+      "comment" : "Row label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cesta pro modely" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Models path" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ruta de modelos" } }
+      }
+    },
+    "settings.providers.custom.path_hint" : {
+      "comment" : "Hint under the custom provider endpoint path override fields",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "volitelné, relativně k Base URL nebo celé URL" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "optional, relative to Base URL or a full URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "opcional, relativa a la URL base o una URL completa" } }
+      }
+    },
+    "settings.providers.custom.effective_models_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Výsledné URL modelů" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Effective models URL" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "URL efectiva de modelos" } }
+      }
+    },
     "settings.providers.token_param" : {
       "extractionState" : "manual",
       "localizations" : {

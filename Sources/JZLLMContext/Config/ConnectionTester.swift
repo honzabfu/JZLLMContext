@@ -104,11 +104,7 @@ enum ConnectionTester {
         guard !cp.baseURL.isEmpty else {
             throw LLMError.missingAPIKey(provider)
         }
-        var base = cp.baseURL.hasSuffix("/") ? String(cp.baseURL.dropLast()) : cp.baseURL
-        if base.hasSuffix("/chat/completions") {
-            base = String(base.dropLast("/chat/completions".count))
-        }
-        guard let modelsURL = URL(string: "\(base)/models") else {
+        guard let modelsURL = cp.modelsURL else {
             throw LLMError.missingAPIKey(provider)
         }
         var req = URLRequest(url: modelsURL)
