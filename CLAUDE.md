@@ -29,6 +29,8 @@ Cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) never receive `temperat
 
 Stream parsers must surface why a response ended: OpenAI `finish_reason` `length` / Anthropic `stop_reason` `max_tokens` → `LLMError.truncated` (thrown after the partial text was yielded; `ActionEngine` keeps the text and sets `warningMessage` instead of completing the run, so no history entry and no auto copy & close), `content_filter` / `refusal` → `.refused`, an in-stream error chunk/event → `.streamError`. Request `timeoutInterval` is 180 s (idle) because reasoning models don't stream their thinking.
 
+`Action.reasoningEffort` (`nil` = not sent) goes out as `reasoning_effort` (OpenAI-compatible) or `output_config.effort` (Anthropic). Levels per provider come from `ReasoningEffort.options(for:)` — no `off` for Anthropic/Gemini, none for Grok; `ProviderFactory` passes `Action.effectiveReasoningEffort`, which drops a level the provider doesn't offer. The `off` case encodes as `"none"` (named `off` to avoid clashing with `Optional.none`).
+
 Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
 
 Custom (OpenAI-compatible) provider URLs are built only by `CustomProvider.chatURL` / `modelsURL` (`AppConfig.swift`): `baseURL` + optional `chatPath`/`modelsPath` override (relative, or absolute http(s) URL) + `?api-version=` on chat only. `ProviderFactory`, `ConnectionTester`, `ModelFetcher` and the settings preview all use them — don't reintroduce local URL concatenation. Only the OpenAI request/response format is supported; a native API format picker is planned in issue #25.

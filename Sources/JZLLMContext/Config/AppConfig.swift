@@ -431,7 +431,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Traducir al español",
                     systemPrompt: "Traduce el siguiente texto al español. Responde solo con la traducción.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    reasoningEffort: .low
                 ),
                 Action(
                     name: "Reescribir + gramática",
@@ -451,7 +452,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Preparar respuesta",
                     systemPrompt: "Escribe una respuesta breve y profesional al siguiente mensaje.\nEstilo: neutral, cortés\nLongitud: corta",
-                    provider: .openai, model: "gpt-5.5", enabled: true
+                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    reasoningEffort: .low
                 )
             ]
         case "en":
@@ -459,7 +461,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Translate to English",
                     systemPrompt: "Translate the following text to English. Reply with the translation only.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    reasoningEffort: .low
                 ),
                 Action(
                     name: "Rewrite + Grammar",
@@ -479,7 +482,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Draft a Reply",
                     systemPrompt: "Write a brief and professional reply to the following message.\nStyle: neutral, polite\nLength: short",
-                    provider: .openai, model: "gpt-5.5", enabled: true
+                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    reasoningEffort: .low
                 )
             ]
         default: // cs
@@ -487,7 +491,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Přeložit do češtiny",
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    reasoningEffort: .low
                 ),
                 Action(
                     name: "Přepsat + gramatika",
@@ -507,7 +512,8 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Připrav odpověď",
                     systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý\nDélka: krátká",
-                    provider: .openai, model: "gpt-5.5", enabled: true
+                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    reasoningEffort: .low
                 )
             ]
         }
@@ -526,6 +532,8 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
     /// `nil` = model default, parameter is not sent. Only custom providers ever
     /// receive it — see `effectiveTemperature`.
     var temperature: Double?
+    /// `nil` = model default, parameter is not sent. See `effectiveReasoningEffort`.
+    var reasoningEffort: ReasoningEffort?
     var maxTokens: Int
     var autoCopyClose: AutoCopyClose
     var isDefault: Bool
@@ -538,6 +546,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         model: String,
         enabled: Bool,
         temperature: Double? = nil,
+        reasoningEffort: ReasoningEffort? = nil,
         maxTokens: Int = Action.defaultMaxTokens,
         autoCopyClose: AutoCopyClose = .useGlobal,
         isDefault: Bool = false,
@@ -550,6 +559,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         self.model = model
         self.enabled = enabled
         self.temperature = temperature
+        self.reasoningEffort = reasoningEffort
         self.maxTokens = maxTokens
         self.autoCopyClose = autoCopyClose
         self.isDefault = isDefault
@@ -565,6 +575,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         model           = try c.decode(String.self, forKey: .model)
         enabled         = try c.decode(Bool.self, forKey: .enabled)
         temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature)
+        reasoningEffort = try? c.decodeIfPresent(ReasoningEffort.self, forKey: .reasoningEffort)
         maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? Action.defaultMaxTokens
         autoCopyClose   = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
         isDefault       = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
@@ -578,6 +589,41 @@ extension Action {
     /// or silently ignore it. Custom providers get it only when explicitly set.
     var effectiveTemperature: Double? {
         provider.isCustom ? temperature : nil
+    }
+
+    /// Reasoning effort actually sent — `nil` when unset or not offered for the
+    /// provider (e.g. left over after switching providers).
+    var effectiveReasoningEffort: ReasoningEffort? {
+        guard let reasoningEffort, ReasoningEffort.options(for: provider).contains(reasoningEffort) else { return nil }
+        return reasoningEffort
+    }
+}
+
+/// Sent as `reasoning_effort` (OpenAI-compatible) or `output_config.effort` (Anthropic).
+enum ReasoningEffort: String, Codable, CaseIterable, Sendable {
+    case off = "none"   // named `off` to avoid confusion with Optional.none
+    case low
+    case medium
+    case high
+
+    var displayName: String {
+        switch self {
+        case .off:    L("reasoning.off")
+        case .low:    L("reasoning.low")
+        case .medium: L("reasoning.medium")
+        case .high:   L("reasoning.high")
+        }
+    }
+
+    /// Levels offered per provider. Anthropic and Gemini 3 can't turn reasoning off
+    /// (`none`); Gemini 3.8 Flash rejects `minimal`, so it isn't offered at all.
+    /// Grok reasoning models don't accept the parameter.
+    static func options(for provider: ProviderType) -> [ReasoningEffort] {
+        switch provider {
+        case .anthropic, .gemini: [.low, .medium, .high]
+        case .grok:               []
+        default:                  [.off, .low, .medium, .high]
+        }
     }
 }
 

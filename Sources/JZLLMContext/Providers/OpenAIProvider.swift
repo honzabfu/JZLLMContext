@@ -11,6 +11,7 @@ struct OpenAIProvider: LLMProvider {
     let chatURL: URL
     let authStyle: OpenAIAuthStyle
     let temperature: Double?
+    let reasoningEffort: ReasoningEffort?
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
     let extraHeaders: [String: String]
@@ -19,7 +20,7 @@ struct OpenAIProvider: LLMProvider {
          baseURL: URL = URL(string: "https://api.openai.com/v1")!,
          chatURL: URL? = nil,
          authStyle: OpenAIAuthStyle = .bearer,
-         temperature: Double? = nil, maxTokens: Int = 4096,
+         temperature: Double? = nil, reasoningEffort: ReasoningEffort? = nil, maxTokens: Int = 4096,
          tokenParamStyle: TokenParamStyle = .maxCompletionTokens,
          extraHeaders: [String: String] = [:]) {
         self.model = model
@@ -27,6 +28,7 @@ struct OpenAIProvider: LLMProvider {
         self.chatURL = chatURL ?? baseURL.appendingPathComponent("chat/completions")
         self.authStyle = authStyle
         self.temperature = temperature
+        self.reasoningEffort = reasoningEffort
         self.maxTokens = maxTokens
         self.tokenParamStyle = tokenParamStyle
         self.extraHeaders = extraHeaders
@@ -57,6 +59,7 @@ struct OpenAIProvider: LLMProvider {
                             .init(role: "user", content: userContent)
                         ],
                         temperature: temperature,
+                        reasoningEffort: reasoningEffort,
                         maxTokens: maxTokens,
                         tokenParamStyle: tokenParamStyle
                     )
@@ -79,6 +82,10 @@ struct OpenAIProvider: LLMProvider {
                         if http.statusCode == 400, temperature != nil,
                            message.localizedCaseInsensitiveContains("temperature") {
                             message += "\n" + L("error.hint.disable_temperature")
+                        }
+                        if http.statusCode == 400, reasoningEffort != nil,
+                           message.localizedCaseInsensitiveContains("reasoning") {
+                            message += "\n" + L("error.hint.reset_reasoning")
                         }
                         continuation.finish(throwing: LLMError.httpError(http.statusCode, message))
                         return
@@ -124,6 +131,7 @@ private struct OpenAIChatRequest: Encodable {
     let model: String
     let messages: [Message]
     let temperature: Double?
+    let reasoningEffort: ReasoningEffort?
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
     let stream: Bool = true
@@ -137,6 +145,9 @@ private struct OpenAIChatRequest: Encodable {
         try c.encode(messages,    forKey: .init("messages"))
         if let temperature {
             try c.encode(temperature, forKey: .init("temperature"))
+        }
+        if let reasoningEffort {
+            try c.encode(reasoningEffort, forKey: .init("reasoning_effort"))
         }
         try c.encode(stream,      forKey: .init("stream"))
         try c.encode(maxTokens,   forKey: .init(tokenParamStyle.parameterName))

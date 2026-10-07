@@ -1504,6 +1504,10 @@ private struct ActionDetailEditor: View {
                     }
                 }
                 .onChange(of: action.provider) {
+                    if let effort = action.reasoningEffort,
+                       !ReasoningEffort.options(for: action.provider).contains(effort) {
+                        action.reasoningEffort = nil
+                    }
                     let presets = action.provider.effectiveModels()
                     if presets.isEmpty {
                         action.model = ""
@@ -1545,6 +1549,16 @@ private struct ActionDetailEditor: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                }
+                let effortOptions = ReasoningEffort.options(for: action.provider)
+                if !effortOptions.isEmpty {
+                    Picker(L("action.row.reasoning"), selection: $action.reasoningEffort) {
+                        Text(L("reasoning.default")).tag(nil as ReasoningEffort?)
+                        ForEach(effortOptions, id: \.self) { effort in
+                            Text(effort.displayName).tag(ReasoningEffort?.some(effort))
+                        }
+                    }
+                    .help(L("action.row.help.reasoning"))
                 }
                 LabeledContent(L("action.row.max_tokens")) {
                     HStack {

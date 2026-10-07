@@ -81,6 +81,7 @@ struct ActionDetailSheet: View {
             labeledValue(L("action.detail.label.provider"), action.provider.displayName)
             labeledValue(L("action.detail.label.model"), action.model)
             labeledValue(L("action.detail.label.temperature"), action.effectiveTemperature.map { String(format: "%.1f", $0) } ?? "—")
+            labeledValue(L("action.row.reasoning"), action.effectiveReasoningEffort?.displayName ?? "—")
             labeledValue(L("action.detail.label.max_tokens"), "\(action.maxTokens)")
         }
     }
