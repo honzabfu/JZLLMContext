@@ -390,6 +390,17 @@ struct AppConfig: Codable, Sendable {
             }
             schemaVersion = 3
         }
+
+        // Migrate schemaVersion 3 → 4: reasoning models spend part of max_tokens on
+        // thinking, so the old 2048 default left results truncated or empty
+        if schemaVersion < 4 {
+            actions = actions.map { action in
+                var a = action
+                if a.maxTokens == 2048 { a.maxTokens = Action.defaultMaxTokens }
+                return a
+            }
+            schemaVersion = 4
+        }
     }
 
     static var `default`: AppConfig { makeDefault() }
@@ -405,7 +416,7 @@ struct AppConfig: Codable, Sendable {
         case .es: code = "es"
         }
         return AppConfig(
-            schemaVersion: 3,
+            schemaVersion: 4,
             hotkeyKeyCode: Int(kVK_Space),
             hotkeyModifiers: Int(cmdKey | shiftKey),
             actions: defaultActions(forLang: code),
@@ -504,6 +515,8 @@ struct AppConfig: Codable, Sendable {
 }
 
 struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
+    static let defaultMaxTokens = 8192
+
     var id: UUID
     var name: String
     var systemPrompt: String
@@ -525,7 +538,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         model: String,
         enabled: Bool,
         temperature: Double? = nil,
-        maxTokens: Int = 2048,
+        maxTokens: Int = Action.defaultMaxTokens,
         autoCopyClose: AutoCopyClose = .useGlobal,
         isDefault: Bool = false,
         ignoreClipboard: Bool = false
@@ -552,7 +565,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         model           = try c.decode(String.self, forKey: .model)
         enabled         = try c.decode(Bool.self, forKey: .enabled)
         temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature)
-        maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 2048
+        maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? Action.defaultMaxTokens
         autoCopyClose   = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
         isDefault       = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
         ignoreClipboard = try c.decodeIfPresent(Bool.self, forKey: .ignoreClipboard) ?? false

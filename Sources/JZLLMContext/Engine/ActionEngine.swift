@@ -6,6 +6,8 @@ final class ActionEngine: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var lastError: Error?
+    /// Non-fatal problem shown alongside a partial result (e.g. token limit reached).
+    @Published var warningMessage: String?
     /// Changes only when a run finishes successfully — never on cancel or error.
     @Published private(set) var completedRunID: UUID?
 
@@ -17,6 +19,7 @@ final class ActionEngine: ObservableObject {
         isLoading = true
         errorMessage = nil
         lastError = nil
+        warningMessage = nil
         result = ""
         let runID = UUID()
         activeRunID = runID
@@ -44,6 +47,11 @@ final class ActionEngine: ObservableObject {
                 return
             } catch let urlError as URLError where urlError.code == .cancelled {
                 return
+            } catch LLMError.truncated(let maxTokens) where !result.isEmpty {
+                // Keep the partial text but don't treat it as a completed run:
+                // no history entry, no auto copy & close
+                guard activeRunID == runID else { return }
+                warningMessage = LLMError.truncated(maxTokens: maxTokens).localizedDescription
             } catch {
                 guard activeRunID == runID else { return }
                 lastError = error
@@ -64,6 +72,7 @@ final class ActionEngine: ObservableObject {
         result = ""
         errorMessage = nil
         lastError = nil
+        warningMessage = nil
         completedRunID = nil
     }
 
@@ -71,5 +80,6 @@ final class ActionEngine: ObservableObject {
         cancel()
         result = text
         errorMessage = nil
+        warningMessage = nil
     }
 }

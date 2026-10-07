@@ -397,7 +397,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "ignoreClipboard": false,
       "isDefault": false,
-      "maxTokens": 2048,
+      "maxTokens": 8192,
       "model": "gpt-5.5",
       "name": "Action name",
       "provider": "openai",
@@ -441,7 +441,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 3
+  "schemaVersion": 4
 }
 ```
 
@@ -461,7 +461,7 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`,
 | Azure AI (slot 2) | same as slot 1, different config | — | Independent slot for a second deployment |
 | Custom provider (any) | `{baseURL}/chat/completions` | 0.0–2.0 (opt-in) | OpenAI Chat Completions protocol; API key, API version, and custom headers are all optional; supports Ollama, LM Studio, OpenRouter, Together AI, etc. |
 
-All HTTP requests time out after **60 seconds**. Cloud providers never receive a `temperature` parameter — newer reasoning models (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) reject it with HTTP 400 or ignore it. Custom providers receive it only when *Set temperature* is enabled for the action; if the model behind them rejects it, the error message suggests turning it off.
+All HTTP requests time out after **180 seconds** of inactivity (reasoning models may think for over a minute before the first text arrives). A response cut off by the token limit keeps the partial text with a warning (it is neither saved to history nor auto-copied); a refusal, content-filter stop or an error reported mid-stream is shown as an error. Cloud providers never receive a `temperature` parameter — newer reasoning models (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) reject it with HTTP 400 or ignore it. Custom providers receive it only when *Set temperature* is enabled for the action; if the model behind them rejects it, the error message suggests turning it off.
 
 #### OCR Pipeline
 
@@ -503,7 +503,7 @@ You are a document analyst. Process the provided content and return:
 Adapt the output structure to the document type.
 ```
 
-Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 2048. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
+Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 8192. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
 
 #### Global Shortcut
 
@@ -914,7 +914,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "ignoreClipboard": false,
       "isDefault": false,
-      "maxTokens": 2048,
+      "maxTokens": 8192,
       "model": "gpt-5.5",
       "name": "Název akce",
       "provider": "openai",
@@ -947,7 +947,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 3
+  "schemaVersion": 4
 }
 ```
 
@@ -967,7 +967,7 @@ Poskytovatel se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"g
 | Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | — | Nezávislý slot pro druhý deployment |
 | Vlastní poskytovatel (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 (volitelně) | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
 
-Timeout všech HTTP požadavků: **60 sekund**. Cloudoví poskytovatelé parametr `temperature` nedostávají nikdy – novější reasoning modely (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) ho odmítají s HTTP 400 nebo ignorují. Vlastní poskytovatelé ho dostanou jen při zapnutém *Nastavit teplotu* u akce; pokud ho model za nimi odmítne, chybová hláška doporučí teplotu vypnout.
+Timeout všech HTTP požadavků: **180 sekund** nečinnosti (reasoning modely mohou před prvním textem uvažovat přes minutu). Odpověď useknutá limitem tokenů zůstane zobrazená s varováním (neukládá se do historie ani se automaticky nekopíruje); odmítnutí, zastavení filtrem obsahu nebo chyba hlášená uprostřed streamu se zobrazí jako chyba. Cloudoví poskytovatelé parametr `temperature` nedostávají nikdy – novější reasoning modely (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) ho odmítají s HTTP 400 nebo ignorují. Vlastní poskytovatelé ho dostanou jen při zapnutém *Nastavit teplotu* u akce; pokud ho model za nimi odmítne, chybová hláška doporučí teplotu vypnout.
 
 #### OCR pipeline
 
@@ -1009,7 +1009,7 @@ Jsi analytik dokumentů. Zpracuj přiložený obsah a vrať:
 Přizpůsob strukturu výstupu typu dokumentu.
 ```
 
-Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 2048. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
+Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 8192. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
 
 #### Globální zkratka
 
