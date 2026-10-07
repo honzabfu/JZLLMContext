@@ -137,7 +137,7 @@ Manage the actions shown in the overlay panel. The tab uses a master–detail la
 - **Default action** – toggle in the editor marks the action triggered by pressing Enter in the context field; only one action can be marked at a time (↩ in the list)
 - **System prompt** – instructions for the LLM with a large editor field; clipboard content is sent as the user message
 - **Provider and model** – select provider and model (see [Custom Models](#custom-models))
-- **Parameters** – temperature (slider 0.0–2.0; default 0.7), max. tokens (maximum response length), Copy & Close (per-action override of the global setting: *Use global setting* / *Always* / *Never*), and Ignore clipboard (the action always runs without clipboard content; only the additional context field is sent as input)
+- **Parameters** – temperature (custom providers only, opt-in via *Set temperature*, slider 0.0–2.0; cloud providers always use the model's default), max. tokens (maximum response length), Copy & Close (per-action override of the global setting: *Use global setting* / *Always* / *Never*), and Ignore clipboard (the action always runs without clipboard content; only the additional context field is sent as input)
 - **Reordering** – drag & drop in the list to change the order
 - **Delete** – button at the bottom of the editor with a confirmation dialog
 - **Import/export actions** – share or back up actions as JSON
@@ -269,7 +269,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
 - **File drag & drop** – drag files directly onto the overlay panel; PDF (PDFKit), images (OCR), structured documents (DOCX/RTF/ODT/HTML via textutil, XLSX/PPTX via embedded XML, iWork formats), and all plain-text formats; maximum 5 MB per file; file content replaces clipboard context
 - **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), unlimited custom OpenAI-compatible providers (Ollama, LM Studio, OpenRouter, …)
-- **Custom actions** – any number of actions with system prompts; each has its own provider, model, temperature, and token limit
+- **Custom actions** – any number of actions with system prompts; each has its own provider, model, token limit and (custom providers only) temperature
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
 - **Custom models** – each provider supports entering any model beyond the predefined list
 - **Keyboard shortcuts** – actions 1–9 can be triggered by pressing the corresponding digit directly in the overlay panel
@@ -401,8 +401,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
       "model": "gpt-5.5",
       "name": "Action name",
       "provider": "openai",
-      "systemPrompt": "System prompt…",
-      "temperature": 0.7
+      "systemPrompt": "System prompt…"
     }
   ],
   "azureDeploymentName": "my-deployment",
@@ -442,7 +441,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 2
+  "schemaVersion": 3
 }
 ```
 
@@ -454,15 +453,15 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`,
 
 | Provider | Endpoint | Temperature | Notes |
 |----------|----------|-------------|-------|
-| OpenAI | `https://api.openai.com/v1/chat/completions` | 0.0–2.0 | Standard Bearer auth |
-| Anthropic | `https://api.anthropic.com/v1/messages` | 0.0–1.0 | Temperature capped at 1.0; `x-api-key` header + `anthropic-version: 2023-06-01` |
-| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
-| xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
-| Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | `api-key: {key}` header; model in body is ignored – model is determined by the deployment |
-| Azure AI (slot 2) | same as slot 1, different config | 0.0–2.0 | Independent slot for a second deployment |
-| Custom provider (any) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protocol; API key, API version, and custom headers are all optional; supports Ollama, LM Studio, OpenRouter, Together AI, etc. |
+| OpenAI | `https://api.openai.com/v1/chat/completions` | — | Standard Bearer auth |
+| Anthropic | `https://api.anthropic.com/v1/messages` | — | `x-api-key` header + `anthropic-version: 2023-06-01` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | — | OpenAI-compatible endpoint; Bearer auth |
+| xAI Grok | `https://api.x.ai/v1/chat/completions` | — | OpenAI-compatible endpoint; Bearer auth |
+| Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | — | `api-key: {key}` header; model in body is ignored – model is determined by the deployment |
+| Azure AI (slot 2) | same as slot 1, different config | — | Independent slot for a second deployment |
+| Custom provider (any) | `{baseURL}/chat/completions` | 0.0–2.0 (opt-in) | OpenAI Chat Completions protocol; API key, API version, and custom headers are all optional; supports Ollama, LM Studio, OpenRouter, Together AI, etc. |
 
-All HTTP requests time out after **60 seconds**. The `temperature` parameter is omitted for o-series reasoning models (model IDs starting with `o1`/`o3`/`o4`), which reject non-default values.
+All HTTP requests time out after **60 seconds**. Cloud providers never receive a `temperature` parameter — newer reasoning models (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) reject it with HTTP 400 or ignore it. Custom providers receive it only when *Set temperature* is enabled for the action; if the model behind them rejects it, the error message suggests turning it off.
 
 #### OCR Pipeline
 
@@ -504,7 +503,7 @@ You are a document analyst. Process the provided content and return:
 Adapt the output structure to the document type.
 ```
 
-Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 2048, temperature 0.3. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
+Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 2048. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
 
 #### Global Shortcut
 
@@ -657,7 +656,7 @@ Správa akcí zobrazovaných v overlay panelu. Záložka používá rozložení 
 - **Výchozí akce** – přepínač v editoru označí akci spouštěnou stiskem Enter v poli kontextu; označit lze vždy jen jednu (↩ v seznamu)
 - **Systémový prompt** – instrukce pro LLM s velkým editačním polem; obsah schránky se posílá jako uživatelská zpráva
 - **Poskytovatel a model** – výběr poskytovatele a modelu (viz [Vlastní modely](#vlastní-modely))
-- **Parametry** – teplota (slider 0.0–2.0; výchozí 0.7), max. tokenů (maximální délka odpovědi), Zkopírovat a zavřít (per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*) a Ignorovat schránku (akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu)
+- **Parametry** – teplota (jen u vlastních poskytovatelů, zapíná se přepínačem *Nastavit teplotu*, slider 0.0–2.0; cloudoví poskytovatelé vždy používají výchozí hodnotu modelu), max. tokenů (maximální délka odpovědi), Zkopírovat a zavřít (per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*) a Ignorovat schránku (akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu)
 - **Přesouvání** – drag & drop v seznamu pro změnu pořadí
 - **Mazání** – tlačítko ve spodní části editoru s potvrzovacím dialogem
 - **Import/export akcí** – sdílení nebo záloha jako JSON
@@ -789,7 +788,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
 - **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX/RTF/ODT/HTML přes textutil, XLSX/PPTX přes vnořené XML, iWork formáty) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
 - **Více poskytovatelů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible poskytovatelů (Ollama, LM Studio, OpenRouter, …)
-- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, teplotu a limit tokenů
+- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, limit tokenů a (jen u vlastních poskytovatelů) teplotu
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
 - **Vlastní modely** – každý poskytovatel podporuje zadání libovolného modelu mimo předdefinovaný seznam
 - **Klávesové zkratky** – akce 1–9 lze spustit stiskem příslušné číslice přímo v overlay panelu
@@ -919,8 +918,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
       "model": "gpt-5.5",
       "name": "Název akce",
       "provider": "openai",
-      "systemPrompt": "Systémový prompt…",
-      "temperature": 0.7
+      "systemPrompt": "Systémový prompt…"
     }
   ],
   "azureDeploymentName": "muj-deployment",
@@ -949,7 +947,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
   "hotkeyKeyCode": 49,
   "hotkeyModifiers": 768,
   "modelPresets": {},
-  "schemaVersion": 2
+  "schemaVersion": 3
 }
 ```
 
@@ -961,15 +959,15 @@ Poskytovatel se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"g
 
 | Poskytovatel | Endpoint | Teplota | Poznámka |
 |----------|----------|---------|----------|
-| OpenAI | `https://api.openai.com/v1/chat/completions` | 0.0–2.0 | Standard Bearer auth |
-| Anthropic | `https://api.anthropic.com/v1/messages` | 0.0–1.0 | Teplota oříznutá na 1.0; header `x-api-key` + `anthropic-version: 2023-06-01` |
-| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
-| xAI Grok | `https://api.x.ai/v1/chat/completions` | 0.0–2.0 | OpenAI-compatible endpoint; Bearer auth |
-| Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | 0.0–2.0 | Header `api-key: {key}`; model v body ignorován – model určuje deployment |
-| Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | 0.0–2.0 | Nezávislý slot pro druhý deployment |
-| Vlastní poskytovatel (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
+| OpenAI | `https://api.openai.com/v1/chat/completions` | — | Standard Bearer auth |
+| Anthropic | `https://api.anthropic.com/v1/messages` | — | Header `x-api-key` + `anthropic-version: 2023-06-01` |
+| Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai/chat/completions` | — | OpenAI-compatible endpoint; Bearer auth |
+| xAI Grok | `https://api.x.ai/v1/chat/completions` | — | OpenAI-compatible endpoint; Bearer auth |
+| Azure AI (slot 1) | `{endpoint}/chat/completions?api-version=...` | — | Header `api-key: {key}`; model v body ignorován – model určuje deployment |
+| Azure AI (slot 2) | totéž jako slot 1, jiná konfigurace | — | Nezávislý slot pro druhý deployment |
+| Vlastní poskytovatel (libovolný) | `{baseURL}/chat/completions` | 0.0–2.0 (volitelně) | OpenAI Chat Completions protokol; API klíč, API verze i vlastní hlavičky jsou volitelné; funguje s Ollama, LM Studio, OpenRouter, Together AI atd. |
 
-Timeout všech HTTP požadavků: **60 sekund**. Parametr `temperature` se vynechává u o-series reasoning modelů (ID modelu začínající `o1`/`o3`/`o4`), které jinou než výchozí hodnotu odmítají.
+Timeout všech HTTP požadavků: **60 sekund**. Cloudoví poskytovatelé parametr `temperature` nedostávají nikdy – novější reasoning modely (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) ho odmítají s HTTP 400 nebo ignorují. Vlastní poskytovatelé ho dostanou jen při zapnutém *Nastavit teplotu* u akce; pokud ho model za nimi odmítne, chybová hláška doporučí teplotu vypnout.
 
 #### OCR pipeline
 
@@ -1011,7 +1009,7 @@ Jsi analytik dokumentů. Zpracuj přiložený obsah a vrať:
 Přizpůsob strukturu výstupu typu dokumentu.
 ```
 
-Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 2048, teplota 0,3. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
+Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 2048. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
 
 #### Globální zkratka
 

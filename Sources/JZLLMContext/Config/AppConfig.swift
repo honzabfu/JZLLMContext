@@ -379,6 +379,17 @@ struct AppConfig: Codable, Sendable {
             customProviders = migrated
             schemaVersion = 2
         }
+
+        // Migrate schemaVersion 2 → 3: cloud providers no longer receive a temperature
+        // (newer models reject or ignore it), so only custom-provider actions keep theirs
+        if schemaVersion < 3 {
+            actions = actions.map { action in
+                var a = action
+                if !a.provider.isCustom { a.temperature = nil }
+                return a
+            }
+            schemaVersion = 3
+        }
     }
 
     static var `default`: AppConfig { makeDefault() }
@@ -394,7 +405,7 @@ struct AppConfig: Codable, Sendable {
         case .es: code = "es"
         }
         return AppConfig(
-            schemaVersion: 2,
+            schemaVersion: 3,
             hotkeyKeyCode: Int(kVK_Space),
             hotkeyModifiers: Int(cmdKey | shiftKey),
             actions: defaultActions(forLang: code),
@@ -409,27 +420,27 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Traducir al español",
                     systemPrompt: "Traduce el siguiente texto al español. Responde solo con la traducción.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
                 ),
                 Action(
                     name: "Reescribir + gramática",
                     systemPrompt: "Reescribe el siguiente texto para que sea más claro y gramaticalmente correcto. Mantén el idioma original. Responde solo con el texto reescrito. No añadas información adicional.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Simplificar y explicar",
                     systemPrompt: "Explica el siguiente texto de forma sencilla para un profesional ocupado.\nSé conciso y céntrate en la comprensión práctica.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Resumir en puntos",
                     systemPrompt: "Resume el siguiente texto en:\n- 3 puntos principales\n- 1 frase resumen corta\n- entidades clave (si las hay)\nNo añadas información adicional.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Preparar respuesta",
                     systemPrompt: "Escribe una respuesta breve y profesional al siguiente mensaje.\nEstilo: neutral, cortés\nLongitud: corta",
-                    provider: .openai, model: "gpt-5.5", enabled: true, temperature: 0.5
+                    provider: .openai, model: "gpt-5.5", enabled: true
                 )
             ]
         case "en":
@@ -437,27 +448,27 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Translate to English",
                     systemPrompt: "Translate the following text to English. Reply with the translation only.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
                 ),
                 Action(
                     name: "Rewrite + Grammar",
                     systemPrompt: "Rewrite the following text to be clearer and grammatically correct. Keep the original language. Reply with the rewritten text only. Do not add any extra information.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Simplify & Explain",
                     systemPrompt: "Explain the following text simply for a busy professional.\nBe concise and focus on practical understanding.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Summarize to Bullets",
                     systemPrompt: "Summarize the following text into:\n- 3 main points\n- 1 short summary sentence\n- key entities (if any)\nDo not add any extra information.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Draft a Reply",
                     systemPrompt: "Write a brief and professional reply to the following message.\nStyle: neutral, polite\nLength: short",
-                    provider: .openai, model: "gpt-5.5", enabled: true, temperature: 0.5
+                    provider: .openai, model: "gpt-5.5", enabled: true
                 )
             ]
         default: // cs
@@ -465,29 +476,27 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Přeložit do češtiny",
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true, temperature: 0.1
+                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true
                 ),
                 Action(
                     name: "Přepsat + gramatika",
                     systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem. Nepřidávej žádné další informace navíc.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Zjednoduš a vysvětli",
                     systemPrompt: "Vysvětli následující text jednoduše pro zaneprázdněného profesionála.\nBuď stručný a zaměř se na praktické pochopení.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.5
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Shrň do odrážek",
                     systemPrompt: "Shrň následující text do:\n- 3 hlavních bodů\n- 1 krátké shrnující věty\n- důležitých entit (pokud existují)\nNepřidávej žádné další informace navíc.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true, temperature: 0.2
+                    provider: .openai, model: "gpt-5.4-mini", enabled: true
                 ),
                 Action(
                     name: "Připrav odpověď",
                     systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý\nDélka: krátká",
-                    provider: .openai, model: "gpt-5.5",
-                    enabled: true,
-                    temperature: 0.5
+                    provider: .openai, model: "gpt-5.5", enabled: true
                 )
             ]
         }
@@ -501,7 +510,9 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
     var provider: ProviderType
     var model: String
     var enabled: Bool
-    var temperature: Double
+    /// `nil` = model default, parameter is not sent. Only custom providers ever
+    /// receive it — see `effectiveTemperature`.
+    var temperature: Double?
     var maxTokens: Int
     var autoCopyClose: AutoCopyClose
     var isDefault: Bool
@@ -513,7 +524,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         provider: ProviderType,
         model: String,
         enabled: Bool,
-        temperature: Double = 0.7,
+        temperature: Double? = nil,
         maxTokens: Int = 2048,
         autoCopyClose: AutoCopyClose = .useGlobal,
         isDefault: Bool = false,
@@ -540,11 +551,20 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         provider        = try c.decode(ProviderType.self, forKey: .provider)
         model           = try c.decode(String.self, forKey: .model)
         enabled         = try c.decode(Bool.self, forKey: .enabled)
-        temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature) ?? 0.7
+        temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature)
         maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? 2048
         autoCopyClose   = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
         isDefault       = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
         ignoreClipboard = try c.decodeIfPresent(Bool.self, forKey: .ignoreClipboard) ?? false
+    }
+}
+
+extension Action {
+    /// Temperature actually sent with the request. Cloud providers never get one:
+    /// newer models (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) reject it with HTTP 400
+    /// or silently ignore it. Custom providers get it only when explicitly set.
+    var effectiveTemperature: Double? {
+        provider.isCustom ? temperature : nil
     }
 }
 

@@ -8,7 +8,7 @@ enum ProviderFactory {
             guard let apiKey = try? KeychainStore.load(for: .openai) else {
                 throw LLMError.missingAPIKey(.openai)
             }
-            return OpenAIProvider(model: action.model, apiKey: apiKey, temperature: action.temperature,
+            return OpenAIProvider(model: action.model, apiKey: apiKey,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         } else if provider == .azureOpenai {
@@ -24,7 +24,7 @@ enum ProviderFactory {
                                            apiVersion: config.azureAPIVersion ?? AppConfig.defaultAzureAPIVersion,
                                            provider: .azureOpenai)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .apiKey, temperature: action.temperature,
+                                  authStyle: .apiKey,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         } else if provider == .azureOpenai2 {
@@ -40,15 +40,14 @@ enum ProviderFactory {
                                            apiVersion: config.azureAPIVersion2 ?? AppConfig.defaultAzureAPIVersion,
                                            provider: .azureOpenai2)
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .apiKey, temperature: action.temperature,
+                                  authStyle: .apiKey,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxCompletionTokens)
 
         } else if provider == .anthropic {
             guard let apiKey = try? KeychainStore.load(for: .anthropic) else {
                 throw LLMError.missingAPIKey(.anthropic)
             }
-            return AnthropicProvider(model: action.model, apiKey: apiKey, temperature: action.temperature,
-                                     maxTokens: action.maxTokens)
+            return AnthropicProvider(model: action.model, apiKey: apiKey, maxTokens: action.maxTokens)
 
         } else if provider == .gemini {
             guard let apiKey = try? KeychainStore.load(for: .gemini) else {
@@ -56,7 +55,7 @@ enum ProviderFactory {
             }
             let chatURL = URL(string: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions")!
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .bearer, temperature: action.temperature,
+                                  authStyle: .bearer,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxTokens)
 
         } else if provider == .grok {
@@ -65,7 +64,7 @@ enum ProviderFactory {
             }
             let chatURL = URL(string: "https://api.x.ai/v1/chat/completions")!
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .bearer, temperature: action.temperature,
+                                  authStyle: .bearer,
                                   maxTokens: action.maxTokens, tokenParamStyle: .maxTokens)
 
         } else if provider.isCustom {
@@ -78,7 +77,7 @@ enum ProviderFactory {
             let apiKey = (try? KeychainStore.load(for: provider)) ?? ""
             guard let chatURL = cp.chatURL else { throw LLMError.missingAPIKey(provider) }
             return OpenAIProvider(model: action.model, apiKey: apiKey, chatURL: chatURL,
-                                  authStyle: .bearer, temperature: action.temperature,
+                                  authStyle: .bearer, temperature: action.effectiveTemperature,
                                   maxTokens: action.maxTokens, tokenParamStyle: cp.tokenParamStyle,
                                   extraHeaders: cp.customHeaders)
         }

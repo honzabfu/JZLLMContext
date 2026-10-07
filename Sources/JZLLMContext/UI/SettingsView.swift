@@ -1524,9 +1524,27 @@ private struct ActionDetailEditor: View {
                     .frame(minHeight: 200, maxHeight: 400)
             }
             Section(L("settings.actions.section.parameters")) {
-                LabeledContent(String(format: L("action.row.temperature"), action.temperature)) {
-                    Slider(value: $action.temperature, in: 0.0...2.0, step: 0.1)
-                        .frame(maxWidth: 220)
+                if action.provider.isCustom {
+                    Toggle(L("action.row.temperature_toggle"), isOn: Binding(
+                        get: { action.temperature != nil },
+                        set: { action.temperature = $0 ? 0.7 : nil }
+                    ))
+                    .help(L("action.row.help.temperature_toggle"))
+                    if let temperature = action.temperature {
+                        LabeledContent(String(format: L("action.row.temperature"), temperature)) {
+                            Slider(value: Binding(
+                                get: { action.temperature ?? temperature },
+                                set: { action.temperature = $0 }
+                            ), in: 0.0...2.0, step: 0.1)
+                                .frame(maxWidth: 220)
+                        }
+                    }
+                } else {
+                    LabeledContent(L("action.detail.label.temperature")) {
+                        Text(L("action.row.temperature_cloud_note"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 LabeledContent(L("action.row.max_tokens")) {
                     HStack {
