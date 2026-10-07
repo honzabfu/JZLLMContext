@@ -650,6 +650,70 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Los proveedores en la nube usan la temperatura predeterminada del modelo" } }
       }
     },
+    "action.row.reasoning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Uvažování" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reasoning" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Razonamiento" } }
+      }
+    },
+    "action.row.help.reasoning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Jak intenzivně model uvažuje před odpovědí. Nižší úroveň = rychlejší a levnější odpověď. Starší modely parametr nemusí podporovat." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "How much the model reasons before answering. Lower = faster and cheaper. Older models may not support this parameter." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuánto razona el modelo antes de responder. Más bajo = más rápido y barato. Los modelos antiguos pueden no admitir este parámetro." } }
+      }
+    },
+    "reasoning.default" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Dle modelu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Model default" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Según el modelo" } }
+      }
+    },
+    "reasoning.off" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vypnuto" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Off" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desactivado" } }
+      }
+    },
+    "reasoning.low" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nízké" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Low" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Bajo" } }
+      }
+    },
+    "reasoning.medium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Střední" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medium" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Medio" } }
+      }
+    },
+    "reasoning.high" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vysoké" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alto" } }
+      }
+    },
+    "error.hint.reset_reasoning" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Model tuto úroveň uvažování nepodporuje – nastav „Uvažování“ u této akce na „Dle modelu“." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The model does not support this reasoning level – set “Reasoning” for this action to “Model default”." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El modelo no admite este nivel de razonamiento: establece «Razonamiento» en esta acción a «Según el modelo»." } }
+      }
+    },
     "error.truncated" : {
       "comment" : "%d = max tokens of the action",
       "extractionState" : "manual",

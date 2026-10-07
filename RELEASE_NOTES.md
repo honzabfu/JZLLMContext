@@ -5,6 +5,7 @@
 - Fix: a response cut off by the token limit, a refusal / content-filter stop, or an error reported mid-stream used to pass silently as a normal (truncated or empty) result — truncation now keeps the partial text with a warning (not saved to history, no auto copy & close) — or, when a reasoning model spent the whole limit on thinking and returned no text, says so explicitly; the others show an error (#26)
 - Default max tokens raised from 2048 to 8192 — reasoning models count their thinking towards the limit; existing actions still on 2048 are migrated (#26)
 - Request idle timeout raised from 60 s to 180 s for reasoning models that think before the first token (#26)
+- Actions: new per-action *Reasoning* setting (model default / off / low / medium / high), sent as `reasoning_effort` (OpenAI, Azure, Gemini, custom) or `output_config.effort` (Anthropic); not offered for Grok. New default "Translate" (Claude Sonnet 4.6) and "Draft a Reply" (GPT-5.5) actions use *Low* for faster answers (#26)
 - Settings: custom providers can override the chat and models endpoint paths (relative to Base URL or a full URL); the effective models URL is shown alongside the chat URL
 - Fix: "Update models" for a custom provider whose Base URL ends in `/chat/completions` queried a wrong URL — it now strips the suffix like "Test connection" does
 

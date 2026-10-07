@@ -137,7 +137,7 @@ Manage the actions shown in the overlay panel. The tab uses a master–detail la
 - **Default action** – toggle in the editor marks the action triggered by pressing Enter in the context field; only one action can be marked at a time (↩ in the list)
 - **System prompt** – instructions for the LLM with a large editor field; clipboard content is sent as the user message
 - **Provider and model** – select provider and model (see [Custom Models](#custom-models))
-- **Parameters** – temperature (custom providers only, opt-in via *Set temperature*, slider 0.0–2.0; cloud providers always use the model's default), max. tokens (maximum response length), Copy & Close (per-action override of the global setting: *Use global setting* / *Always* / *Never*), and Ignore clipboard (the action always runs without clipboard content; only the additional context field is sent as input)
+- **Parameters** – temperature (custom providers only, opt-in via *Set temperature*, slider 0.0–2.0; cloud providers always use the model's default), reasoning (*Model default* / *Off* / *Low* / *Medium* / *High* — sent as `reasoning_effort`, or `output_config.effort` for Anthropic; Anthropic and Gemini don't offer *Off*, Grok hides the option; lower = faster and cheaper), max. tokens (maximum response length), Copy & Close (per-action override of the global setting: *Use global setting* / *Always* / *Never*), and Ignore clipboard (the action always runs without clipboard content; only the additional context field is sent as input)
 - **Reordering** – drag & drop in the list to change the order
 - **Delete** – button at the bottom of the editor with a confirmation dialog
 - **Import/export actions** – share or back up actions as JSON
@@ -656,7 +656,7 @@ Správa akcí zobrazovaných v overlay panelu. Záložka používá rozložení 
 - **Výchozí akce** – přepínač v editoru označí akci spouštěnou stiskem Enter v poli kontextu; označit lze vždy jen jednu (↩ v seznamu)
 - **Systémový prompt** – instrukce pro LLM s velkým editačním polem; obsah schránky se posílá jako uživatelská zpráva
 - **Poskytovatel a model** – výběr poskytovatele a modelu (viz [Vlastní modely](#vlastní-modely))
-- **Parametry** – teplota (jen u vlastních poskytovatelů, zapíná se přepínačem *Nastavit teplotu*, slider 0.0–2.0; cloudoví poskytovatelé vždy používají výchozí hodnotu modelu), max. tokenů (maximální délka odpovědi), Zkopírovat a zavřít (per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*) a Ignorovat schránku (akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu)
+- **Parametry** – teplota (jen u vlastních poskytovatelů, zapíná se přepínačem *Nastavit teplotu*, slider 0.0–2.0; cloudoví poskytovatelé vždy používají výchozí hodnotu modelu), uvažování (*Dle modelu* / *Vypnuto* / *Nízké* / *Střední* / *Vysoké* – posílá se jako `reasoning_effort`, u Anthropic `output_config.effort`; Anthropic a Gemini nenabízejí *Vypnuto*, u Groku je volba skrytá; nižší úroveň = rychlejší a levnější odpověď), max. tokenů (maximální délka odpovědi), Zkopírovat a zavřít (per-akce přepis globálního nastavení: *Dle globálního nastavení* / *Vždy* / *Nikdy*) a Ignorovat schránku (akce se vždy spustí bez obsahu schránky; jako vstup se odešle jen pole doplňkového kontextu)
 - **Přesouvání** – drag & drop v seznamu pro změnu pořadí
 - **Mazání** – tlačítko ve spodní části editoru s potvrzovacím dialogem
 - **Import/export akcí** – sdílení nebo záloha jako JSON

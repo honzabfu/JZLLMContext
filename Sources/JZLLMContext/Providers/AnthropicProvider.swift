@@ -4,6 +4,7 @@ struct AnthropicProvider: LLMProvider {
     let model: String
     let apiKey: String
     let maxTokens: Int
+    let effort: ReasoningEffort?
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
@@ -22,6 +23,7 @@ struct AnthropicProvider: LLMProvider {
                     let body = AnthropicRequest(
                         model: model,
                         maxTokens: maxTokens,
+                        outputConfig: effort.map { .init(effort: $0) },
                         system: systemPrompt,
                         messages: [.init(role: "user", content: userContent)]
                     )
@@ -37,8 +39,13 @@ struct AnthropicProvider: LLMProvider {
                     guard (200..<300).contains(http.statusCode) else {
                         var errorData = Data()
                         for try await byte in bytes { errorData.append(byte) }
-                        let message = (try? JSONDecoder().decode(AnthropicErrorResponse.self, from: errorData))?.error.message
+                        var message = (try? JSONDecoder().decode(AnthropicErrorResponse.self, from: errorData))?.error.message
                             ?? String(data: errorData, encoding: .utf8) ?? ""
+                        // e.g. Claude Haiku 4.5 doesn't support effort
+                        if http.statusCode == 400, effort != nil,
+                           message.localizedCaseInsensitiveContains("effort") {
+                            message += "\n" + L("error.hint.reset_reasoning")
+                        }
                         continuation.finish(throwing: LLMError.httpError(http.statusCode, message))
                         return
                     }
@@ -86,6 +93,7 @@ struct AnthropicProvider: LLMProvider {
 private struct AnthropicRequest: Encodable {
     let model: String
     let maxTokens: Int
+    let outputConfig: OutputConfig?
     let system: String
     let messages: [Message]
     let stream: Bool = true
@@ -93,9 +101,13 @@ private struct AnthropicRequest: Encodable {
         let role: String
         let content: String
     }
+    struct OutputConfig: Encodable {
+        let effort: ReasoningEffort
+    }
     enum CodingKeys: String, CodingKey {
         case model, system, messages, stream
         case maxTokens = "max_tokens"
+        case outputConfig = "output_config"
     }
 }
 
