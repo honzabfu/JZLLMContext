@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Unreleased
+
+## v0.70 – 2026-10-07
 - Model presets updated: OpenAI `gpt-6-sol` (recommended) / `gpt-6-luna` / `gpt-6-astra` / `gpt-5.5` / `gpt-5.4-mini` (legacy o-series and gpt-4o removed from presets), Anthropic `claude-sonnet-5-5` (recommended) / `claude-opus-5-5` / `claude-fable-5-1` / `claude-haiku-4-5`, Gemini `gemini-3.8-flash` (recommended) / `gemini-3.5-flash-lite` / `gemini-3.1-pro-preview`. Default actions for new installs use `gpt-6-luna`, `gpt-6-sol` and `claude-sonnet-5-5`
 - Fix: the recommended Gemini preset `gemini-3.1-pro` did not exist (HTTP 404); "Update models" for Gemini never marked the recommended model or recognised models used by actions because of the `models/` ID prefix
 - Fix: model-list errors were hard-coded in Czech — now localized
