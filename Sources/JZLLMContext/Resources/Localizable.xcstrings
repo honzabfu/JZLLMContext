@@ -714,6 +714,30 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "El modelo no admite este nivel de razonamiento: establece «Razonamiento» en esta acción a «Según el modelo»." } }
       }
     },
+    "error.models.missing_api_key" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Chybí API klíč pro tohoto poskytovatele." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "API key missing for this provider." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Falta la clave API para este proveedor." } }
+      }
+    },
+    "error.models.missing_base_url" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vlastní poskytovatel nemá zadanou Base URL." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Base URL set for the custom provider." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El proveedor personalizado no tiene Base URL." } }
+      }
+    },
+    "error.models.invalid_response" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Neplatná odpověď ze serveru." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid response from the server." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Respuesta no válida del servidor." } }
+      }
+    },
     "error.truncated" : {
       "comment" : "%d = max tokens of the action",
       "extractionState" : "manual",

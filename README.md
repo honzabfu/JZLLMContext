@@ -168,9 +168,9 @@ Each provider offers a predefined model list and the option to enter any model m
 
 | Provider | Predefined models |
 |----------|------------------|
-| OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
-| Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
-| Google Gemini | gemini-3.1-pro, gemini-3-flash-preview, gemini-3.1-flash-lite |
+| OpenAI | gpt-6-sol, gpt-6-luna, gpt-6-astra, gpt-5.5, gpt-5.4-mini |
+| Anthropic | claude-sonnet-5.5, claude-opus-5.5, claude-fable-5.1, claude-haiku-4.5 |
+| Google Gemini | gemini-3.8-flash, gemini-3.5-flash-lite, gemini-3.1-pro-preview |
 | xAI Grok | grok-4.20, grok-4.20-non-reasoning, grok-4.1-fast-reasoning |
 | Azure AI (slot 1 / slot 2) | – (model is determined by the deployment configuration) |
 | Custom providers | fetched via Update Models (if server supports `/models`); manual entry always available |
@@ -398,7 +398,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
       "ignoreClipboard": false,
       "isDefault": false,
       "maxTokens": 8192,
-      "model": "gpt-5.5",
+      "model": "gpt-6-sol",
       "name": "Action name",
       "provider": "openai",
       "systemPrompt": "System prompt…"
@@ -503,7 +503,7 @@ You are a document analyst. Process the provided content and return:
 Adapt the output structure to the document type.
 ```
 
-Suggested settings: model with a large context window (e.g. `gemini-3.1-pro` or `claude-sonnet-4.6`), max tokens 8192. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
+Suggested settings: model with a large context window (e.g. `gemini-3.8-flash` or `claude-sonnet-5.5`), max tokens 8192. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
 
 #### Global Shortcut
 
@@ -687,9 +687,9 @@ Každý poskytovatel nabízí předdefinovaný seznam modelů a možnost zadat l
 
 | Poskytovatel | Předdefinované modely |
 |----------|----------------------|
-| OpenAI | gpt-5.5, gpt-5.4-mini, o4-mini (legacy), o3 (legacy), o3-mini (legacy), gpt-4o (legacy), gpt-4o-mini (legacy) |
-| Anthropic | claude-sonnet-4.6, claude-opus-4.7, claude-haiku-4.5 |
-| Google Gemini | gemini-3.1-pro, gemini-3-flash-preview, gemini-3.1-flash-lite |
+| OpenAI | gpt-6-sol, gpt-6-luna, gpt-6-astra, gpt-5.5, gpt-5.4-mini |
+| Anthropic | claude-sonnet-5.5, claude-opus-5.5, claude-fable-5.1, claude-haiku-4.5 |
+| Google Gemini | gemini-3.8-flash, gemini-3.5-flash-lite, gemini-3.1-pro-preview |
 | xAI Grok | grok-4.20, grok-4.20-non-reasoning, grok-4.1-fast-reasoning |
 | Azure AI (slot 1 / slot 2) | – (model určuje deployment v nastavení) |
 | Vlastní poskytovatelé | načteno přes Aktualizovat modely (pokud server podporuje `/models`); ruční zadání vždy dostupné |
@@ -915,7 +915,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
       "ignoreClipboard": false,
       "isDefault": false,
       "maxTokens": 8192,
-      "model": "gpt-5.5",
+      "model": "gpt-6-sol",
       "name": "Název akce",
       "provider": "openai",
       "systemPrompt": "Systémový prompt…"
@@ -1009,7 +1009,7 @@ Jsi analytik dokumentů. Zpracuj přiložený obsah a vrať:
 Přizpůsob strukturu výstupu typu dokumentu.
 ```
 
-Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.1-pro` nebo `claude-sonnet-4.6`), max tokenů 8192. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
+Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.8-flash` nebo `claude-sonnet-5.5`), max tokenů 8192. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
 
 #### Globální zkratka
 

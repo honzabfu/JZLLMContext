@@ -526,7 +526,7 @@ struct SettingsView: View {
             name: L("settings.actions.new_name"),
             systemPrompt: "",
             provider: .openai,
-            model: "gpt-5.5",
+            model: ProviderType.openai.recommendedModelID ?? "",
             enabled: true
         )
         config.actions.append(action)
@@ -961,7 +961,7 @@ struct SettingsView: View {
             $0.customProviders.removeAll { $0.id == cp.id }
             for i in $0.actions.indices where $0.actions[i].provider == providerType {
                 $0.actions[i].provider = .openai
-                $0.actions[i].model = "gpt-5.5"
+                $0.actions[i].model = ProviderType.openai.recommendedModelID ?? ""
             }
             $0.modelPresets.removeValue(forKey: cp.id.uuidString)
         }

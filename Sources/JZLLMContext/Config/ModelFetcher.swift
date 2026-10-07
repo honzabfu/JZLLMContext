@@ -15,21 +15,14 @@ enum ModelFetchError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .missingAPIKey:    "Chybí API klíč pro daného providera"
-        case .missingBaseURL:   "Není zadána Base URL pro vlastního providera"
-        case .invalidResponse:  "Neplatná odpověď ze serveru"
+        case .missingAPIKey:    L("error.models.missing_api_key")
+        case .missingBaseURL:   L("error.models.missing_base_url")
+        case .invalidResponse:  L("error.models.invalid_response")
         }
     }
 }
 
 enum ModelFetcher {
-    private static let recommendedIDs: [ProviderType: String] = [
-        .openai:    "gpt-5.5",
-        .anthropic: "claude-sonnet-4-6",
-        .gemini:    "gemini-3.1-pro",
-        .grok:      "grok-4.20"
-    ]
-
     static func fetch(for provider: ProviderType) async throws -> [FetchedModel] {
         if provider == .openai {
             return try await fetchOpenAI()
@@ -80,7 +73,7 @@ enum ModelFetcher {
                         "ada", "curie", "instruct", "realtime", "audio", "transcribe",
                         "moderation", "search", "similarity", "text-"]
         let inUse = inUseIDs(for: .openai)
-        let recommended = recommendedIDs[.openai]
+        let recommended = ProviderType.openai.recommendedModelID
 
         var models = decoded.data
             .filter { m in !excluded.contains(where: { m.id.lowercased().contains($0) }) }
@@ -119,7 +112,7 @@ enum ModelFetcher {
         }
 
         let inUse = inUseIDs(for: .anthropic)
-        let recommended = recommendedIDs[.anthropic]
+        let recommended = ProviderType.anthropic.recommendedModelID
 
         var models = decoded.data.map { m in
             FetchedModel(id: m.id, displayName: m.display_name ?? m.id, isIncluded: true,
@@ -153,14 +146,21 @@ enum ModelFetcher {
             throw ModelFetchError.invalidResponse
         }
 
+        // The API lists "models/<id>", while presets and actions may use the bare
+        // "<id>" (both are accepted by the API) — compare without the prefix
+        func bare(_ id: String) -> String {
+            id.hasPrefix("models/") ? String(id.dropFirst("models/".count)) : id
+        }
         let inUse = inUseIDs(for: .gemini)
-        let recommended = recommendedIDs[.gemini]
+        let inUseBare = Set(inUse.map(bare))
+        let recommended = ProviderType.gemini.recommendedModelID
 
         var models = decoded.data.map { m in
             FetchedModel(id: m.id, displayName: m.id, isIncluded: true,
-                         isRecommended: m.id == recommended, inUseByAction: inUse.contains(m.id))
+                         isRecommended: bare(m.id) == recommended, inUseByAction: inUseBare.contains(bare(m.id)))
         }
-        appendMissingInUse(inUse, recommended: recommended, into: &models)
+        let listedBare = Set(models.map { bare($0.id) })
+        appendMissingInUse(inUse.filter { !listedBare.contains(bare($0)) }, recommended: recommended, into: &models)
         return models
     }
 
@@ -188,7 +188,7 @@ enum ModelFetcher {
         }
 
         let inUse = inUseIDs(for: .grok)
-        let recommended = recommendedIDs[.grok]
+        let recommended = ProviderType.grok.recommendedModelID
 
         var models = decoded.data.map { m in
             FetchedModel(id: m.id, displayName: m.id, isIncluded: true,

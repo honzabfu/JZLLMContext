@@ -138,10 +138,12 @@ struct LiveAPITests {
                 let mark = preset.isRecommended ? " (recommended)" : ""
                 let inUse = fetched.contains { $0.id == preset.id && $0.inUseByAction }
                 print("MODELS| \(provider.rawValue): preset \(preset.id)\(mark) → \(exists(preset.id) ? "listed" : inUse ? "in use (unverified)" : "NOT LISTED")")
+                #expect(exists(preset.id) || inUse, "\(provider.rawValue) preset \(preset.id) is not offered by the provider")
             }
             for entry in defaultModels where entry.hasPrefix("\(provider.rawValue)|") {
                 let id = String(entry.dropFirst(provider.rawValue.count + 1))
                 print("MODELS| \(provider.rawValue): default action \(id) → \(exists(id) ? "listed" : "NOT LISTED")")
+                #expect(exists(id) || fetched.contains { $0.id == id }, "\(provider.rawValue) default action model \(id) is not offered")
             }
         }
     }
