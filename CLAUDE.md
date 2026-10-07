@@ -44,7 +44,7 @@ Custom (OpenAI-compatible) provider URLs are built only by `CustomProvider.chatU
 
 Built-in model lists and the recommended model per provider live only in `ProviderType.presetModels` (`AppConfig.swift`); `recommendedModelID` derives from it and feeds `ModelFetcher`, new actions and the custom-provider-delete fallback. Default actions (`defaultActions(forLang:)`) must use preset models (`ActionConfigTests.defaultActionsUsePresetModels`).
 
-Presets go stale as providers ship new models — **last reviewed 2026-10-07**; review roughly every 3 months or after a major model launch:
+Presets go stale as providers ship new models — **last reviewed 2026-10-07**; review roughly every 3 months or after a major model launch (next: issue #27, due 2027-01-07):
 1. `TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test -scheme JZLLMContext -destination 'platform=macOS' "-only-testing:JZLLMContextTests/LiveAPITests/presetModelsExist()"` — fails on presets the provider no longer lists and prints the provider's current lists.
 2. Pick new recommendations from the providers' docs, update `presetModels` + default actions, add the new models to the `LiveAPITests.cases` matrix and run it (checks temperature / reasoning-effort compatibility).
 3. Update the preset tables in `README.md` (en + cs), `RELEASE_NOTES.md`, and the date above.
