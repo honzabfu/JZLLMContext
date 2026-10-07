@@ -431,28 +431,28 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Traducir al español",
                     systemPrompt: "Traduce el siguiente texto al español. Responde solo con la traducción.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    provider: .anthropic, model: "claude-sonnet-5-5", enabled: true,
                     reasoningEffort: .low
                 ),
                 Action(
                     name: "Reescribir + gramática",
                     systemPrompt: "Reescribe el siguiente texto para que sea más claro y gramaticalmente correcto. Mantén el idioma original. Responde solo con el texto reescrito. No añadas información adicional.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Simplificar y explicar",
                     systemPrompt: "Explica el siguiente texto de forma sencilla para un profesional ocupado.\nSé conciso y céntrate en la comprensión práctica.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Resumir en puntos",
                     systemPrompt: "Resume el siguiente texto en:\n- 3 puntos principales\n- 1 frase resumen corta\n- entidades clave (si las hay)\nNo añadas información adicional.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Preparar respuesta",
                     systemPrompt: "Escribe una respuesta breve y profesional al siguiente mensaje.\nEstilo: neutral, cortés\nLongitud: corta",
-                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    provider: .openai, model: "gpt-6-sol", enabled: true,
                     reasoningEffort: .low
                 )
             ]
@@ -461,28 +461,28 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Translate to English",
                     systemPrompt: "Translate the following text to English. Reply with the translation only.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    provider: .anthropic, model: "claude-sonnet-5-5", enabled: true,
                     reasoningEffort: .low
                 ),
                 Action(
                     name: "Rewrite + Grammar",
                     systemPrompt: "Rewrite the following text to be clearer and grammatically correct. Keep the original language. Reply with the rewritten text only. Do not add any extra information.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Simplify & Explain",
                     systemPrompt: "Explain the following text simply for a busy professional.\nBe concise and focus on practical understanding.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Summarize to Bullets",
                     systemPrompt: "Summarize the following text into:\n- 3 main points\n- 1 short summary sentence\n- key entities (if any)\nDo not add any extra information.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Draft a Reply",
                     systemPrompt: "Write a brief and professional reply to the following message.\nStyle: neutral, polite\nLength: short",
-                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    provider: .openai, model: "gpt-6-sol", enabled: true,
                     reasoningEffort: .low
                 )
             ]
@@ -491,28 +491,28 @@ struct AppConfig: Codable, Sendable {
                 Action(
                     name: "Přeložit do češtiny",
                     systemPrompt: "Přelož následující text do češtiny. Odpověz pouze překladem.",
-                    provider: .anthropic, model: "claude-sonnet-4-6", enabled: true,
+                    provider: .anthropic, model: "claude-sonnet-5-5", enabled: true,
                     reasoningEffort: .low
                 ),
                 Action(
                     name: "Přepsat + gramatika",
                     systemPrompt: "Přepiš následující text tak, aby byl srozumitelnější a gramaticky správný. Zachovej původní jazyk. Odpověz pouze přepsaným textem. Nepřidávej žádné další informace navíc.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Zjednoduš a vysvětli",
                     systemPrompt: "Vysvětli následující text jednoduše pro zaneprázdněného profesionála.\nBuď stručný a zaměř se na praktické pochopení.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Shrň do odrážek",
                     systemPrompt: "Shrň následující text do:\n- 3 hlavních bodů\n- 1 krátké shrnující věty\n- důležitých entit (pokud existují)\nNepřidávej žádné další informace navíc.",
-                    provider: .openai, model: "gpt-5.4-mini", enabled: true
+                    provider: .openai, model: "gpt-6-luna", enabled: true
                 ),
                 Action(
                     name: "Připrav odpověď",
                     systemPrompt: "Napiš stručnou a profesionální odpověď na následující zprávu.\nStyl: neutrální, zdvořilý\nDélka: krátká",
-                    provider: .openai, model: "gpt-5.5", enabled: true,
+                    provider: .openai, model: "gpt-6-sol", enabled: true,
                     reasoningEffort: .low
                 )
             ]
@@ -650,27 +650,26 @@ extension ProviderType {
     var presetModels: [ModelPreset] {
         if self == .openai {
             return [
-                .init(id: "gpt-5.5",      displayName: "gpt-5.5",             isRecommended: true),
-                .init(id: "gpt-5.4-mini", displayName: "gpt-5.4-mini"),
-                .init(id: "o4-mini",      displayName: "o4-mini (legacy)"),
-                .init(id: "o3",           displayName: "o3 (legacy)"),
-                .init(id: "o3-mini",      displayName: "o3-mini (legacy)"),
-                .init(id: "gpt-4o",       displayName: "gpt-4o (legacy)"),
-                .init(id: "gpt-4o-mini",  displayName: "gpt-4o-mini (legacy)")
+                .init(id: "gpt-6-sol",    displayName: "gpt-6-sol",    isRecommended: true),
+                .init(id: "gpt-6-luna",   displayName: "gpt-6-luna"),
+                .init(id: "gpt-6-astra",  displayName: "gpt-6-astra"),
+                .init(id: "gpt-5.5",      displayName: "gpt-5.5"),
+                .init(id: "gpt-5.4-mini", displayName: "gpt-5.4-mini")
             ]
         }
         if self == .anthropic {
             return [
-                .init(id: "claude-sonnet-4-6",        displayName: "claude-sonnet-4.6", isRecommended: true),
-                .init(id: "claude-opus-4-7",           displayName: "claude-opus-4.7"),
+                .init(id: "claude-sonnet-5-5",         displayName: "claude-sonnet-5.5", isRecommended: true),
+                .init(id: "claude-opus-5-5",           displayName: "claude-opus-5.5"),
+                .init(id: "claude-fable-5-1",          displayName: "claude-fable-5.1"),
                 .init(id: "claude-haiku-4-5-20251001", displayName: "claude-haiku-4.5")
             ]
         }
         if self == .gemini {
             return [
-                .init(id: "gemini-3.1-pro",         displayName: "gemini-3.1-pro",         isRecommended: true),
-                .init(id: "gemini-3-flash-preview",  displayName: "gemini-3-flash-preview"),
-                .init(id: "gemini-3.1-flash-lite",   displayName: "gemini-3.1-flash-lite")
+                .init(id: "gemini-3.8-flash",       displayName: "gemini-3.8-flash",       isRecommended: true),
+                .init(id: "gemini-3.5-flash-lite",  displayName: "gemini-3.5-flash-lite"),
+                .init(id: "gemini-3.1-pro-preview", displayName: "gemini-3.1-pro-preview")
             ]
         }
         if self == .grok {
@@ -682,6 +681,12 @@ extension ProviderType {
         }
         // azureOpenai, azureOpenai2, custom providers
         return []
+    }
+
+    /// The built-in recommended model — single source for presets, the model fetcher
+    /// and the fallback model of new actions.
+    var recommendedModelID: String? {
+        presetModels.first(where: \.isRecommended)?.id
     }
 }
 

@@ -81,6 +81,21 @@ struct ActionConfigTests {
         #expect(action.reasoningEffort == nil)
     }
 
+    @Test(arguments: [ProviderType.openai, .anthropic, .gemini, .grok])
+    func presetsHaveExactlyOneRecommendedModel(provider: ProviderType) {
+        #expect(provider.presetModels.filter(\.isRecommended).count == 1)
+        #expect(provider.recommendedModelID != nil)
+    }
+
+    @Test func defaultActionsUsePresetModels() {
+        for language in [AppLanguage.cs, .en, .es] {
+            for action in AppConfig.makeDefault(language: language).actions {
+                let presetIDs = action.provider.presetModels.map(\.id)
+                #expect(presetIDs.contains(action.model), "\(action.name): \(action.model)")
+            }
+        }
+    }
+
     @Test func defaultActionsSendNoTemperature() {
         for language in [AppLanguage.cs, .en, .es] {
             for action in AppConfig.makeDefault(language: language).actions {
