@@ -10,7 +10,7 @@ struct OpenAIProvider: LLMProvider {
     let apiKey: String
     let chatURL: URL
     let authStyle: OpenAIAuthStyle
-    let temperature: Double
+    let temperature: Double?
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
     let extraHeaders: [String: String]
@@ -19,7 +19,7 @@ struct OpenAIProvider: LLMProvider {
          baseURL: URL = URL(string: "https://api.openai.com/v1")!,
          chatURL: URL? = nil,
          authStyle: OpenAIAuthStyle = .bearer,
-         temperature: Double = 0.7, maxTokens: Int = 4096,
+         temperature: Double? = nil, maxTokens: Int = 4096,
          tokenParamStyle: TokenParamStyle = .maxCompletionTokens,
          extraHeaders: [String: String] = [:]) {
         self.model = model
@@ -30,12 +30,6 @@ struct OpenAIProvider: LLMProvider {
         self.maxTokens = maxTokens
         self.tokenParamStyle = tokenParamStyle
         self.extraHeaders = extraHeaders
-    }
-
-    // o-series reasoning models (o1, o3, o4-mini, …) reject any non-default
-    // temperature with HTTP 400, so the parameter is omitted for them
-    private var supportsTemperature: Bool {
-        model.range(of: #"^o\d"#, options: .regularExpression) == nil
     }
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
@@ -61,7 +55,6 @@ struct OpenAIProvider: LLMProvider {
                             .init(role: "user", content: userContent)
                         ],
                         temperature: temperature,
-                        includeTemperature: supportsTemperature,
                         maxTokens: maxTokens,
                         tokenParamStyle: tokenParamStyle
                     )
@@ -77,8 +70,14 @@ struct OpenAIProvider: LLMProvider {
                     guard (200..<300).contains(http.statusCode) else {
                         var errorData = Data()
                         for try await byte in bytes { errorData.append(byte) }
-                        let message = (try? JSONDecoder().decode(OpenAIErrorResponse.self, from: errorData))?.error.message
+                        var message = (try? JSONDecoder().decode(OpenAIErrorResponse.self, from: errorData))?.error.message
                             ?? String(data: errorData, encoding: .utf8) ?? ""
+                        // Only custom providers send a temperature; the model behind them
+                        // (e.g. a proxied reasoning model) may reject it
+                        if http.statusCode == 400, temperature != nil,
+                           message.localizedCaseInsensitiveContains("temperature") {
+                            message += "\n" + L("error.hint.disable_temperature")
+                        }
                         continuation.finish(throwing: LLMError.httpError(http.statusCode, message))
                         return
                     }
@@ -109,8 +108,7 @@ struct OpenAIProvider: LLMProvider {
 private struct OpenAIChatRequest: Encodable {
     let model: String
     let messages: [Message]
-    let temperature: Double
-    let includeTemperature: Bool
+    let temperature: Double?
     let maxTokens: Int
     let tokenParamStyle: TokenParamStyle
     let stream: Bool = true
@@ -122,7 +120,7 @@ private struct OpenAIChatRequest: Encodable {
         var c = encoder.container(keyedBy: DynamicKey.self)
         try c.encode(model,       forKey: .init("model"))
         try c.encode(messages,    forKey: .init("messages"))
-        if includeTemperature {
+        if let temperature {
             try c.encode(temperature, forKey: .init("temperature"))
         }
         try c.encode(stream,      forKey: .init("stream"))

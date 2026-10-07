@@ -3,7 +3,6 @@ import Foundation
 struct AnthropicProvider: LLMProvider {
     let model: String
     let apiKey: String
-    let temperature: Double
     let maxTokens: Int
 
     func stream(systemPrompt: String, userContent: String) -> AsyncThrowingStream<String, Error> {
@@ -21,7 +20,6 @@ struct AnthropicProvider: LLMProvider {
                     let body = AnthropicRequest(
                         model: model,
                         maxTokens: maxTokens,
-                        temperature: min(temperature, 1.0),
                         system: systemPrompt,
                         messages: [.init(role: "user", content: userContent)]
                     )
@@ -70,7 +68,6 @@ struct AnthropicProvider: LLMProvider {
 private struct AnthropicRequest: Encodable {
     let model: String
     let maxTokens: Int
-    let temperature: Double
     let system: String
     let messages: [Message]
     let stream: Bool = true
@@ -79,7 +76,7 @@ private struct AnthropicRequest: Encodable {
         let content: String
     }
     enum CodingKeys: String, CodingKey {
-        case model, temperature, system, messages, stream
+        case model, system, messages, stream
         case maxTokens = "max_tokens"
     }
 }

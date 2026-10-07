@@ -25,7 +25,7 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 ## Providers
 
-`OpenAIProvider` omits the `temperature` parameter for o-series reasoning models (model id matching `^o\d`) — they reject non-default values with HTTP 400. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
+Cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) never receive `temperature` — newer reasoning models reject it with HTTP 400 or ignore it (#26). `Action.temperature` is optional (`nil` = not sent) and `ProviderFactory` passes `Action.effectiveTemperature`, which is non-nil only for custom providers with the per-action opt-in toggle on; don't add per-model regex exceptions. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
 
 Custom (OpenAI-compatible) provider URLs are built only by `CustomProvider.chatURL` / `modelsURL` (`AppConfig.swift`): `baseURL` + optional `chatPath`/`modelsPath` override (relative, or absolute http(s) URL) + `?api-version=` on chat only. `ProviderFactory`, `ConnectionTester`, `ModelFetcher` and the settings preview all use them — don't reintroduce local URL concatenation. Only the OpenAI request/response format is supported; a native API format picker is planned in issue #25.
 

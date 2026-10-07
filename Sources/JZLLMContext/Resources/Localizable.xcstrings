@@ -626,6 +626,38 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "Temperatura: %.1f" } }
       }
     },
+    "action.row.temperature_toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Nastavit teplotu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Set temperature" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Establecer temperatura" } }
+      }
+    },
+    "action.row.help.temperature_toggle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Vypnuto: teplota se neposílá a použije se výchozí hodnota modelu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Off: no temperature is sent and the model's default is used" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desactivado: no se envía la temperatura y se usa el valor predeterminado del modelo" } }
+      }
+    },
+    "action.row.temperature_cloud_note" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Cloudoví poskytovatelé používají výchozí teplotu modelu" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cloud providers use the model's default temperature" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los proveedores en la nube usan la temperatura predeterminada del modelo" } }
+      }
+    },
+    "error.hint.disable_temperature" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Model teplotu nepodporuje – vypni „Nastavit teplotu“ u této akce." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The model does not support temperature – turn off “Set temperature” for this action." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El modelo no admite temperatura: desactiva «Establecer temperatura» en esta acción." } }
+      }
+    },
     "action.row.copy_close" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -1,6 +1,7 @@
 # Release Notes
 
 ## Unreleased
+- Fix: cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) no longer receive a `temperature` — newer reasoning models such as GPT-5.5 and Claude Sonnet 5.5 rejected it with HTTP 400 (the default "Draft a Reply" action on `gpt-5.5` failed). Custom providers get it only when *Set temperature* is enabled for the action; existing cloud-provider actions drop their stored temperature on first launch (#26)
 - Settings: custom providers can override the chat and models endpoint paths (relative to Base URL or a full URL); the effective models URL is shown alongside the chat URL
 - Fix: "Update models" for a custom provider whose Base URL ends in `/chat/completions` queried a wrong URL — it now strips the suffix like "Test connection" does
 
