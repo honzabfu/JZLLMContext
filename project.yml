@@ -43,4 +43,20 @@ targets:
     entitlements:
       path: Sources/JZLLMContext/Resources/JZLLMContext.entitlements
     scheme:
-      testTargets: []
+      testTargets:
+        - JZLLMContextTests
+
+  JZLLMContextTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests/JZLLMContextTests
+    dependencies:
+      - target: JZLLMContext
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_STRICT_CONCURRENCY: complete
+        PRODUCT_BUNDLE_IDENTIFIER: com.jz.JZLLMContextTests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/JZLLMContext.app/Contents/MacOS/JZLLMContext
+        BUNDLE_LOADER: $(TEST_HOST)

@@ -15,6 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        // Unit tests run inside the app as host — skip the menu bar item, global
+        // hotkey and update check so the test run doesn't act as a second instance
+        guard NSClassFromString("XCTestCase") == nil else { return }
         setupStatusBarItem()
         hotkeyManager = HotkeyManager { [weak self] in
             Task { @MainActor in self?.showOverlay() }
