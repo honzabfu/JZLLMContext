@@ -3,8 +3,9 @@ import Testing
 @testable import JZLLMContext
 
 /// Request bodies and stream parsing of the providers against a mocked network.
-/// Serialized: the mock is process-wide state shared by every request.
-@Suite(.serialized)
+/// Serialized: the mock is process-wide state shared by every request — and it
+/// would intercept the live calls, so the suite is off when those run.
+@Suite(.serialized, .disabled(if: liveAPITestsEnabled))
 struct ProviderTests {
     private static let chatURL = URL(string: "https://mock.test/v1/chat/completions")!
 

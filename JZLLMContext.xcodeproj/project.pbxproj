@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04E9C7C7F86D0E7DFF3A9110 /* LiveAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59447DF2AC7DB9ACFFA2992C /* LiveAPITests.swift */; };
 		0C3A306A2EAF3CCD2796ACC4 /* ContextResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF007160F929203C6C07C38F /* ContextResolver.swift */; };
 		0C6B418CF3F45A62A78C1956 /* AnthropicProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EEB15BFF1A234C902698B41 /* AnthropicProvider.swift */; };
 		107E3F54587858A4B2D73F27 /* OpenAIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E16BF47BB95B6257237524 /* OpenAIProvider.swift */; };
@@ -74,6 +75,7 @@
 		442548DEA3D00387E384367A /* ProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderFactory.swift; sourceTree = "<group>"; };
 		4788917E973F02208D6DAB08 /* ConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTester.swift; sourceTree = "<group>"; };
 		4CDCAE340BBEAC5C27AA845F /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		59447DF2AC7DB9ACFFA2992C /* LiveAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAPITests.swift; sourceTree = "<group>"; };
 		62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
 		6E0F502EE128D151237534D7 /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
 		7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEngine.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				0682FD95BD24EE8BF01D38A2 /* ActionConfigTests.swift */,
+				59447DF2AC7DB9ACFFA2992C /* LiveAPITests.swift */,
 				00CBE1F1330CB7BF27FE835E /* MockURLProtocol.swift */,
 				6E0F502EE128D151237534D7 /* ProviderTests.swift */,
 			);
@@ -398,6 +401,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5179B0F0D9B17C21B93DFF2C /* ActionConfigTests.swift in Sources */,
+				04E9C7C7F86D0E7DFF3A9110 /* LiveAPITests.swift in Sources */,
 				4CC1DF49653E12ED104B526F /* MockURLProtocol.swift in Sources */,
 				BAB264811CB62022499DC8F5 /* ProviderTests.swift in Sources */,
 			);
