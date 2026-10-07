@@ -45,6 +45,11 @@ struct LiveAPITests {
         Case(provider: .openai, model: "gpt-5.4-mini", maxTokens: 16, expect: .truncated),
         Case(provider: .openai, model: "gpt-5.5", expect: .httpError400, rawTemperature: 0.5),
         Case(provider: .openai, model: "o4-mini", effort: .off, expect: .httpError400),
+        Case(provider: .openai, model: "gpt-6-sol", expect: .text),
+        Case(provider: .openai, model: "gpt-6-sol", effort: .low, expect: .text),
+        Case(provider: .openai, model: "gpt-6-luna", expect: .text),
+        Case(provider: .openai, model: "gpt-6-luna", effort: .off, expect: .text),
+        Case(provider: .openai, model: "gpt-6-sol", expect: .httpError400, rawTemperature: 0.5),
         // Anthropic
         Case(provider: .anthropic, model: "claude-sonnet-4-6", expect: .text),
         Case(provider: .anthropic, model: "claude-sonnet-4-6", effort: .low, expect: .text),
@@ -57,6 +62,10 @@ struct LiveAPITests {
         Case(provider: .gemini, model: "gemini-3.1-flash-lite", expect: .text),
         Case(provider: .gemini, model: "gemini-3.1-flash-lite", effort: .low, expect: .text),
         Case(provider: .gemini, model: "gemini-flash-latest", effort: .medium, expect: .text),
+        Case(provider: .gemini, model: "gemini-3.1-pro-preview", expect: .text),
+        Case(provider: .gemini, model: "gemini-3.5-flash-lite", expect: .text),
+        Case(provider: .gemini, model: "gemini-3.8-flash", expect: .text),
+        Case(provider: .gemini, model: "gemini-3.8-flash", effort: .low, expect: .text),
         // Grok
         Case(provider: .grok, model: "grok-4.20", expect: .text),
         Case(provider: .grok, model: "grok-4.20-non-reasoning", maxTokens: 16, expect: .truncated)
@@ -103,6 +112,38 @@ struct LiveAPITests {
         }
         print("LIVE| \(passed ? "OK  " : "FAIL") \(testCase.testDescription) → \(outcome)")
         #expect(passed, "\(testCase.testDescription) → \(outcome)")
+    }
+
+    /// Compares the built-in presets and default actions with each provider's live
+    /// model list (free, read-only `/models` calls).
+    @Test func presetModelsExist() async {
+        let defaultModels = Set(AppConfig.makeDefault(language: .cs).actions.map { "\($0.provider.rawValue)|\($0.model)" })
+        for provider in ProviderType.builtIn where KeychainStore.hasKey(for: provider) {
+            let fetched: [FetchedModel]
+            do {
+                fetched = try await ModelFetcher.fetch(for: provider)
+            } catch {
+                print("MODELS| \(provider.rawValue): fetch failed — \(error.localizedDescription)")
+                continue
+            }
+            // Models used by an action are appended even when the provider doesn't list
+            // them, so in-use presets are only reported as "in use", not as listed
+            let available = fetched.filter { !$0.inUseByAction }
+            let ids = Set(available.map(\.id))
+            func exists(_ id: String) -> Bool {
+                ids.contains(id) || ids.contains("models/\(id)")
+            }
+            print("MODELS| \(provider.rawValue): \(available.count) listed: \(available.map(\.id).prefix(40).joined(separator: ", "))")
+            for preset in provider.presetModels {
+                let mark = preset.isRecommended ? " (recommended)" : ""
+                let inUse = fetched.contains { $0.id == preset.id && $0.inUseByAction }
+                print("MODELS| \(provider.rawValue): preset \(preset.id)\(mark) → \(exists(preset.id) ? "listed" : inUse ? "in use (unverified)" : "NOT LISTED")")
+            }
+            for entry in defaultModels where entry.hasPrefix("\(provider.rawValue)|") {
+                let id = String(entry.dropFirst(provider.rawValue.count + 1))
+                print("MODELS| \(provider.rawValue): default action \(id) → \(exists(id) ? "listed" : "NOT LISTED")")
+            }
+        }
     }
 
     /// Every enabled action from the user's real config, with a short input.
