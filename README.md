@@ -164,7 +164,7 @@ The **Verify Connection** button for each provider sends a test request and disp
 
 ### Custom Models
 
-Each provider offers a predefined model list and the option to enter any model manually:
+Each provider offers a predefined model list and the option to enter any model manually. The first model in each list is the recommended one (presets are reviewed periodically as providers release new models):
 
 | Provider | Predefined models |
 |----------|------------------|
@@ -269,7 +269,7 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 - **Text and images** – reads text from the clipboard or extracts text from images via Apple Vision OCR
 - **File drag & drop** – drag files directly onto the overlay panel; PDF (PDFKit), images (OCR), structured documents (DOCX/RTF/ODT/HTML via textutil, XLSX/PPTX via embedded XML, iWork formats), and all plain-text formats; maximum 5 MB per file; file content replaces clipboard context
 - **Multiple providers** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 slots), unlimited custom OpenAI-compatible providers (Ollama, LM Studio, OpenRouter, …)
-- **Custom actions** – any number of actions with system prompts; each has its own provider, model, token limit and (custom providers only) temperature
+- **Custom actions** – any number of actions with system prompts; each has its own provider, model, token limit, reasoning level and (custom providers only) temperature
 - **Action management** – enable/disable, drag & drop reordering, delete with confirmation, import/export as JSON
 - **Custom models** – each provider supports entering any model beyond the predefined list
 - **Keyboard shortcuts** – actions 1–9 can be triggered by pressing the corresponding digit directly in the overlay panel
@@ -311,6 +311,14 @@ xcodegen generate
 
 # Build the app
 xcodebuild -scheme JZLLMContext -configuration Debug build
+
+# Run the unit tests (network is mocked — no API keys or costs)
+xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'
+
+# Optional: live tests against the real provider APIs, using the API keys and
+# provider settings stored by the app (costs a few cents)
+TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test -scheme JZLLMContext -destination 'platform=macOS' \
+  -only-testing:JZLLMContextTests/LiveAPITests
 ```
 
 The built app is located at:
@@ -401,6 +409,7 @@ API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
       "model": "gpt-6-sol",
       "name": "Action name",
       "provider": "openai",
+      "reasoningEffort": "low",
       "systemPrompt": "System prompt…"
     }
   ],
@@ -683,7 +692,7 @@ Tlačítko **Ověřit připojení** u každého poskytovatele odešle testovací
 
 ### Vlastní modely
 
-Každý poskytovatel nabízí předdefinovaný seznam modelů a možnost zadat libovolný model:
+Každý poskytovatel nabízí předdefinovaný seznam modelů a možnost zadat libovolný model. První model v každém seznamu je doporučený (nabídka se průběžně reviduje podle nových modelů poskytovatelů):
 
 | Poskytovatel | Předdefinované modely |
 |----------|----------------------|
@@ -788,7 +797,7 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 - **Text i obrázky** – čte text ze schránky nebo extrahuje text z obrázků přes Apple Vision OCR
 - **Přetažení souboru** – přetáhnutí souboru přímo na overlay panel; PDF (PDFKit), obrázky (OCR), strukturované dokumenty (DOCX/RTF/ODT/HTML přes textutil, XLSX/PPTX přes vnořené XML, iWork formáty) a plain-text formáty; maximálně 5 MB; obsah souboru nahradí kontext ze schránky
 - **Více poskytovatelů** – OpenAI, Anthropic, Google Gemini, xAI Grok, Azure AI (2 sloty), neomezený počet vlastních OpenAI-compatible poskytovatelů (Ollama, LM Studio, OpenRouter, …)
-- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, limit tokenů a (jen u vlastních poskytovatelů) teplotu
+- **Vlastní akce** – libovolný počet akcí se systémovými prompty; každá má vlastního poskytovatele, model, limit tokenů, úroveň uvažování a (jen u vlastních poskytovatelů) teplotu
 - **Správa akcí** – zapínání/vypínání, drag & drop řazení, mazání s potvrzením, import/export jako JSON
 - **Vlastní modely** – každý poskytovatel podporuje zadání libovolného modelu mimo předdefinovaný seznam
 - **Klávesové zkratky** – akce 1–9 lze spustit stiskem příslušné číslice přímo v overlay panelu
@@ -830,6 +839,14 @@ xcodegen generate
 
 # Sestav aplikaci
 xcodebuild -scheme JZLLMContext -configuration Debug build
+
+# Spusť unit testy (síť je simulovaná – bez API klíčů a bez nákladů)
+xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'
+
+# Volitelně: živé testy proti skutečným API poskytovatelů s API klíči
+# a nastavením uloženými v aplikaci (stojí pár centů)
+TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test -scheme JZLLMContext -destination 'platform=macOS' \
+  -only-testing:JZLLMContextTests/LiveAPITests
 ```
 
 Sestavená aplikace se nachází v:
@@ -918,6 +935,7 @@ API klíče jsou uloženy v macOS Keychain pod service `com.jz.JZLLMContext`:
       "model": "gpt-6-sol",
       "name": "Název akce",
       "provider": "openai",
+      "reasoningEffort": "low",
       "systemPrompt": "Systémový prompt…"
     }
   ],
