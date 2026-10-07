@@ -52,6 +52,11 @@ final class ActionEngine: ObservableObject {
                 // no history entry, no auto copy & close
                 guard activeRunID == runID else { return }
                 warningMessage = LLMError.truncated(maxTokens: maxTokens).localizedDescription
+            } catch LLMError.truncated(let maxTokens) {
+                // No text at all: a reasoning model spent the whole limit on thinking
+                guard activeRunID == runID else { return }
+                lastError = LLMError.truncated(maxTokens: maxTokens)
+                errorMessage = String(format: L("error.truncated_empty"), maxTokens)
             } catch {
                 guard activeRunID == runID else { return }
                 lastError = error

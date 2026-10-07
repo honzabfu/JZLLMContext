@@ -2,7 +2,7 @@
 
 ## Unreleased
 - Fix: cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) no longer receive a `temperature` — newer reasoning models such as GPT-5.5 and Claude Sonnet 5.5 rejected it with HTTP 400 (the default "Draft a Reply" action on `gpt-5.5` failed). Custom providers get it only when *Set temperature* is enabled for the action; existing cloud-provider actions drop their stored temperature on first launch (#26)
-- Fix: a response cut off by the token limit, a refusal / content-filter stop, or an error reported mid-stream used to pass silently as a normal (truncated or empty) result — truncation now keeps the partial text with a warning (not saved to history, no auto copy & close), the others show an error (#26)
+- Fix: a response cut off by the token limit, a refusal / content-filter stop, or an error reported mid-stream used to pass silently as a normal (truncated or empty) result — truncation now keeps the partial text with a warning (not saved to history, no auto copy & close) — or, when a reasoning model spent the whole limit on thinking and returned no text, says so explicitly; the others show an error (#26)
 - Default max tokens raised from 2048 to 8192 — reasoning models count their thinking towards the limit; existing actions still on 2048 are migrated (#26)
 - Request idle timeout raised from 60 s to 180 s for reasoning models that think before the first token (#26)
 - Settings: custom providers can override the chat and models endpoint paths (relative to Base URL or a full URL); the effective models URL is shown alongside the chat URL

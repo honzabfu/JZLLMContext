@@ -659,6 +659,15 @@
         "es" : { "stringUnit" : { "state" : "translated", "value" : "La respuesta está truncada: el modelo alcanzó el límite de %d tokens (los modelos más nuevos cuentan también su razonamiento). Aumenta «Máx. tokens» en esta acción." } }
       }
     },
+    "error.truncated_empty" : {
+      "comment" : "%d = max tokens of the action",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Model nevrátil žádný text – celý limit %d tokenů spotřeboval na uvažování. Zvyš „Max. tokenů“ u této akce (doporučeno alespoň 4096)." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The model returned no text – it spent the whole limit of %d tokens on reasoning. Increase “Max. tokens” for this action (at least 4096 recommended)." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El modelo no devolvió texto: gastó todo el límite de %d tokens en razonar. Aumenta «Máx. tokens» en esta acción (se recomienda al menos 4096)." } }
+      }
+    },
     "error.refused" : {
       "extractionState" : "manual",
       "localizations" : {
