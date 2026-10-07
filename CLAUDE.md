@@ -14,7 +14,7 @@ Unit tests (`Tests/JZLLMContextTests`, Swift Testing) run hosted in the app; `Ap
 
 Use `/rebuild` to build and relaunch the app, `/release` to publish a new GitHub release.
 
-Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys.
+Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys. Only local builds are signed: the distributed GitHub release zip (`/release`, `CODE_SIGNING_ALLOWED=NO`) stays unsigned on purpose (no Developer ID / notarization, and an Apple Development signature would embed the personal certificate name). Never launch that unsigned build locally — `/release` relaunches the signed Debug build instead.
 
 ## Swift 6 strict concurrency
 

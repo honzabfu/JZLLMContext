@@ -74,9 +74,16 @@ Steps to execute in order:
        --notes-file /tmp/jzllmcontext-release-notes.md
      ```
 
-9. **Restart local app:**
+9. **Restart local app (signed local build):**
+   - The distributed release build from step 4 is intentionally unsigned (ad-hoc) — never run it locally: its code identity differs from the signed build that stored the API keys, so Keychain would re-prompt for the login password.
+   - Build the signed local app (Apple Development identity from `DEVELOPMENT_TEAM` in `project.yml`):
+     ```
+     xcodebuild -scheme JZLLMContext -configuration Debug build
+     ```
+     If the build fails, show only error lines and skip the relaunch (the release is already published).
    - Kill any running instance: `pkill -x JZLLMContext || true`
-   - Launch the newly built app: `open /tmp/JZLLMContext-release/Build/Products/Release/JZLLMContext.app`
+   - Launch the signed build: `open ~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app`
+   - Verify it is signed: `codesign -dv <app path> 2>&1 | grep TeamIdentifier` must show `TeamIdentifier=HA25F4PWCQ`, not `not set`.
 
 10. **Report result:**
     - Print the release URL returned by `gh release create`.
