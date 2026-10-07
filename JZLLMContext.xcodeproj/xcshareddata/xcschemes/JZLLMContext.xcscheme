@@ -39,6 +39,17 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0871FC174550F0EFC2F01BA9"
+               BuildableName = "JZLLMContextTests.xctest"
+               BlueprintName = "JZLLMContextTests"
+               ReferencedContainer = "container:JZLLMContext.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

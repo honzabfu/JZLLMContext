@@ -17,7 +17,9 @@
 		29688E8CAB94FFBD58DD2D42 /* HistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB65AD326E16BF2E0137AABE /* HistoryStore.swift */; };
 		450734B8BB48675A75765886 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D70E3B5C8380F38DF3181F /* OverlayView.swift */; };
 		47495658702DA38EC5C3ED8D /* UIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35651A765620028C04E347AD /* UIConstants.swift */; };
+		4CC1DF49653E12ED104B526F /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00CBE1F1330CB7BF27FE835E /* MockURLProtocol.swift */; };
 		4FF3E3C125C7FAE2DB6C23D8 /* ActionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */; };
+		5179B0F0D9B17C21B93DFF2C /* ActionConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0682FD95BD24EE8BF01D38A2 /* ActionConfigTests.swift */; };
 		55A7384824E1E417674390AE /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A0987C8886320AB4C42709 /* AboutView.swift */; };
 		58711DA275804D6B0D2ADA92 /* UpdateState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F7346042278B76B448237 /* UpdateState.swift */; };
 		64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */; };
@@ -33,6 +35,7 @@
 		A36AD38134BF915B05860880 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 092AF1601119489B61B615A0 /* Localization.swift */; };
 		A751941FC618FDA4FA662166 /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */; };
 		BA622966B92FFCF597951280 /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E173DCEF891DE8BF7A6A8D4 /* HistoryLogger.swift */; };
+		BAB264811CB62022499DC8F5 /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0F502EE128D151237534D7 /* ProviderTests.swift */; };
 		BC2D56482DC2FA918A2CA3B0 /* LLMProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E61E37FF25C63DFBED2FFA5 /* LLMProvider.swift */; };
 		CEA7BC87270AC61BA80F47CE /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDCAE340BBEAC5C27AA845F /* App.swift */; };
 		D238DC29366B37F06428B4EC /* PDFKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B97066D39087A6C919961F28 /* PDFKit.framework */; };
@@ -40,8 +43,20 @@
 		E59EB23A8F4F48E658F183C4 /* OverlayWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115B55BB48331930264A2987 /* OverlayWindowController.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		C7670A7B9FFDC9A93B3303E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 061B565CCC322E5B48AB2EC4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 593781E5807EEFD0487D230E;
+			remoteInfo = JZLLMContext;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		00CBE1F1330CB7BF27FE835E /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
 		018CB417B49F176AFD1DC7E4 /* UpdateChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateChecker.swift; sourceTree = "<group>"; };
+		0682FD95BD24EE8BF01D38A2 /* ActionConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionConfigTests.swift; sourceTree = "<group>"; };
 		092AF1601119489B61B615A0 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		09441EAAD72AD462864F9B2F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0E173DCEF891DE8BF7A6A8D4 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
@@ -60,9 +75,11 @@
 		4788917E973F02208D6DAB08 /* ConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTester.swift; sourceTree = "<group>"; };
 		4CDCAE340BBEAC5C27AA845F /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		62CA4D049F813FDDABE5A4DE /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
+		6E0F502EE128D151237534D7 /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
 		7DC8DF5CAF58138FC3521135 /* ActionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEngine.swift; sourceTree = "<group>"; };
 		84778605AF88F656C97B010D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8A1B77ACB12636472CE78D41 /* JZLLMContext.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JZLLMContext.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8EABCC079DB6B249B8C35BB9 /* JZLLMContextTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JZLLMContextTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EEB15BFF1A234C902698B41 /* AnthropicProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnthropicProvider.swift; sourceTree = "<group>"; };
 		A398B617F293D69A2F4DE271 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		B97066D39087A6C919961F28 /* PDFKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PDFKit.framework; path = System/Library/Frameworks/PDFKit.framework; sourceTree = SDKROOT; };
@@ -93,8 +110,19 @@
 			isa = PBXGroup;
 			children = (
 				8A1B77ACB12636472CE78D41 /* JZLLMContext.app */,
+				8EABCC079DB6B249B8C35BB9 /* JZLLMContextTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1BF1EC5BC9C89F09169C4491 /* JZLLMContextTests */ = {
+			isa = PBXGroup;
+			children = (
+				0682FD95BD24EE8BF01D38A2 /* ActionConfigTests.swift */,
+				00CBE1F1330CB7BF27FE835E /* MockURLProtocol.swift */,
+				6E0F502EE128D151237534D7 /* ProviderTests.swift */,
+			);
+			path = JZLLMContextTests;
 			sourceTree = "<group>";
 		};
 		2FCC534B033C3D03A572CD65 /* Context */ = {
@@ -146,6 +174,14 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		93658904C9588011C8AAF195 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				1BF1EC5BC9C89F09169C4491 /* JZLLMContextTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		97D272CB3B3203A44B69AACF /* Engine */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				E32D50867172A3C3D02A83CA /* Sources */,
+				93658904C9588011C8AAF195 /* Tests */,
 				360F5963D6B11E1A6F666C8D /* Frameworks */,
 				184F0E025AC899B604DE6549 /* Products */,
 			);
@@ -227,6 +264,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0871FC174550F0EFC2F01BA9 /* JZLLMContextTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5660A93E28606543B501532B /* Build configuration list for PBXNativeTarget "JZLLMContextTests" */;
+			buildPhases = (
+				DB7CE9B6DFFA941E3417646D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FF20111515A8DA12752E2908 /* PBXTargetDependency */,
+			);
+			name = JZLLMContextTests;
+			packageProductDependencies = (
+			);
+			productName = JZLLMContextTests;
+			productReference = 8EABCC079DB6B249B8C35BB9 /* JZLLMContextTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		593781E5807EEFD0487D230E /* JZLLMContext */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E54B60741DC4FCE986E8AECE /* Build configuration list for PBXNativeTarget "JZLLMContext" */;
@@ -256,6 +311,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					0871FC174550F0EFC2F01BA9 = {
+						DevelopmentTeam = HA25F4PWCQ;
+						ProvisioningStyle = Automatic;
+					};
 					593781E5807EEFD0487D230E = {
 						DevelopmentTeam = HA25F4PWCQ;
 						ProvisioningStyle = Automatic;
@@ -282,6 +341,7 @@
 			projectRoot = "";
 			targets = (
 				593781E5807EEFD0487D230E /* JZLLMContext */,
+				0871FC174550F0EFC2F01BA9 /* JZLLMContextTests */,
 			);
 		};
 /* End PBXProject section */
@@ -333,9 +393,45 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DB7CE9B6DFFA941E3417646D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5179B0F0D9B17C21B93DFF2C /* ActionConfigTests.swift in Sources */,
+				4CC1DF49653E12ED104B526F /* MockURLProtocol.swift in Sources */,
+				BAB264811CB62022499DC8F5 /* ProviderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		FF20111515A8DA12752E2908 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 593781E5807EEFD0487D230E /* JZLLMContext */;
+			targetProxy = C7670A7B9FFDC9A93B3303E7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		C19DDE9E5C0A3E13CC4C3217 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jz.JZLLMContextTests;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JZLLMContext.app/Contents/MacOS/JZLLMContext";
+			};
+			name = Release;
+		};
 		C7A8EC5997026BB3529D9E02 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -484,6 +580,24 @@
 			};
 			name = Debug;
 		};
+		CCF340298F361B33FDED0AC8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jz.JZLLMContextTests;
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JZLLMContext.app/Contents/MacOS/JZLLMContext";
+			};
+			name = Debug;
+		};
 		DF94740C34A83D9652F60396 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -509,6 +623,15 @@
 			buildConfigurations = (
 				C9B833610B8C7BC979DCF152 /* Debug */,
 				C7A8EC5997026BB3529D9E02 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5660A93E28606543B501532B /* Build configuration list for PBXNativeTarget "JZLLMContextTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCF340298F361B33FDED0AC8 /* Debug */,
+				C19DDE9E5C0A3E13CC4C3217 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

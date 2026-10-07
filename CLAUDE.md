@@ -7,7 +7,10 @@ macOS menu bar app (Swift 6, macOS 15+). Architecture and full feature overview 
 ```bash
 xcodegen generate   # must run first — regenerates the .xcodeproj from project.yml
 xcodebuild -scheme JZLLMContext -configuration Debug build
+xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'   # unit tests
 ```
+
+Unit tests (`Tests/JZLLMContextTests`, Swift Testing) run hosted in the app; `AppDelegate` skips its setup (menu bar item, hotkey, update check) when `XCTestCase` is loaded. Network tests go through `MockURLProtocol` (canned SSE bodies, captured request JSON) and must stay in the `.serialized` `ProviderTests` suite — the mock is process-wide state. Tests must not call `ConfigStore.update` (it writes the user's real config).
 
 Use `/rebuild` to build and relaunch the app, `/release` to publish a new GitHub release.
 
