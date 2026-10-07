@@ -46,7 +46,9 @@ struct OpenAIProvider: LLMProvider {
                     for (key, value) in extraHeaders {
                         request.setValue(value, forHTTPHeaderField: key)
                     }
-                    request.timeoutInterval = 60
+                    // Idle timeout: reasoning models don't stream their thinking, so the
+                    // first byte can take well over a minute
+                    request.timeoutInterval = 180
 
                     let body = OpenAIChatRequest(
                         model: model,
@@ -82,18 +84,31 @@ struct OpenAIProvider: LLMProvider {
                         return
                     }
 
+                    var finishReason: String?
                     for try await line in bytes.lines {
                         if line.hasPrefix("data: ") {
                             let payload = String(line.dropFirst(6))
                             if payload == "[DONE]" { break }
-                            if let data = payload.data(using: .utf8),
-                               let chunk = try? JSONDecoder().decode(OpenAIStreamChunk.self, from: data),
-                               let text = chunk.choices.first?.delta.content {
+                            guard let data = payload.data(using: .utf8),
+                                  let chunk = try? JSONDecoder().decode(OpenAIStreamChunk.self, from: data) else { continue }
+                            if let error = chunk.error {
+                                continuation.finish(throwing: LLMError.streamError(error.message))
+                                return
+                            }
+                            guard let choice = chunk.choices?.first else { continue }
+                            if let text = choice.delta?.content {
                                 continuation.yield(text)
+                            }
+                            if let reason = choice.finishReason {
+                                finishReason = reason
                             }
                         }
                     }
-                    continuation.finish()
+                    switch finishReason {
+                    case "length":         continuation.finish(throwing: LLMError.truncated(maxTokens: maxTokens))
+                    case "content_filter": continuation.finish(throwing: LLMError.refused)
+                    default:               continuation.finish()
+                    }
                 } catch is CancellationError {
                     continuation.finish()
                 } catch {
@@ -137,11 +152,17 @@ private struct DynamicKey: CodingKey {
 }
 
 private struct OpenAIStreamChunk: Decodable {
-    let choices: [Choice]
+    let choices: [Choice]?
+    let error: OpenAIErrorResponse.APIError?
     struct Choice: Decodable {
-        let delta: Delta
+        let delta: Delta?
+        let finishReason: String?
         struct Delta: Decodable {
             let content: String?
+        }
+        enum CodingKeys: String, CodingKey {
+            case delta
+            case finishReason = "finish_reason"
         }
     }
 }

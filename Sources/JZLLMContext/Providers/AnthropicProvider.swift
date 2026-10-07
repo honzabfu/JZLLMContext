@@ -15,7 +15,9 @@ struct AnthropicProvider: LLMProvider {
                     request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-                    request.timeoutInterval = 60
+                    // Idle timeout: thinking text is omitted by default, so the first
+                    // text delta can take well over a minute
+                    request.timeoutInterval = 180
 
                     let body = AnthropicRequest(
                         model: model,
@@ -41,19 +43,35 @@ struct AnthropicProvider: LLMProvider {
                         return
                     }
 
+                    var stopReason: String?
                     for try await line in bytes.lines {
                         if line.hasPrefix("data: ") {
                             let payload = String(line.dropFirst(6))
-                            if let data = payload.data(using: .utf8),
-                               let chunk = try? JSONDecoder().decode(AnthropicStreamChunk.self, from: data),
-                               chunk.type == "content_block_delta",
-                               chunk.delta?.type == "text_delta",
-                               let text = chunk.delta?.text {
-                                continuation.yield(text)
+                            guard let data = payload.data(using: .utf8),
+                                  let chunk = try? JSONDecoder().decode(AnthropicStreamChunk.self, from: data) else { continue }
+                            switch chunk.type {
+                            case "content_block_delta":
+                                if chunk.delta?.type == "text_delta", let text = chunk.delta?.text {
+                                    continuation.yield(text)
+                                }
+                            case "message_delta":
+                                if let reason = chunk.delta?.stopReason { stopReason = reason }
+                            case "error":
+                                continuation.finish(throwing: LLMError.streamError(chunk.error?.message ?? ""))
+                                return
+                            default:
+                                break
                             }
                         }
                     }
-                    continuation.finish()
+                    switch stopReason {
+                    case "max_tokens", "model_context_window_exceeded":
+                        continuation.finish(throwing: LLMError.truncated(maxTokens: maxTokens))
+                    case "refusal":
+                        continuation.finish(throwing: LLMError.refused)
+                    default:
+                        continuation.finish()
+                    }
                 } catch is CancellationError {
                     continuation.finish()
                 } catch {
@@ -84,9 +102,15 @@ private struct AnthropicRequest: Encodable {
 private struct AnthropicStreamChunk: Decodable {
     let type: String
     let delta: Delta?
+    let error: AnthropicErrorResponse.APIError?
     struct Delta: Decodable {
         let type: String?
         let text: String?
+        let stopReason: String?
+        enum CodingKeys: String, CodingKey {
+            case type, text
+            case stopReason = "stop_reason"
+        }
     }
 }
 

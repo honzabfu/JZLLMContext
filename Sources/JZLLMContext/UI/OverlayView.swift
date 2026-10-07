@@ -497,6 +497,15 @@ struct OverlayView: View {
                 }
                 Spacer()
             } else if let result = displayedResult {
+                if let warning = engine.warningMessage, shownHistoryResult == nil {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text(warning)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 ScrollView {
                     if ConfigStore.shared.config.markdownOutput {
                         Markdown(result)

@@ -9,6 +9,12 @@ enum LLMError: Error, LocalizedError {
     case httpError(Int, String)
     case networkError(Error)
     case decodingError
+    /// The model hit the token limit; the partial text has already been streamed.
+    case truncated(maxTokens: Int)
+    /// The provider refused to answer (Anthropic `refusal`, OpenAI `content_filter`).
+    case refused
+    /// The provider reported an error after the stream had started.
+    case streamError(String)
 
     var errorDescription: String? {
         switch self {
@@ -24,6 +30,9 @@ enum LLMError: Error, LocalizedError {
         case .httpError(let code, let message): return "API chyba \(code): \(message)"
         case .networkError(let error): return "Síťová chyba: \(error.localizedDescription)"
         case .decodingError: return "Chyba při zpracování odpovědi"
+        case .truncated(let maxTokens): return String(format: L("error.truncated"), maxTokens)
+        case .refused: return L("error.refused")
+        case .streamError(let message): return String(format: L("error.stream"), message)
         }
     }
 }

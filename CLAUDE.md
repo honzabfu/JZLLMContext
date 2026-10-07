@@ -25,7 +25,11 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 ## Providers
 
-Cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) never receive `temperature` — newer reasoning models reject it with HTTP 400 or ignore it (#26). `Action.temperature` is optional (`nil` = not sent) and `ProviderFactory` passes `Action.effectiveTemperature`, which is non-nil only for custom providers with the per-action opt-in toggle on; don't add per-model regex exceptions. Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
+Cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) never receive `temperature` — newer reasoning models reject it with HTTP 400 or ignore it (#26). `Action.temperature` is optional (`nil` = not sent) and `ProviderFactory` passes `Action.effectiveTemperature`, which is non-nil only for custom providers with the per-action opt-in toggle on; don't add per-model regex exceptions.
+
+Stream parsers must surface why a response ended: OpenAI `finish_reason` `length` / Anthropic `stop_reason` `max_tokens` → `LLMError.truncated` (thrown after the partial text was yielded; `ActionEngine` keeps the text and sets `warningMessage` instead of completing the run, so no history entry and no auto copy & close), `content_filter` / `refusal` → `.refused`, an in-stream error chunk/event → `.streamError`. Request `timeoutInterval` is 180 s (idle) because reasoning models don't stream their thinking.
+
+Azure error paths take the concrete `ProviderType` (slot 1 vs slot 2) so messages point at the right slot.
 
 Custom (OpenAI-compatible) provider URLs are built only by `CustomProvider.chatURL` / `modelsURL` (`AppConfig.swift`): `baseURL` + optional `chatPath`/`modelsPath` override (relative, or absolute http(s) URL) + `?api-version=` on chat only. `ProviderFactory`, `ConnectionTester`, `ModelFetcher` and the settings preview all use them — don't reintroduce local URL concatenation. Only the OpenAI request/response format is supported; a native API format picker is planned in issue #25.
 
