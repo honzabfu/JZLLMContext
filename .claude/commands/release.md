@@ -80,10 +80,15 @@ Steps to execute in order:
      ```
      xcodebuild -scheme JZLLMContext -configuration Debug build
      ```
-     If the build fails, show only error lines and skip the relaunch (the release is already published).
+     If the build fails, show only error lines and skip the install and relaunch (the release is already published).
    - Kill any running instance: `pkill -x JZLLMContext || true`
-   - Launch the signed build: `open ~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app`
-   - Verify it is signed: `codesign -dv <app path> 2>&1 | grep TeamIdentifier` must show `TeamIdentifier=HA25F4PWCQ`, not `not set`.
+   - Install the signed build to /Applications (replaces the previous copy):
+     ```
+     rm -rf /Applications/JZLLMContext.app
+     ditto ~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app /Applications/JZLLMContext.app
+     ```
+   - Verify it is signed: `codesign -dv /Applications/JZLLMContext.app 2>&1 | grep TeamIdentifier` must show `TeamIdentifier=HA25F4PWCQ`, not `not set`. If it isn't, report it and do not launch.
+   - Launch the installed app: `open /Applications/JZLLMContext.app`
 
 10. **Report result:**
     - Print the release URL returned by `gh release create`.

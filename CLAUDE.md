@@ -12,9 +12,9 @@ xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'   # unit test
 
 Unit tests (`Tests/JZLLMContextTests`, Swift Testing) run hosted in the app; `AppDelegate` skips its setup (menu bar item, hotkey, update check) when `XCTestCase` is loaded. Network tests go through `MockURLProtocol` (canned SSE bodies, captured request JSON) and must stay in the `.serialized` `ProviderTests` suite — the mock is process-wide state. Tests must not call `ConfigStore.update` (it writes the user's real config). `LiveAPITests` calls the real APIs with the app's stored keys and config (read-only, costs tokens) and runs only with `TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test … -only-testing:JZLLMContextTests/LiveAPITests`; `ProviderTests` is disabled in that mode so its mock doesn't intercept the live calls.
 
-Use `/rebuild` to build and relaunch the app, `/release` to publish a new GitHub release.
+Use `/rebuild` to build, install the signed build to `/Applications` and relaunch it, `/release` to publish a new GitHub release.
 
-Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys. Only local builds are signed: the distributed GitHub release zip (`/release`, `CODE_SIGNING_ALLOWED=NO`) stays unsigned on purpose (no Developer ID / notarization, and an Apple Development signature would embed the personal certificate name). Never launch that unsigned build locally — `/release` relaunches the signed Debug build instead.
+Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys. Only local builds are signed: the distributed GitHub release zip (`/release`, `CODE_SIGNING_ALLOWED=NO`) stays unsigned on purpose (no Developer ID / notarization, and an Apple Development signature would embed the personal certificate name). Never launch or install that unsigned build locally — `/rebuild` and `/release` install the signed Debug build to `/Applications/JZLLMContext.app` (verifying `TeamIdentifier=HA25F4PWCQ`) and launch it from there.
 
 ## Swift 6 strict concurrency
 
