@@ -92,6 +92,8 @@ struct OpenAIProvider: LLMProvider {
                     }
 
                     var finishReason: String?
+                    // Refusals may arrive in their own delta field instead of content
+                    var refusal = ""
                     for try await line in bytes.lines {
                         if line.hasPrefix("data: ") {
                             let payload = String(line.dropFirst(6))
@@ -106,10 +108,17 @@ struct OpenAIProvider: LLMProvider {
                             if let text = choice.delta?.content {
                                 continuation.yield(text)
                             }
+                            if let text = choice.delta?.refusal {
+                                refusal += text
+                            }
                             if let reason = choice.finishReason {
                                 finishReason = reason
                             }
                         }
+                    }
+                    if !refusal.isEmpty {
+                        continuation.finish(throwing: LLMError.refused)
+                        return
                     }
                     switch finishReason {
                     case "length":         continuation.finish(throwing: LLMError.truncated(maxTokens: maxTokens))
@@ -170,6 +179,7 @@ private struct OpenAIStreamChunk: Decodable {
         let finishReason: String?
         struct Delta: Decodable {
             let content: String?
+            let refusal: String?
         }
         enum CodingKeys: String, CodingKey {
             case delta

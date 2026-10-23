@@ -112,7 +112,6 @@ struct OverlayView: View {
         .onChange(of: state.refreshID) {
             resolveContext()
             userContextFocused = true
-            lastAction = nil
         }
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             let current = NSPasteboard.general.changeCount
@@ -133,7 +132,8 @@ struct OverlayView: View {
             default:        shouldCopyClose = ConfigStore.shared.config.autoCopyAndClose
             }
             if shouldCopyClose {
-                copyResult()
+                // Not displayedResult: a history entry picked during the run may be shown
+                copyResult(engine.result)
                 onClose()
             }
         }
@@ -557,9 +557,13 @@ struct OverlayView: View {
     }
 
     private func resolveContext() {
+        // A loaded file survives re-opening the panel together with its run;
+        // resetting only part of the state (e.g. lastAction) would make the
+        // still-running action finish without its name and copy/close policy
         guard droppedFileURL == nil else { return }
         userContextFocused = false
         engine.reset()
+        lastAction = nil
         isResolvingContext = true
         contextText = nil
         contextError = nil
@@ -610,11 +614,12 @@ struct OverlayView: View {
         lastAction = action
         didCopy = false
         shownHistoryResult = nil
-        if action.ignoreClipboard && droppedFileURL == nil { ignoreClipboard = true }
         var resolved = action
         resolved.systemPrompt = resolveVariables(in: action.systemPrompt)
         let input: String
-        if ignoreClipboard && droppedFileURL == nil {
+        // The per-action flag applies to this run only — it must not switch the
+        // panel's manual ignore-clipboard mode for the following actions
+        if (ignoreClipboard || action.ignoreClipboard) && droppedFileURL == nil {
             input = userContext
         } else {
             guard let text = contextText else { return }
@@ -643,8 +648,8 @@ struct OverlayView: View {
         engine.run(action: resolved, input: input)
     }
 
-    private func copyResult() {
-        guard let text = displayedResult else { return }
+    private func copyResult(_ text: String? = nil) {
+        guard let text = text ?? displayedResult else { return }
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(text, forType: .string)
         // Our own write must not trip the external clipboard-change indicator

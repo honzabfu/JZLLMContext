@@ -121,6 +121,30 @@ struct ProviderTests {
         #expect(result.error == nil)
     }
 
+    @Test func openAIDeltaRefusalThrowsRefused() async {
+        MockURLProtocol.stubStream([
+            #"{"choices":[{"index":0,"delta":{"refusal":"Cannot "},"finish_reason":null}]}"#,
+            #"{"choices":[{"index":0,"delta":{"refusal":"answer"},"finish_reason":"stop"}]}"#,
+            "[DONE]"
+        ])
+        let result = await collect(openAI().stream(systemPrompt: "s", userContent: "u"))
+        #expect(result.text.isEmpty)
+        guard case .refused? = result.error as? LLMError else {
+            Issue.record("expected .refused, got \(String(describing: result.error))")
+            return
+        }
+    }
+
+    // MARK: - Connection test
+
+    @Test func azurePingSendsMaxCompletionTokens() async throws {
+        MockURLProtocol.stub(body: #"{"choices":[]}"#)
+        try await ConnectionTester.pingChatCompletions(url: Self.chatURL, apiKey: "test", authStyle: .apiKey)
+        let body = try #require(MockURLProtocol.lastRequestJSON)
+        #expect(body["max_tokens"] == nil)
+        #expect(body["max_completion_tokens"] as? Int == 16)
+    }
+
     // MARK: - OpenAI-compatible HTTP errors
 
     @Test func temperature400GetsHint() async {

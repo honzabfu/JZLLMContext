@@ -117,7 +117,9 @@ enum ConnectionTester {
 
     // MARK: - Helpers
 
-    private static func pingChatCompletions(url: URL, apiKey: String, authStyle: OpenAIAuthStyle) async throws {
+    /// Sends the same token parameter as real Azure requests (`ProviderFactory`):
+    /// reasoning deployments reject `max_tokens`.
+    static func pingChatCompletions(url: URL, apiKey: String, authStyle: OpenAIAuthStyle) async throws {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         switch authStyle {
@@ -129,11 +131,11 @@ enum ConnectionTester {
 
         struct MinimalRequest: Encodable {
             let messages: [Msg]
-            let max_tokens: Int
+            let max_completion_tokens: Int
             struct Msg: Encodable { let role: String; let content: String }
         }
         req.httpBody = try? JSONEncoder().encode(
-            MinimalRequest(messages: [.init(role: "user", content: "Hi")], max_tokens: 1)
+            MinimalRequest(messages: [.init(role: "user", content: "Hi")], max_completion_tokens: 16)
         )
 
         let (data, response) = try await URLSession.shared.data(for: req)

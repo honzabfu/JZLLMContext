@@ -69,7 +69,9 @@ Use `UICornerRadius.small` (4) / `.large` (8) for corner radii instead of magic 
 
 `OverlayWindowController` hides the standard traffic-light window buttons (`standardWindowButton(.closeButton/.miniaturizeButton/.zoomButton)?.isHidden = true`); `OverlayView` provides its own ✕ in the header, so don't re-enable the system buttons.
 
-`headerBar` shows app name, version, and — when `lastAction != nil` — the model used by that action (`.caption2`, `.tertiary`). `lastAction` is reset to `nil` inside `.onChange(of: state.refreshID)` so the model label is absent on every fresh panel open and appears only after the first action runs.
+`headerBar` shows app name, version, and — when `lastAction != nil` — the model used by that action (`.caption2`, `.tertiary`). `lastAction` is reset to `nil` in `resolveContext()` together with `engine.reset()`, so the model label is absent on every fresh panel open and appears only after the first action runs. With a dropped file loaded, re-opening the panel keeps the file, the run and `lastAction` — never reset only part of that state (#47).
+
+`action.ignoreClipboard` applies to that run only — `runAction(_:)` must not write it into the panel's manual `ignoreClipboard` toggle (#46). Auto Copy & Close copies `engine.result`, not `displayedResult` (which may show a history entry picked during the run, #42).
 
 `hasInput(for:)` must mirror the input selection in `runAction(_:)` exactly (including whitespace trimming and the typed-context append branch) — any divergence either enables action buttons whose press silently no-ops, or disables runs that would succeed.
 
