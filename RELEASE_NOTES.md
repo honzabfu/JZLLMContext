@@ -1,6 +1,11 @@
 # Release Notes
 
 ## Unreleased
+- Fix: auto Copy & Close could copy an older history entry picked while the action was still running instead of the new result (#42)
+- Fix: an OpenAI refusal delivered in `delta.refusal` finished as an empty success — it now shows the refusal error (#45)
+- Fix: running an action with *Ignore clipboard* switched the panel's ignore-clipboard mode on for all following actions — the setting now applies to that run only (#46)
+- Fix: re-opening the panel with a dropped file during a run dropped the model label and saved the history entry without the action name (#47)
+- Fix: Azure "Test connection" sent `max_tokens` and failed for reasoning deployments — it now sends `max_completion_tokens` like real requests (#48)
 
 ## v0.70 – 2026-10-07
 - Model presets updated: OpenAI `gpt-6-sol` (recommended) / `gpt-6-luna` / `gpt-6-astra` / `gpt-5.5` / `gpt-5.4-mini` (legacy o-series and gpt-4o removed from presets), Anthropic `claude-sonnet-5-5` (recommended) / `claude-opus-5-5` / `claude-fable-5-1` / `claude-haiku-4-5`, Gemini `gemini-3.8-flash` (recommended) / `gemini-3.5-flash-lite` / `gemini-3.1-pro-preview`. Default actions for new installs use `gpt-6-luna`, `gpt-6-sol` and `claude-sonnet-5-5`
