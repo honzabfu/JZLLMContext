@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Unreleased
+
+## v0.71 – 2026-10-24
 - Fix: PPTX text follows the presentation's actual slide order, including reordered slides, instead of sorting slide filenames; missing slide parts report an extraction error (#31)
 - Fix: XLSX extraction now reads actual worksheet cells in workbook order, preserving numbers, repeated values, inline/shared text and blank row/column positions; formulas use saved results without recalculation (#43)
 - Fix: named and numeric XML entities are decoded once in XLSX/PPTX text, including rich text and non-ASCII characters (#32)
