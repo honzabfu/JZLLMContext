@@ -5,8 +5,8 @@
 Thumbs.db
 
 # Logs
-# *.log
-# logs/
+*.log
+logs/
 
 # Temp
 tmp/
@@ -17,17 +17,33 @@ temp/
 .vscode/
 .idea/
 *.user
+**/xcuserdata/
+.claude/settings.local.json
 
 # Secrets
 .env
+.env.*
+!.env.example
+!.env.sample
 *.key
 *.pfx
+*.p12
+*.pem
+*.keychain
+*.keychain-db
+*.mobileprovision
+
+# Local app configuration and recovery copies
+config.json
+config.json.corrupt*
 
 # Build
 # bin/
 # obj/
 # dist/
-# build/
+build/
+DerivedData/
+*.xcresult/
 
 # Node
 node_modules/

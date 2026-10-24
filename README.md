@@ -380,6 +380,8 @@ Configuration (actions, shortcut, Azure/Custom URLs) is saved atomically to a JS
 ~/Library/Application Support/JZLLMContext/config.json
 ```
 
+Schema migrations are saved immediately. If the file cannot be decoded or contains invalid shortcut/history values, the app preserves it as `config.json.corrupt.<UUID>` before using defaults. If that backup fails, saving is blocked to protect the original. Invalid imports are rejected; the history limit must be 0–10 and shortcut values must fit an unsigned 32-bit integer.
+
 #### API Key Storage
 
 API keys are stored in the macOS Keychain under service `com.jz.JZLLMContext`:
@@ -905,6 +907,8 @@ Konfigurace (akce, zkratka, Azure/Custom URL) se ukládá do JSON souboru atomic
 ```
 ~/Library/Application Support/JZLLMContext/config.json
 ```
+
+Migrace schématu se ukládají okamžitě. Pokud soubor nelze dekódovat nebo obsahuje neplatné hodnoty zkratky či historie, aplikace jej před použitím výchozího nastavení zálohuje jako `config.json.corrupt.<UUID>`. Když záloha selže, ukládání se zablokuje, aby původní soubor zůstal zachován. Neplatný import se odmítne; limit historie musí být 0–10 a hodnoty zkratky musí odpovídat nezápornému 32bitovému číslu.
 
 #### Ukládání API klíčů
 

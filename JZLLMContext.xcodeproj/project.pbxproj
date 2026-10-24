@@ -24,6 +24,7 @@
 		55A7384824E1E417674390AE /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A0987C8886320AB4C42709 /* AboutView.swift */; };
 		58711DA275804D6B0D2ADA92 /* UpdateState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7F7346042278B76B448237 /* UpdateState.swift */; };
 		64E461412076DEC8DDBD2D48 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D32A6BBDA7F534A25CF8D89A /* KeychainStore.swift */; };
+		682B890492F6147BF12A96F5 /* ConfigStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4625F03184234A6C1BAB701C /* ConfigStoreTests.swift */; };
 		6D0BBD128118EBEBC031E25C /* UpdateChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018CB417B49F176AFD1DC7E4 /* UpdateChecker.swift */; };
 		7C7F7BE7E9C1F5004DA1382B /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC7788BE265D802DAD645314 /* HotkeyManager.swift */; };
 		849D592AD8198F46B85F160C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B871CF2E7BE6343C453D36B /* SettingsView.swift */; };
@@ -73,6 +74,7 @@
 		3D7F7346042278B76B448237 /* UpdateState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateState.swift; sourceTree = "<group>"; };
 		43A0987C8886320AB4C42709 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		442548DEA3D00387E384367A /* ProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderFactory.swift; sourceTree = "<group>"; };
+		4625F03184234A6C1BAB701C /* ConfigStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStoreTests.swift; sourceTree = "<group>"; };
 		4788917E973F02208D6DAB08 /* ConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTester.swift; sourceTree = "<group>"; };
 		4CDCAE340BBEAC5C27AA845F /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		59447DF2AC7DB9ACFFA2992C /* LiveAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAPITests.swift; sourceTree = "<group>"; };
@@ -121,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				0682FD95BD24EE8BF01D38A2 /* ActionConfigTests.swift */,
+				4625F03184234A6C1BAB701C /* ConfigStoreTests.swift */,
 				59447DF2AC7DB9ACFFA2992C /* LiveAPITests.swift */,
 				00CBE1F1330CB7BF27FE835E /* MockURLProtocol.swift */,
 				6E0F502EE128D151237534D7 /* ProviderTests.swift */,
@@ -401,6 +404,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5179B0F0D9B17C21B93DFF2C /* ActionConfigTests.swift in Sources */,
+				682B890492F6147BF12A96F5 /* ConfigStoreTests.swift in Sources */,
 				04E9C7C7F86D0E7DFF3A9110 /* LiveAPITests.swift in Sources */,
 				4CC1DF49653E12ED104B526F /* MockURLProtocol.swift in Sources */,
 				BAB264811CB62022499DC8F5 /* ProviderTests.swift in Sources */,

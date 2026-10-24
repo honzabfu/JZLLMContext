@@ -1,6 +1,9 @@
 # Release Notes
 
 ## Unreleased
+- Fix: preserve unreadable or invalid configuration files in unique backups before using defaults; unknown per-action Copy & Close modes fall back to the global setting without losing actions (#29)
+- Fix: save schema migrations immediately so migrated custom-provider IDs and their Keychain references survive restarts (#30)
+- Fix: reject invalid shortcut and history values on import/load, explain failed imports, and guard shortcut registration and history trimming against integer traps (#40)
 - Fix: auto Copy & Close could copy an older history entry picked while the action was still running instead of the new result (#42)
 - Fix: an OpenAI refusal delivered in `delta.refusal` finished as an empty success — it now shows the refusal error (#45)
 - Fix: running an action with *Ignore clipboard* switched the panel's ignore-clipboard mode on for all following actions — the setting now applies to that run only (#46)

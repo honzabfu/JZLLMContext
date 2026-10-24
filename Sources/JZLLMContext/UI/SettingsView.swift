@@ -27,6 +27,7 @@ struct SettingsView: View {
     @State private var showImportAlert = false
     @State private var importedConfig: AppConfig? = nil
     @State private var showConfigImportAlert = false
+    @State private var showConfigImportError = false
     @State private var isFetching: ProviderType? = nil
     @State private var fetchError: [ProviderType: String] = [:]
     @State private var isTesting: ProviderType? = nil
@@ -368,6 +369,11 @@ struct SettingsView: View {
             Button(L("common.cancel"), role: .cancel) { importedConfig = nil }
         } message: {
             Text(L("settings.alert.import_config.message"))
+        }
+        .alert(L("settings.alert.import_config.invalid_title"), isPresented: $showConfigImportError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(L("settings.alert.import_config.invalid_message"))
         }
         .alert(L("settings.alert.reset.title"), isPresented: $showResetAlert) {
             Button(L("settings.alert.reset.confirm"), role: .destructive) {
@@ -1344,12 +1350,19 @@ struct SettingsView: View {
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         panel.begin { response in
-            guard response == .OK, let url = panel.url,
-                  let data = try? Data(contentsOf: url),
-                  let cfg = try? JSONDecoder().decode(AppConfig.self, from: data) else { return }
-            DispatchQueue.main.async {
-                importedConfig = cfg
-                showConfigImportAlert = true
+            guard response == .OK, let url = panel.url else { return }
+            do {
+                let data = try Data(contentsOf: url)
+                let cfg = try JSONDecoder().decode(AppConfig.self, from: data)
+                DispatchQueue.main.async {
+                    importedConfig = cfg
+                    showConfigImportAlert = true
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    importedConfig = nil
+                    showConfigImportError = true
+                }
             }
         }
     }

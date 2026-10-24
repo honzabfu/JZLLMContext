@@ -2,6 +2,23 @@
   "sourceLanguage" : "cs",
   "strings" : {
 
+    "settings.alert.import_config.invalid_title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Konfiguraci nelze importovat" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cannot import configuration" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se puede importar la configuración" } }
+      }
+    },
+    "settings.alert.import_config.invalid_message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : { "stringUnit" : { "state" : "translated", "value" : "Soubor nelze přečíst nebo obsahuje neplatná nastavení. Hodnoty klávesové zkratky musí být v rozsahu 0 až 4294967295 a limit historie 0 až 10. Současná konfigurace zůstala zachována." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The file cannot be read or contains invalid settings. Shortcut values must be between 0 and 4294967295 and the history limit between 0 and 10. Your current configuration has been kept." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El archivo no se puede leer o contiene ajustes no válidos. Los valores del atajo deben estar entre 0 y 4294967295 y el límite del historial entre 0 y 10. Se ha conservado la configuración actual." } }
+      }
+    },
+
     "menu.about" : {
       "comment" : "Menu item: About window",
       "extractionState" : "manual",

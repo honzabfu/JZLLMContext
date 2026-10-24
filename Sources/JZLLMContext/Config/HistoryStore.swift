@@ -26,6 +26,7 @@ final class HistoryStore: ObservableObject {
     }
 
     func trim(to limit: Int) {
-        if entries.count > limit { entries = Array(entries.prefix(limit)) }
+        let safeLimit = max(0, min(10, limit))
+        if entries.count > safeLimit { entries = Array(entries.prefix(safeLimit)) }
     }
 }

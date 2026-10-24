@@ -321,6 +321,20 @@ struct AppConfig: Codable, Sendable {
         modelExcludeFilters  = try c.decodeIfPresent([String].self, forKey: .modelExcludeFilters) ?? []
         modelIncludeFilters  = try c.decodeIfPresent([String].self, forKey: .modelIncludeFilters) ?? []
 
+        // Validate before migration, which can copy credentials to new Keychain accounts.
+        guard UInt32(exactly: hotkeyKeyCode) != nil else {
+            throw DecodingError.dataCorruptedError(forKey: .hotkeyKeyCode, in: c,
+                debugDescription: "hotkeyKeyCode must be between 0 and UInt32.max")
+        }
+        guard UInt32(exactly: hotkeyModifiers) != nil else {
+            throw DecodingError.dataCorruptedError(forKey: .hotkeyModifiers, in: c,
+                debugDescription: "hotkeyModifiers must be between 0 and UInt32.max")
+        }
+        guard (0...10).contains(historyLimit) else {
+            throw DecodingError.dataCorruptedError(forKey: .historyLimit, in: c,
+                debugDescription: "historyLimit must be between 0 and 10")
+        }
+
         // Migrate schemaVersion 1 → 2: convert flat custom OpenAI fields to CustomProvider list
         if schemaVersion < 2 {
             let lc = try decoder.container(keyedBy: LegacyCodingKeys.self)
@@ -577,7 +591,7 @@ struct Action: Codable, Identifiable, Hashable, Equatable, Sendable {
         temperature     = try c.decodeIfPresent(Double.self, forKey: .temperature)
         reasoningEffort = try? c.decodeIfPresent(ReasoningEffort.self, forKey: .reasoningEffort)
         maxTokens       = try c.decodeIfPresent(Int.self, forKey: .maxTokens) ?? Action.defaultMaxTokens
-        autoCopyClose   = try c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose) ?? .useGlobal
+        autoCopyClose   = (try? c.decodeIfPresent(AutoCopyClose.self, forKey: .autoCopyClose)) ?? .useGlobal
         isDefault       = try c.decodeIfPresent(Bool.self, forKey: .isDefault) ?? false
         ignoreClipboard = try c.decodeIfPresent(Bool.self, forKey: .ignoreClipboard) ?? false
     }

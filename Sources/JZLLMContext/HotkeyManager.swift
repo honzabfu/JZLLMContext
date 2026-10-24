@@ -12,8 +12,8 @@ final class HotkeyManager: @unchecked Sendable {
 
     func register() {
         let config = ConfigStore.shared
-        let keyCode = UInt32(config.hotkeyKeyCode)
-        let modifiers = UInt32(config.hotkeyModifiers)
+        guard let keyCode = UInt32(exactly: config.hotkeyKeyCode),
+              let modifiers = UInt32(exactly: config.hotkeyModifiers) else { return }
 
         var hotKeyID = EventHotKeyID()
         hotKeyID.signature = OSType(0x4A5A4C43) // 'JZLC'

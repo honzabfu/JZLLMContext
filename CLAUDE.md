@@ -26,6 +26,8 @@ All code compiles with `SWIFT_STRICT_CONCURRENCY: complete`. Every change must s
 
 `exportConfig()` in `SettingsView` blanks custom-provider header values before encoding; any new secret-bearing config field must be sanitized there too (API keys themselves live in Keychain, not in config).
 
+`AppConfig.init(from:)` validates shortcut UInt32 ranges and history limits (0...10) before legacy Keychain migration. `ConfigStore` immediately saves schema migrations and copies invalid files to unique `config.json.corrupt.<UUID>` backups before allowing defaults to overwrite them; a failed backup blocks persistence. Persistence tests use `ConfigStore(fileURL:)` with temporary files, never the singleton or the user's Keychain.
+
 ## Providers
 
 Cloud providers (OpenAI, Azure, Anthropic, Gemini, Grok) never receive `temperature` — newer reasoning models reject it with HTTP 400 or ignore it (#26). `Action.temperature` is optional (`nil` = not sent) and `ProviderFactory` passes `Action.effectiveTemperature`, which is non-nil only for custom providers with the per-action opt-in toggle on; don't add per-model regex exceptions.
