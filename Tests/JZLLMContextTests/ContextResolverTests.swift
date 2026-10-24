@@ -202,16 +202,36 @@ struct ContextResolverTests {
     }
 
     @Test func slideEntitiesExtractFromRealZIP() async throws {
-        let parts = ["ppt/slides/slide1.xml": """
+        var parts = OfficeFixtures.presentation(order: [1])
+        parts["ppt/slides/slide1.xml"] = """
         <p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
         <a:tabLst><a:tab/></a:tabLst><a:t>A &amp; B &#x1F600; &amp;lt;</a:t></p:sld>
-        """]
+        """
         try await withOfficeArchive(parts, extension: "pptx") { archive in
             guard case .text(let text, _) = await ContextResolver.extractText(from: archive) else {
                 Issue.record("Expected slide text")
                 return
             }
             #expect(text == "A & B 😀 &lt;")
+        }
+    }
+
+    @Test(arguments: [Array(1...12), [12, 2, 1, 10, 3, 11, 4, 9, 5, 8, 6, 7]])
+    func presentationOrderExtractsFromRealZIP(order: [Int]) async throws {
+        try await withOfficeArchive(OfficeFixtures.presentation(order: order), extension: "pptx") { archive in
+            guard case .text(let text, _) = await ContextResolver.extractText(from: archive) else {
+                Issue.record("Expected ordered presentation text")
+                return
+            }
+            #expect(text == order.map { "Slide \($0)" }.joined(separator: "\n"))
+        }
+    }
+
+    @Test func missingPresentationSlideDoesNotReturnPartialText() async throws {
+        var parts = OfficeFixtures.presentation(order: [1, 2])
+        parts.removeValue(forKey: "ppt/slides/slide2.xml")
+        try await withOfficeArchive(parts, extension: "pptx") { archive in
+            expectFileReadFailure(await ContextResolver.extractText(from: archive))
         }
     }
 

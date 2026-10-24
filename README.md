@@ -497,7 +497,7 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (same pipeline as clipboard images) |
 | DOC, DOCX, RTF, RTFD, ODT, HTML | `textutil -convert txt` |
 | XLSX | Text tables with sheet names, row/column positions, numbers, shared and inline text |
-| PPTX | Text from slides |
+| PPTX | Text from slides in presentation order, including slides moved within the presentation |
 | Pages, Numbers, Keynote | `QuickLook/Preview.pdf` via PDFKit; fallback: OCR of the embedded `preview.jpg` |
 | XLS and other formats | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
 | TXT, MD, CSV, JSON, source code, … | encoding auto-detected (BOM / Foundation heuristics); fallback chain: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
@@ -506,7 +506,7 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 
 If text cannot be extracted from a document, the app shows a file-read error. Ordinary text files, including common older encodings, remain supported.
 
-**Current limitations:** XLSX values are read without display formatting, so dates stored as numbers can appear as numbers. Formulas use the last saved result, or the formula itself if no result is saved; formulas are not recalculated. Very large or sparse tables and unsupported sheet types may be rejected. PPTX slides can still appear in the wrong order. For important content, check the preview and use a text export if needed.
+**Current limitations:** XLSX values are read without display formatting, so dates stored as numbers can appear as numbers. Formulas use the last saved result, or the formula itself if no result is saved; formulas are not recalculated. Very large or sparse tables and unsupported sheet types may be rejected. For important content, check the preview and use a text export if needed.
 
 **History logging:** when interaction logging is enabled, the full extracted text is written to the MD log as the input field. For large files this can produce large log entries.
 
@@ -1023,7 +1023,7 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 | PNG, JPG, HEIC, TIFF, WEBP, … | Apple Vision OCR (stejná pipeline jako u obrázků ze schránky) |
 | DOC, DOCX, RTF, RTFD, ODT, HTML | `textutil -convert txt` |
 | XLSX | Textové tabulky s názvy listů, pozicemi řádků/sloupců, čísly, sdílenými i přímo uloženými texty |
-| PPTX | Text ze snímků |
+| PPTX | Text ze snímků v pořadí prezentace, včetně snímků přesunutých v rámci prezentace |
 | Pages, Numbers, Keynote | `QuickLook/Preview.pdf` přes PDFKit; záloha: OCR vnořeného `preview.jpg` |
 | XLS a další formáty | Spotlight `MDItemCreateWithURL` + `kMDItemTextContent` |
 | TXT, MD, CSV, JSON, zdrojový kód, … | kódování auto-detekováno (BOM / Foundation heuristiky); fallback: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
@@ -1032,7 +1032,7 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 
 Pokud z dokumentu nelze získat text, aplikace zobrazí chybu čtení souboru. Běžné textové soubory včetně obvyklých starších kódování zůstávají podporované.
 
-**Současná omezení:** hodnoty XLSX se čtou bez formátování, takže data uložená jako čísla se mohou zobrazit číselně. U vzorců se použije naposledy uložený výsledek, případně samotný vzorec, pokud výsledek uložený není; vzorce se nepřepočítávají. Velmi velké či řídce vyplněné tabulky a nepodporované typy listů mohou být odmítnuty. Snímky PPTX se stále mohou zobrazit v nesprávném pořadí. U důležitého obsahu zkontroluj náhled a případně použij export do textu.
+**Současná omezení:** hodnoty XLSX se čtou bez formátování, takže data uložená jako čísla se mohou zobrazit číselně. U vzorců se použije naposledy uložený výsledek, případně samotný vzorec, pokud výsledek uložený není; vzorce se nepřepočítávají. Velmi velké či řídce vyplněné tabulky a nepodporované typy listů mohou být odmítnuty. U důležitého obsahu zkontroluj náhled a případně použij export do textu.
 
 **Logování do MD souboru:** pokud je zapnuto logování interakcí, celý extrahovaný text se zapíše do MD logu jako pole vstup. U velkých souborů to může vytvořit velké záznamy.
 
