@@ -136,7 +136,7 @@ struct ContextResolverTests {
         }
     }
 
-    @Test func inlineStringWorkbookNeverReturnsZIPBytes() async throws {
+    @Test func incompleteWorkbookNeverReturnsZIPBytes() async throws {
         try await withDirectory { directory in
             let sheet = directory.appendingPathComponent("xl/worksheets/sheet1.xml")
             try FileManager.default.createDirectory(at: sheet.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -156,11 +156,83 @@ struct ContextResolverTests {
             try zip.run()
             zip.waitUntilExit()
             #expect(zip.terminationStatus == 0)
-            // Until #43 supports inline strings, report extraction failure.
+            // A worksheet without workbook metadata is not a readable workbook.
             expectFileReadFailure(await ContextResolver.extractText(from: archive))
             let disguised = directory.appendingPathComponent("archive.txt")
             try FileManager.default.copyItem(at: archive, to: disguised)
             expectFileReadFailure(await ContextResolver.extractText(from: disguised))
+        }
+    }
+
+    private func withOfficeArchive(_ parts: [String: String], extension ext: String,
+                                   body: @MainActor (URL) async throws -> Void) async throws {
+        try await withDirectory { directory in
+            let input = directory.appendingPathComponent("parts")
+            for (name, xml) in parts {
+                let url = input.appendingPathComponent(name)
+                try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+                try Data(xml.utf8).write(to: url)
+            }
+            let archive = directory.appendingPathComponent("test.\(ext)")
+            let zip = Process()
+            zip.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+            zip.currentDirectoryURL = input
+            zip.arguments = ["-q", "-r", archive.path, "."]
+            zip.standardOutput = FileHandle.nullDevice
+            zip.standardError = FileHandle.nullDevice
+            try zip.run()
+            zip.waitUntilExit()
+            #expect(zip.terminationStatus == 0)
+            try await body(archive)
+        }
+    }
+
+    @Test func inlineWorkbookExtractsFromRealZIP() async throws {
+        try await withOfficeArchive(OfficeFixtures.workbook, extension: "xlsx") { archive in
+            guard case .text(let text, let isOCR) = await ContextResolver.extractText(from: archive) else {
+                Issue.record("Expected inline worksheet text from complete workbook")
+                return
+            }
+            #expect(text == "Sheet: Test\nRow\tA\n1\tHello")
+            #expect(!isOCR)
+            let disguised = archive.deletingPathExtension().appendingPathExtension("txt")
+            try FileManager.default.copyItem(at: archive, to: disguised)
+            expectFileReadFailure(await ContextResolver.extractText(from: disguised))
+        }
+    }
+
+    @Test func slideEntitiesExtractFromRealZIP() async throws {
+        let parts = ["ppt/slides/slide1.xml": """
+        <p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+        <a:tabLst><a:tab/></a:tabLst><a:t>A &amp; B &#x1F600; &amp;lt;</a:t></p:sld>
+        """]
+        try await withOfficeArchive(parts, extension: "pptx") { archive in
+            guard case .text(let text, _) = await ContextResolver.extractText(from: archive) else {
+                Issue.record("Expected slide text")
+                return
+            }
+            #expect(text == "A & B 😀 &lt;")
+        }
+    }
+
+    @Test func archiveOutputLargerThanPipeBufferDoesNotDeadlock() async throws {
+        var parts = OfficeFixtures.workbook
+        let text = String(repeating: "large text ", count: 10_000)
+        parts["xl/worksheets/sheet1.xml"] = "<worksheet><sheetData><row><c t=\"inlineStr\"><is><t>\(text)</t></is></c></row></sheetData></worksheet>"
+        try await withOfficeArchive(parts, extension: "xlsx") { archive in
+            guard case .text(let extracted, _) = await ContextResolver.extractText(from: archive) else {
+                Issue.record("Expected text larger than pipe buffer")
+                return
+            }
+            #expect(extracted == "Sheet: Test\nRow\tA\n1\t" + text)
+        }
+    }
+
+    @Test func oversizedExpandedArchiveEntryIsRejected() async throws {
+        var parts = OfficeFixtures.workbook
+        parts["xl/worksheets/sheet1.xml"] = String(repeating: "x", count: 10 * 1024 * 1024 + 1)
+        try await withOfficeArchive(parts, extension: "xlsx") { archive in
+            expectFileReadFailure(await ContextResolver.extractText(from: archive))
         }
     }
 

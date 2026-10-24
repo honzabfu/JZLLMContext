@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Unreleased
+- Fix: XLSX extraction now reads actual worksheet cells in workbook order, preserving numbers, repeated values, inline/shared text and blank row/column positions; formulas use saved results without recalculation (#43)
+- Fix: named and numeric XML entities are decoded once in XLSX/PPTX text, including rich text and non-ASCII characters (#32)
 - Fix: OCR errors and missing observations finish with an error instead of risking an unresumed continuation; Vision processing runs on a background task (#34)
 - Fix: image files copied in Finder are loaded and OCR'd before the clipboard's filename text is considered (#33)
 - Fix: failed extraction of binary documents no longer falls through to plain-text decoding; ZIP/OLE signatures, NUL bytes and binary control characters are rejected while BOM-marked Unicode and legacy text encodings remain supported (#44)
