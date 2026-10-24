@@ -13,6 +13,11 @@ final class ActionEngine: ObservableObject {
 
     private var currentTask: Task<Void, Never>?
     private var activeRunID: UUID?
+    private let makeProvider: (Action) throws -> any LLMProvider
+
+    init(makeProvider: @escaping (Action) throws -> any LLMProvider = { try ProviderFactory.make(for: $0) }) {
+        self.makeProvider = makeProvider
+    }
 
     func run(action: Action, input: String) {
         cancel()
@@ -31,7 +36,7 @@ final class ActionEngine: ObservableObject {
                 if activeRunID == runID { isLoading = false }
             }
             do {
-                let provider = try ProviderFactory.make(for: action)
+                let provider = try makeProvider(action)
                 for try await chunk in provider.stream(systemPrompt: action.systemPrompt, userContent: input) {
                     guard activeRunID == runID else { return }
                     result += chunk

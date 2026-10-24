@@ -1,6 +1,7 @@
 # Release Notes
 
 ## Unreleased
+- Fix: incomplete streams, malformed chunks and HTTP 200 responses in an incompatible format now fail instead of completing successfully; partial text stays available without history or auto Copy & Close (#41)
 - Fix: preserve unreadable or invalid configuration files in unique backups before using defaults; unknown per-action Copy & Close modes fall back to the global setting without losing actions (#29)
 - Fix: save schema migrations immediately so migrated custom-provider IDs and their Keychain references survive restarts (#30)
 - Fix: reject invalid shortcut and history values on import/load, explain failed imports, and guard shortcut registration and history trimming against integer traps (#40)

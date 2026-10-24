@@ -92,19 +92,29 @@ struct OpenAIProvider: LLMProvider {
                     }
 
                     var finishReason: String?
+                    var receivedDone = false
                     // Refusals may arrive in their own delta field instead of content
                     var refusal = ""
                     for try await line in bytes.lines {
-                        if line.hasPrefix("data: ") {
-                            let payload = String(line.dropFirst(6))
-                            if payload == "[DONE]" { break }
+                        if line.hasPrefix("data:") {
+                            let payload = String(line.dropFirst(5)).trimmingCharacters(in: .whitespaces)
+                            if payload == "[DONE]" { receivedDone = true; break }
                             guard let data = payload.data(using: .utf8),
-                                  let chunk = try? JSONDecoder().decode(OpenAIStreamChunk.self, from: data) else { continue }
+                                  let chunk = try? JSONDecoder().decode(OpenAIStreamChunk.self, from: data) else {
+                                throw LLMError.decodingError
+                            }
                             if let error = chunk.error {
                                 continuation.finish(throwing: LLMError.streamError(error.message))
                                 return
                             }
-                            guard let choice = chunk.choices?.first else { continue }
+                            guard let choices = chunk.choices else { throw LLMError.decodingError }
+                            guard let choice = choices.first else {
+                                guard chunk.usage != nil else { throw LLMError.decodingError }
+                                continue
+                            }
+                            guard choice.delta != nil || choice.finishReason != nil else {
+                                throw LLMError.decodingError
+                            }
                             if let text = choice.delta?.content {
                                 continuation.yield(text)
                             }
@@ -114,6 +124,9 @@ struct OpenAIProvider: LLMProvider {
                             if let reason = choice.finishReason {
                                 finishReason = reason
                             }
+                        } else if !line.isEmpty && !line.hasPrefix(":") && !line.hasPrefix("event:")
+                                    && !line.hasPrefix("id:") && !line.hasPrefix("retry:") {
+                            throw LLMError.decodingError
                         }
                     }
                     if !refusal.isEmpty {
@@ -123,7 +136,8 @@ struct OpenAIProvider: LLMProvider {
                     switch finishReason {
                     case "length":         continuation.finish(throwing: LLMError.truncated(maxTokens: maxTokens))
                     case "content_filter": continuation.finish(throwing: LLMError.refused)
-                    default:               continuation.finish()
+                    case "stop" where receivedDone: continuation.finish()
+                    default:               continuation.finish(throwing: LLMError.decodingError)
                     }
                 } catch is CancellationError {
                     continuation.finish()
@@ -172,6 +186,10 @@ private struct DynamicKey: CodingKey {
 }
 
 private struct OpenAIStreamChunk: Decodable {
+    let usage: Usage?
+    struct Usage: Decodable {
+        let total_tokens: Int?
+    }
     let choices: [Choice]?
     let error: OpenAIErrorResponse.APIError?
     struct Choice: Decodable {

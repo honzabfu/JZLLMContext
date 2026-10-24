@@ -137,6 +137,80 @@ struct ProviderTests {
 
     // MARK: - Connection test
 
+    @Test(arguments: [false, true])
+    func incompleteAndInvalidStreamsFail(usesAnthropic: Bool) async {
+        let delta = usesAnthropic
+            ? #"{"type":"content_block_delta","delta":{"type":"text_delta","text":"Partial"}}"#
+            : #"{"choices":[{"delta":{"content":"Partial"}}]}"#
+        let reason = usesAnthropic
+            ? #"{"type":"message_delta","delta":{"stop_reason":"end_turn"}}"#
+            : #"{"choices":[{"delta":{},"finish_reason":"stop"}]}"#
+        let terminal = usesAnthropic ? #"{"type":"message_stop"}"# : "[DONE]"
+        let invalidChunk = usesAnthropic
+            ? #"{"type":"content_block_delta","delta":{"type":"text_delta"}}"#
+            : #"{"choices":[{}]}"#
+        let unknownReason = usesAnthropic
+            ? #"{"type":"message_delta","delta":{"stop_reason":"unknown"}}"#
+            : #"{"choices":[{"delta":{},"finish_reason":"unknown"}]}"#
+        let complete = [delta, reason, terminal].map { "data: \($0)\n\n" }.joined()
+        let bodies = [
+            "", "<html>Proxy error</html>", "data: not-json\n\n", "data: {}\n\n",
+            "data: \(delta)\n\n", // EOF after partial text
+            "data: \(delta)\n\ndata: \(reason)\n\n", // missing protocol terminator
+            "data: \(delta)\n\ndata: \(terminal)\n\n", // missing stop reason
+            "data: \(delta)\n\ndata: invalid\n\n" + complete,
+            "data: {}\n\n" + complete,
+            "data: \(invalidChunk)\n\n" + complete,
+            "data: \(delta)\n\ndata: \(unknownReason)\n\ndata: \(terminal)\n\n"
+        ]
+        for body in bodies {
+            MockURLProtocol.stub(body: body)
+            let provider: any LLMProvider = usesAnthropic ? anthropic() : openAI()
+            let result = await collect(provider.stream(systemPrompt: "s", userContent: "u"))
+            guard case .decodingError? = result.error as? LLMError else {
+                Issue.record("Invalid stream accepted: \(body), error: \(String(describing: result.error))")
+                continue
+            }
+            if body.hasPrefix("data: \(delta)") { #expect(result.text == "Partial") }
+        }
+    }
+
+    @Test(arguments: [false, true])
+    func standardSSEMetadataAndCompactDataAreAccepted(usesAnthropic: Bool) async {
+        let payloads = usesAnthropic ? Self.anthropicDone : Self.openAIDone
+        MockURLProtocol.stub(body: ": keepalive\n\nid: 1\nretry: 1000\n" + payloads.map {
+            "event: message\ndata:\($0)\n\n"
+        }.joined())
+        let provider: any LLMProvider = usesAnthropic ? anthropic() : openAI()
+        let result = await collect(provider.stream(systemPrompt: "s", userContent: "u"))
+        #expect(result.text == "Ahoj")
+        #expect(result.error == nil)
+    }
+
+    @Test(arguments: [false, true]) @MainActor
+    func incompleteStreamDoesNotPublishCompletion(usesAnthropic: Bool) async throws {
+        let delta = usesAnthropic
+            ? #"{"type":"content_block_delta","delta":{"type":"text_delta","text":"Partial"}}"#
+            : #"{"choices":[{"delta":{"content":"Partial"}}]}"#
+        MockURLProtocol.stubStream([delta])
+        let provider: any LLMProvider = usesAnthropic ? anthropic() : openAI()
+        let engine = ActionEngine(makeProvider: { _ in provider })
+        let action = Action(name: "test", systemPrompt: "s", provider: .openai, model: "test", enabled: true,
+                            autoCopyClose: .always)
+        let historyIDs = HistoryStore.shared.entries.map(\.id)
+        engine.run(action: action, input: "u")
+        let deadline = ContinuousClock.now + .seconds(5)
+        while engine.isLoading && ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+        #expect(!engine.isLoading)
+        #expect(engine.result == "Partial")
+        #expect(engine.errorMessage != nil)
+        // Overlay history and auto-copy both run only when this signal changes.
+        #expect(engine.completedRunID == nil)
+        #expect(HistoryStore.shared.entries.map(\.id) == historyIDs)
+    }
+
     @Test func azurePingSendsMaxCompletionTokens() async throws {
         MockURLProtocol.stub(body: #"{"choices":[]}"#)
         try await ConnectionTester.pingChatCompletions(url: Self.chatURL, apiKey: "test", authStyle: .apiKey)

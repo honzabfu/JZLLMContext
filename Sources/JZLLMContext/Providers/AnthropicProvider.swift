@@ -51,33 +51,49 @@ struct AnthropicProvider: LLMProvider {
                     }
 
                     var stopReason: String?
+                    var receivedStop = false
                     for try await line in bytes.lines {
-                        if line.hasPrefix("data: ") {
-                            let payload = String(line.dropFirst(6))
+                        if line.hasPrefix("data:") {
+                            let payload = String(line.dropFirst(5)).trimmingCharacters(in: .whitespaces)
                             guard let data = payload.data(using: .utf8),
-                                  let chunk = try? JSONDecoder().decode(AnthropicStreamChunk.self, from: data) else { continue }
+                                  let chunk = try? JSONDecoder().decode(AnthropicStreamChunk.self, from: data) else {
+                                throw LLMError.decodingError
+                            }
                             switch chunk.type {
                             case "content_block_delta":
-                                if chunk.delta?.type == "text_delta", let text = chunk.delta?.text {
+                                guard let delta = chunk.delta, let type = delta.type else {
+                                    throw LLMError.decodingError
+                                }
+                                if type == "text_delta" {
+                                    guard let text = delta.text else { throw LLMError.decodingError }
                                     continuation.yield(text)
                                 }
                             case "message_delta":
                                 if let reason = chunk.delta?.stopReason { stopReason = reason }
+                            case "message_stop":
+                                receivedStop = true
                             case "error":
                                 continuation.finish(throwing: LLMError.streamError(chunk.error?.message ?? ""))
                                 return
                             default:
                                 break
                             }
+                        } else if !line.isEmpty && !line.hasPrefix(":") && !line.hasPrefix("event:")
+                                    && !line.hasPrefix("id:") && !line.hasPrefix("retry:") {
+                            throw LLMError.decodingError
                         }
+                        if receivedStop { break }
                     }
                     switch stopReason {
                     case "max_tokens", "model_context_window_exceeded":
                         continuation.finish(throwing: LLMError.truncated(maxTokens: maxTokens))
                     case "refusal":
                         continuation.finish(throwing: LLMError.refused)
-                    default:
+                    case "end_turn", "stop_sequence":
+                        guard receivedStop else { throw LLMError.decodingError }
                         continuation.finish()
+                    default:
+                        continuation.finish(throwing: LLMError.decodingError)
                     }
                 } catch is CancellationError {
                     continuation.finish()
