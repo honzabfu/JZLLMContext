@@ -102,17 +102,17 @@ The panel is a floating window displayed above all other apps, visible on all Sp
 - **Clipboard change indicator** – if the clipboard content changes while the panel is open, an accent-colored refresh icon appears below the eye button; clicking it reloads the clipboard content
 - **Result area** – shown after an action completes; text can be selected with the mouse. The panel grows automatically when a result appears; once you resize the panel by hand, your size is kept and automatic height management stops
 - **Post-completion buttons**: **Copy**, **Close**, and **Retry** on error
-- **Header bar** – shows the app name, version, and — after the first action runs — the model used for that action; clears on every new panel open
+- **Header bar** – shows the app name, version, and — after an action runs — its model. The model label clears when clipboard content is reloaded; it is kept while a dropped file remains loaded
 - **History** – the clock button in the header shows recent results from the current session; when interaction logging is enabled, an **Open log folder** button appears at the bottom of the history panel
 
-Pressing the shortcut again while the panel is open reloads the clipboard content and resets the result.
+Pressing the shortcut again while the panel is open reloads the clipboard content and resets the result. If a dropped file is loaded, the file, current run and result are kept until you clear the file.
 
 #### Settings – General
 
 ![Settings – General](docs/en/screenshot-settings-general.png)
 
 - **Launch at Login** – registers/unregisters the app; takes effect immediately without restart
-- **Copy result and close panel after action completes** – global toggle for automatic copy and close after a successful action
+- **Copy result and close panel after action completes** – global toggle for automatic copy and close after a successful action; copies the newly completed result even if you are viewing an older history entry
 - **Show result with formatting** – renders the result as Markdown; plain text when disabled
 - **Result history** – number of results kept until the app closes (0 = disabled, max 10)
 - **Check for Updates** – checks whether a newer version is available
@@ -141,6 +141,8 @@ Manage the actions shown in the overlay panel. The tab uses a master–detail la
 - **Reordering** – drag & drop in the list to change the order
 - **Delete** – button at the bottom of the editor with a confirmation dialog
 - **Import/export actions** – share or back up actions as JSON
+
+The per-action *Ignore clipboard* setting applies only to that run; the panel's eye button keeps its current setting. A loaded file is used regardless of this setting.
 
 All changes are saved immediately.
 
@@ -356,7 +358,7 @@ ProviderFactory               – create LLMProvider based on action config
   └── AnthropicProvider        – Anthropic Claude
 ```
 
-The overlay panel is created once on first invocation and on subsequent shortcut presses it is simply shown again and the clipboard content is refreshed via `OverlayState.refreshID` (UUID trigger). This avoids issues with macOS window restoration and multiple windows.
+The overlay panel is created once and reused. Subsequent shortcut presses refresh the clipboard unless a dropped file is loaded; in that case the file, current run and result are preserved.
 
 The app is an LSUIElement (agent) – no Dock icon and no standard app menu bar, so the settings window is managed manually via `NSWindowController` in `AppDelegate`.
 
@@ -380,7 +382,7 @@ Configuration (actions, shortcut, Azure/Custom URLs) is saved atomically to a JS
 ~/Library/Application Support/JZLLMContext/config.json
 ```
 
-Schema migrations are saved immediately. If the file cannot be decoded or contains invalid shortcut/history values, the app preserves it as `config.json.corrupt.<UUID>` before using defaults. If that backup fails, saving is blocked to protect the original. Invalid imports are rejected; the history limit must be 0–10 and shortcut values must fit an unsigned 32-bit integer.
+Settings upgrades are saved automatically so custom providers keep working with their saved API keys after a restart. If the configuration cannot be loaded, the app preserves a copy named `config.json.corrupt.<UUID>` and uses defaults. If the copy cannot be saved, the original file is protected from overwriting. Invalid imports show an error and leave your current settings unchanged. An unknown per-action Copy & Close option falls back to the global setting.
 
 #### API Key Storage
 
@@ -474,13 +476,15 @@ Provider is stored as a string: `"openai"`, `"anthropic"`, `"gemini"`, `"grok"`,
 
 All HTTP requests time out after **180 seconds** of inactivity (reasoning models may think for over a minute before the first text arrives). A response cut off by the token limit keeps the partial text with a warning (it is neither saved to history nor auto-copied); a refusal, content-filter stop or an error reported mid-stream is shown as an error. Cloud providers never receive a `temperature` parameter — newer reasoning models (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) reject it with HTTP 400 or ignore it. Custom providers receive it only when *Set temperature* is enabled for the action; if the model behind them rejects it, the error message suggests turning it off.
 
+If a response ends unexpectedly or arrives in an unreadable format, the app shows an error. Any text already received remains available, but the run is not saved to history or automatically copied, and the panel stays open.
+
 #### OCR Pipeline
 
 When the overlay panel is activated, the app checks the clipboard:
 
-1. If the clipboard contains a file URL (file copied in Finder via Cmd+C), including an image → `extractText()` is called before checking plain text, so the filename cannot replace the file's content
-2. Otherwise, if the clipboard contains text → used directly
-3. Otherwise, if the clipboard contains an image → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`. Image files use the same OCR. Vision processing runs on a background task; errors and empty results finish with an OCR error
+1. A file copied in Finder is read first; for an image, its text is recognized instead of using its filename
+2. Otherwise, copied text is used directly
+3. Otherwise, text is recognized from a copied image. Recognition runs in the background; if it fails or finds no text, an error is shown
 4. If the clipboard is empty → an error message is shown
 
 #### File Processing
@@ -499,7 +503,9 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 
 **Size limit:** 5 MB (file size on disk). Files exceeding this limit are rejected immediately with an error.
 
-If document extraction fails, binary document containers are rejected instead of being read as plain text. The plain-text fallback also checks file signatures, NUL bytes and decoded control characters; UTF-16/32 text with a BOM and common legacy text encodings remain supported. Files with no extractable text show a file-read error.
+If text cannot be extracted from a document, the app shows a file-read error. Ordinary text files, including common older encodings, remain supported.
+
+**Current limitations:** XLSX extraction can omit numbers, cell positions and repeated values; some spreadsheets cannot be read yet. PPTX slides can appear in the wrong order. Both formats can show text such as `&amp;` in place of the `&` character. For important content, check the preview and use a text export if needed.
 
 **History logging:** when interaction logging is enabled, the full extracted text is written to the MD log as the input field. For large files this can produce large log entries.
 
@@ -634,17 +640,17 @@ Panel je plovoucí okno zobrazené nad ostatními aplikacemi, viditelné na vše
 - **Indikátor změny schránky** – pokud se obsah schránky změní při otevřeném panelu, pod tlačítkem oka se zobrazí ikona obnovení v barvě zvýraznění; kliknutím se znovu načte obsah schránky
 - **Oblast výsledku** – zobrazí se po dokončení akce; text lze vybrat myší. Panel se při zobrazení výsledku automaticky zvětší; jakmile velikost panelu jednou změníte ručně, zachovává se vaše velikost a automatika se vypne
 - **Tlačítka po dokončení**: **Zkopírovat**, **Zavřít**, při chybě **Zkusit znovu**
-- **Záhlaví** – zobrazuje název aplikace, verzi a — po spuštění první akce — model použitý pro tuto akci; při každém novém otevření panelu se vymaže
+- **Záhlaví** – zobrazuje název aplikace, verzi a — po spuštění akce — použitý model. Údaj o modelu se vymaže při novém načtení schránky; při zachování přetaženého souboru zůstává zobrazený
 - **Historie** – tlačítko hodin v záhlaví; zobrazí poslední výsledky ze session; pokud je zapnuto logování interakcí, zobrazí se na konci panelu tlačítko **Otevřít složku logů**
 
-Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a resetuje výsledek.
+Nové stisknutí zkratky při otevřeném panelu znovu načte obsah schránky a resetuje výsledek. Pokud je načtený přetažený soubor, soubor, běžící akce i výsledek zůstávají zachované až do jeho odebrání.
 
 #### Nastavení – Obecné
 
 ![Nastavení – Obecné](docs/cs/screenshot-settings-general.png)
 
 - **Spustit při přihlášení** – registruje/odregistruje aplikaci; projeví se okamžitě bez restartu
-- **Po dokončení akce zkopírovat výsledek a zavřít panel** – globální přepínač pro automatické zkopírování a zavření po úspěšné akci
+- **Po dokončení akce zkopírovat výsledek a zavřít panel** – globální přepínač pro automatické zkopírování a zavření po úspěšné akci; zkopíruje právě dokončený výsledek i při prohlížení staršího záznamu historie
 - **Zobrazovat výsledek s formátováním** – výsledek se renderuje jako Markdown; při vypnutí jako prostý text
 - **Historie výsledků** – počet záznamů uchovávaných do zavření aplikace (0 = vypnuto, max. 10)
 - **Zkontrolovat aktualizace** – ověří, zda je dostupná novější verze
@@ -673,6 +679,8 @@ Správa akcí zobrazovaných v overlay panelu. Záložka používá rozložení 
 - **Přesouvání** – drag & drop v seznamu pro změnu pořadí
 - **Mazání** – tlačítko ve spodní části editoru s potvrzovacím dialogem
 - **Import/export akcí** – sdílení nebo záloha jako JSON
+
+Nastavení *Ignorovat schránku* u akce platí jen pro daný běh; tlačítko oka v panelu si zachová své nastavení. Načtený soubor se použije bez ohledu na tuto volbu.
 
 Všechny změny se ukládají okamžitě.
 
@@ -888,7 +896,7 @@ ProviderFactory               – vytváření LLMProvider podle konfigurace akc
   └── AnthropicProvider        – Anthropic Claude
 ```
 
-Overlay panel se vytvoří jednou při prvním vyvolání a při dalších stisknutích zkratky se pouze znovu zobrazí a aktualizuje obsah schránky přes `OverlayState.refreshID` (UUID trigger). Tím se předchází problémům s macOS window restoration a vícenásobnými okny.
+Overlay panel se vytvoří jednou a opakovaně se používá. Další stisknutí zkratky obnoví obsah schránky, pokud není načtený přetažený soubor; v takovém případě zůstane zachován soubor, běžící akce i výsledek.
 
 Aplikace je typu LSUIElement (agent) – nemá ikonu v Docku a nevytváří standardní aplikační menu, proto je okno nastavení spravováno ručně přes `NSWindowController` v `AppDelegate`.
 
@@ -910,7 +918,7 @@ Konfigurace (akce, zkratka, Azure/Custom URL) se ukládá do JSON souboru atomic
 ~/Library/Application Support/JZLLMContext/config.json
 ```
 
-Migrace schématu se ukládají okamžitě. Pokud soubor nelze dekódovat nebo obsahuje neplatné hodnoty zkratky či historie, aplikace jej před použitím výchozího nastavení zálohuje jako `config.json.corrupt.<UUID>`. Když záloha selže, ukládání se zablokuje, aby původní soubor zůstal zachován. Neplatný import se odmítne; limit historie musí být 0–10 a hodnoty zkratky musí odpovídat nezápornému 32bitovému číslu.
+Převod nastavení při aktualizaci se automaticky ukládá, aby uložené API klíče vlastních poskytovatelů zůstaly dostupné i po restartu. Pokud konfiguraci nelze načíst, aplikace zachová kopii `config.json.corrupt.<UUID>` a použije výchozí nastavení. Pokud kopii nelze uložit, původní soubor je chráněn před přepsáním. Neplatný import zobrazí chybu a ponechá současné nastavení. Neznámá volba Zkopírovat a zavřít u akce se řídí globálním nastavením.
 
 #### Ukládání API klíčů
 
@@ -993,13 +1001,15 @@ Poskytovatel se ukládá jako string: `"openai"`, `"anthropic"`, `"gemini"`, `"g
 
 Timeout všech HTTP požadavků: **180 sekund** nečinnosti (reasoning modely mohou před prvním textem uvažovat přes minutu). Odpověď useknutá limitem tokenů zůstane zobrazená s varováním (neukládá se do historie ani se automaticky nekopíruje); odmítnutí, zastavení filtrem obsahu nebo chyba hlášená uprostřed streamu se zobrazí jako chyba. Cloudoví poskytovatelé parametr `temperature` nedostávají nikdy – novější reasoning modely (GPT-5.5, Claude Sonnet 5.5, Gemini 3.6+) ho odmítají s HTTP 400 nebo ignorují. Vlastní poskytovatelé ho dostanou jen při zapnutém *Nastavit teplotu* u akce; pokud ho model za nimi odmítne, chybová hláška doporučí teplotu vypnout.
 
+Pokud odpověď předčasně skončí nebo přijde v nečitelném formátu, aplikace zobrazí chybu. Už přijatý text zůstane dostupný, ale běh se neuloží do historie, výsledek se automaticky nezkopíruje a panel zůstane otevřený.
+
 #### OCR pipeline
 
 Při aktivaci overlay panelu aplikace zkontroluje obsah schránky:
 
-1. Pokud schránka obsahuje URL souboru (soubor zkopírovaný ve Finderu přes Cmd+C), včetně obrázku → zavolá se `extractText()` před kontrolou prostého textu, aby se místo obsahu souboru nepoužil jeho název
-2. Jinak pokud schránka obsahuje text → použije se přímo
-3. Jinak pokud schránka obsahuje obrázek → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`. Obrázkové soubory používají stejné OCR. Vision běží v úloze na pozadí; chyby i prázdné výsledky skončí chybou OCR
+1. Nejdříve se načte soubor zkopírovaný ve Finderu; u obrázku se rozpozná text místo použití názvu souboru
+2. Jinak se použije zkopírovaný text
+3. Jinak se rozpozná text ze zkopírovaného obrázku. Rozpoznávání běží na pozadí; při chybě nebo nenalezení textu se zobrazí chyba
 4. Pokud je schránka prázdná → zobrazí se chybová zpráva
 
 #### Zpracování souborů
@@ -1018,7 +1028,9 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 
 **Limit velikosti:** 5 MB (velikost souboru na disku). Soubory přes tento limit jsou okamžitě odmítnuty s chybou.
 
-Pokud extrakce dokumentu selže, binární dokumentové kontejnery se odmítnou místo čtení jako prostý text. Náhradní čtení textu navíc kontroluje signatury souborů, nulové bajty a dekódované řídicí znaky; texty UTF-16/32 s BOM a běžná starší textová kódování zůstávají podporovaná. U souborů bez extrahovatelného textu se zobrazí chyba čtení souboru.
+Pokud z dokumentu nelze získat text, aplikace zobrazí chybu čtení souboru. Běžné textové soubory včetně obvyklých starších kódování zůstávají podporované.
+
+**Současná omezení:** při čtení XLSX mohou chybět čísla, umístění buněk a opakované hodnoty; některé tabulky zatím nelze načíst. Snímky PPTX se mohou zobrazit v nesprávném pořadí. U obou formátů se může například zobrazit doslovný text `&amp;` místo znaku `&`. U důležitého obsahu zkontroluj náhled a případně použij export do textu.
 
 **Logování do MD souboru:** pokud je zapnuto logování interakcí, celý extrahovaný text se zapíše do MD logu jako pole vstup. U velkých souborů to může vytvořit velké záznamy.
 

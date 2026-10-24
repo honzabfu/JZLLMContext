@@ -53,6 +53,10 @@ Presets go stale as providers ship new models — **last reviewed 2026-10-07**; 
 2. Pick new recommendations from the providers' docs, update `presetModels` + default actions, add the new models to the `LiveAPITests.cases` matrix and run it (checks temperature / reasoning-effort compatibility).
 3. Update the preset tables in `README.md` (en + cs), `RELEASE_NOTES.md`, and the date above.
 
+## Documentation
+
+Keep README updates focused on users: visible behavior, usage instructions and relevant limitations, in both English and Czech. Keep implementation details and developer test procedures in this file; record changes in `RELEASE_NOTES.md`.
+
 ## Localization
 
 Czech (`cs`) strings in `Localizable.xcstrings` use „poskytovatel/poskytovatelé", never the anglicism „provider" — applies to all new cs strings (en keeps "Provider", es "Proveedor"). Code identifiers (`ProviderType`, `customProviders`, the `provider` JSON key) stay English.
