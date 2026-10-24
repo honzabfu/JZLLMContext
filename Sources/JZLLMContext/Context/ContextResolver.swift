@@ -162,94 +162,67 @@ enum ContextResolver {
     }
 
     private static func unzipEntry(from archive: URL, path: String) async -> Data? {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let proc = Process()
-                proc.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-                proc.arguments = ["-p", archive.path, path]
-                let pipe = Pipe()
-                proc.standardOutput = pipe; proc.standardError = Pipe()
-                guard (try? proc.run()) != nil else { continuation.resume(returning: nil); return }
-                // Drain the pipe before waitUntilExit — output beyond the ~64 KB pipe
-                // buffer would otherwise block the child, deadlocking both processes
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                proc.waitUntilExit()
-                guard proc.terminationStatus == 0 else { continuation.resume(returning: nil); return }
-                continuation.resume(returning: data.isEmpty ? nil : data)
-            }
-        }
+        await Task.detached { readArchiveEntry(from: archive, path: path) }.value
     }
 
-    // XLSX: text lives in xl/sharedStrings.xml; PPTX: in ppt/slides/slide*.xml
+    private static func readArchiveEntry(from archive: URL, path: String) -> Data? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+        process.arguments = ["-p", archive.path, path]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = FileHandle.nullDevice
+        guard (try? process.run()) != nil else { return nil }
+        // Drain output before waiting, and bound expanded ZIP entries independently
+        // of the 5 MB compressed-file limit.
+        var data = Data()
+        var failed = false
+        do {
+            while let chunk = try pipe.fileHandleForReading.read(upToCount: 64 * 1024), !chunk.isEmpty {
+                guard data.count + chunk.count <= 10 * 1024 * 1024 else {
+                    failed = true
+                    process.terminate()
+                    break
+                }
+                data.append(chunk)
+            }
+        } catch {
+            failed = true
+            process.terminate()
+        }
+        // Closing also prevents a child from blocking on a full pipe on failure.
+        pipe.fileHandleForReading.closeFile()
+        process.waitUntilExit()
+        guard !failed, process.terminationStatus == 0, !data.isEmpty else { return nil }
+        return data
+    }
+
     private static func extractOfficeOpenXML(from fileURL: URL, type ext: String) async -> String? {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                let xmlPaths: [String]
-                if ext == "xlsx" {
-                    xmlPaths = ["xl/sharedStrings.xml"]
-                } else {
-                    // List ZIP contents first to discover slide XMLs without spawning 50 processes
-                    let ls = Process()
-                    ls.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-                    ls.arguments = ["-Z1", fileURL.path]
-                    let lsPipe = Pipe()
-                    ls.standardOutput = lsPipe; ls.standardError = Pipe()
-                    guard (try? ls.run()) != nil else { continuation.resume(returning: nil); return }
-                    // Drain before waitUntilExit (see unzipEntry)
-                    let listing = String(data: lsPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-                    ls.waitUntilExit()
-                    xmlPaths = listing.components(separatedBy: "\n")
-                        .map { $0.trimmingCharacters(in: .whitespaces) }
-                        .filter { $0.hasPrefix("ppt/slides/slide") && $0.hasSuffix(".xml") }
-                        .sorted()
-                }
-
-                let textTag = ext == "xlsx" ? "t" : "a:t"
-                var allStrings: [String] = []
-
-                for xmlPath in xmlPaths {
-                    let proc = Process()
-                    proc.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-                    proc.arguments = ["-p", fileURL.path, xmlPath]
-                    let pipe = Pipe()
-                    proc.standardOutput = pipe; proc.standardError = Pipe()
-                    guard (try? proc.run()) != nil else { continue }
-                    // Drain before waitUntilExit (see unzipEntry)
-                    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                    proc.waitUntilExit()
-                    guard proc.terminationStatus == 0,
-                          let xml = String(data: data, encoding: .utf8)
-                    else { continue }
-                    allStrings.append(contentsOf: xmlTextContent(xml, tag: textTag))
-                }
-
-                continuation.resume(returning: allStrings.isEmpty ? nil : allStrings.joined(separator: "\n"))
+        await Task.detached {
+            if ext == "xlsx" {
+                return try? OfficeOpenXML.workbook { readArchiveEntry(from: fileURL, path: $0) }
             }
-        }
-    }
-
-    // Extracts text from all <tag>…</tag> occurrences; handles attributes and skips self-closing tags.
-    private static func xmlTextContent(_ xml: String, tag: String) -> [String] {
-        let open = "<\(tag)"
-        let close = "</\(tag)>"
-        var result: [String] = []
-        var pos = xml.startIndex
-        while let matchRange = xml.range(of: open, range: pos..<xml.endIndex) {
-            guard matchRange.upperBound < xml.endIndex else { break }
-            // Prefix match only — "<a:t" must not match "<a:tabLst" or "<a:tab/>"
-            let next = xml[matchRange.upperBound]
-            guard next == ">" || next == "/" || next.isWhitespace else {
-                pos = matchRange.upperBound
-                continue
+            // Slide ordering remains a separate fix (#31).
+            let listing = Process()
+            listing.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
+            listing.arguments = ["-Z1", fileURL.path]
+            let pipe = Pipe()
+            listing.standardOutput = pipe
+            listing.standardError = FileHandle.nullDevice
+            guard (try? listing.run()) != nil else { return nil }
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            listing.waitUntilExit()
+            guard listing.terminationStatus == 0, let text = String(data: data, encoding: .utf8) else { return nil }
+            let paths = text.components(separatedBy: "\n")
+                .filter { $0.hasPrefix("ppt/slides/slide") && $0.hasSuffix(".xml") }.sorted()
+            var strings: [String] = []
+            for path in paths {
+                guard let data = readArchiveEntry(from: fileURL, path: path),
+                      let texts = try? OfficeOpenXML.presentationText(data) else { return nil }
+                strings.append(contentsOf: texts)
             }
-            guard let angleClose = xml.range(of: ">", range: matchRange.upperBound..<xml.endIndex) else { break }
-            if xml[matchRange.upperBound..<angleClose.lowerBound].hasSuffix("/") { pos = angleClose.upperBound; continue }
-            guard let endTag = xml.range(of: close, range: angleClose.upperBound..<xml.endIndex) else { break }
-            let text = String(xml[angleClose.upperBound..<endTag.lowerBound])
-            if !text.isEmpty { result.append(text) }
-            pos = endTag.upperBound
-        }
-        return result
+            return strings.isEmpty ? nil : strings.joined(separator: "\n")
+        }.value
     }
 
     private static func extractWithTextUtil(from fileURL: URL) async -> String? {
