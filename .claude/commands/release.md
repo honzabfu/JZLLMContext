@@ -2,6 +2,15 @@ Build JZLLMContext in Release configuration and publish a new GitHub Release.
 
 If $ARGUMENTS is provided, use it as the version number (e.g. `0.6`). Otherwise auto-increment from project.yml.
 
+If the user asks to publish an **already prepared draft**, reuse that draft's version, pinned commit, notes and verified asset. Do not auto-increment again or create a second release. First re-check the draft and artifact, then publish only when authorized and verify the resulting tag/release and any tag-triggered workflow.
+
+For **draft-only** release preparation:
+- Complete steps 1–6, including the generated `.xcodeproj` in the version commit when it changes.
+- Push the version commit to `main` **without tags**. Defer step 7: a pushed `v*` tag triggers `.github/workflows/release.yml`, which can publish automatically.
+- In step 8 use `gh release create v{VERSION} … --draft --target {VERSION_COMMIT_SHA}` with the ZIP and notes file. Do not publish the draft until the user requests publication.
+- Verify `draft: true`, `published_at: null`, the uploaded asset's size/digest, and absence of the remote version tag. The latest public release must remain unchanged.
+- Complete the signed local build/install and Finder steps (9–10). Keep the exact target commit and artifact digest in the local session handoff so later documentation-only commits do not change the release target.
+
 Steps to execute in order:
 
 1. **Determine version and update project.yml:**

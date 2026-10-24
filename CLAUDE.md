@@ -14,6 +14,8 @@ Unit tests (`Tests/JZLLMContextTests`, Swift Testing) run hosted in the app; `Ap
 
 Use `/rebuild` to build, install the signed build to `/Applications` and relaunch it, `/release` to publish a new GitHub release.
 
+Release drafts can be prepared without pushing a version tag; see the draft-only variant in `.claude/commands/release.md`. Pushing a `v*` tag triggers `.github/workflows/release.yml` and can publish a release automatically. Choose the workflow according to the user's requested scope.
+
 Builds sign with a stable Apple Development identity (`DEVELOPMENT_TEAM: HA25F4PWCQ` in `project.yml`). Don't revert to ad-hoc signing — every rebuild would get a new code identity and Keychain would re-prompt for access to the stored API keys. Only local builds are signed: the distributed GitHub release zip (`/release`, `CODE_SIGNING_ALLOWED=NO`) stays unsigned on purpose (no Developer ID / notarization, and an Apple Development signature would embed the personal certificate name). Never launch or install that unsigned build locally — `/rebuild` and `/release` install the signed Debug build to `/Applications/JZLLMContext.app` (verifying `TeamIdentifier=HA25F4PWCQ`) and launch it from there.
 
 ## Swift 6 strict concurrency
@@ -56,6 +58,8 @@ Presets go stale as providers ship new models — **last reviewed 2026-10-07**; 
 ## Documentation
 
 Keep README updates focused on users: visible behavior, usage instructions and relevant limitations, in both English and Czech. Keep implementation details and developer test procedures in this file; record changes in `RELEASE_NOTES.md`.
+
+Keep local session handoffs, screenshots, test logs and release-review artifacts under gitignored `tmp/`, never in public commits. When resuming maintenance, check for a recent `tmp/session-*/PREDANI.md` if present; verify its remote release/issue state before acting.
 
 ## Localization
 
