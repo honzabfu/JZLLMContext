@@ -478,9 +478,9 @@ All HTTP requests time out after **180 seconds** of inactivity (reasoning models
 
 When the overlay panel is activated, the app checks the clipboard:
 
-1. If the clipboard contains text → used directly
-2. If the clipboard contains a file URL (file copied in Finder via Cmd+C) and the file is not an image → `extractText()` is called (same pipeline as drag & drop)
-3. If the clipboard contains an image or an image file URL → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`
+1. If the clipboard contains a file URL (file copied in Finder via Cmd+C), including an image → `extractText()` is called before checking plain text, so the filename cannot replace the file's content
+2. Otherwise, if the clipboard contains text → used directly
+3. Otherwise, if the clipboard contains an image → Apple Vision OCR is triggered (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); blocks are sorted top-to-bottom and joined with `\n`. Image files use the same OCR. Vision processing runs on a background task; errors and empty results finish with an OCR error
 4. If the clipboard is empty → an error message is shown
 
 #### File Processing
@@ -997,9 +997,9 @@ Timeout všech HTTP požadavků: **180 sekund** nečinnosti (reasoning modely mo
 
 Při aktivaci overlay panelu aplikace zkontroluje obsah schránky:
 
-1. Pokud schránka obsahuje text → použije se přímo
-2. Pokud schránka obsahuje URL souboru (soubor zkopírovaný ve Finderu přes Cmd+C) a soubor není obrázek → zavolá se `extractText()` (stejná pipeline jako při drag & drop)
-3. Pokud schránka obsahuje obrázek nebo URL obrázku → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`
+1. Pokud schránka obsahuje URL souboru (soubor zkopírovaný ve Finderu přes Cmd+C), včetně obrázku → zavolá se `extractText()` před kontrolou prostého textu, aby se místo obsahu souboru nepoužil jeho název
+2. Jinak pokud schránka obsahuje text → použije se přímo
+3. Jinak pokud schránka obsahuje obrázek → spustí se Apple Vision OCR (`VNRecognizeTextRequest`, `recognitionLevel: .accurate`); bloky seřazeny shora dolů a spojeny `\n`. Obrázkové soubory používají stejné OCR. Vision běží v úloze na pozadí; chyby i prázdné výsledky skončí chybou OCR
 4. Pokud je schránka prázdná → zobrazí se chybová zpráva
 
 #### Zpracování souborů

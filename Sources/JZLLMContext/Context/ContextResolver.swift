@@ -23,18 +23,18 @@ enum ContextError: Error, LocalizedError {
 }
 
 enum ContextResolver {
-    static func resolve() async -> ContextResult {
-        let pasteboard = NSPasteboard.general
-
+    @MainActor
+    static func resolve(
+        pasteboard: NSPasteboard = .general,
+        extractFile: @escaping @Sendable (URL) async -> ContextResult = { await extractText(from: $0) }
+    ) async -> ContextResult {
         // File copied from Finder (Cmd+C) — check before plain text because Finder also puts
         // the file path string on the pasteboard, which would be returned as raw text otherwise.
-        // Image files carry full image data too; let NSImage handle those via OCR.
-        let imageExts: Set<String> = ["png", "jpg", "jpeg", "heic", "tiff", "tif", "webp", "bmp", "gif"]
+        // Include image URLs: Finder may provide only a URL and filename, without image data.
         if let urls = pasteboard.readObjects(forClasses: [NSURL.self],
                                              options: [.urlReadingFileURLsOnly: true]) as? [URL],
-           let fileURL = urls.first,
-           !imageExts.contains(fileURL.pathExtension.lowercased()) {
-            return await extractText(from: fileURL)
+           let fileURL = urls.first {
+            return await extractFile(fileURL)
         }
 
         if let text = pasteboard.string(forType: .string), !text.isEmpty {
@@ -277,33 +277,32 @@ enum ContextResolver {
         return try? String(contentsOf: tmpURL, encoding: .utf8)
     }
 
-    static func performOCR(on image: NSImage) async -> ContextResult {
+    static func performOCR(
+        on image: NSImage,
+        perform: @escaping @Sendable (VNImageRequestHandler, [VNRequest]) throws -> Void = { try $0.perform($1) }
+    ) async -> ContextResult {
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             return .error(.ocrFailed)
         }
 
-        return await withCheckedContinuation { continuation in
-            let request = VNRecognizeTextRequest { request, error in
-                guard error == nil,
-                      let observations = request.results as? [VNRecognizedTextObservation],
-                      !observations.isEmpty
-                else {
-                    continuation.resume(returning: .error(.ocrFailed))
-                    return
-                }
-
-                let text = observations
+        // Vision's perform is synchronous. Read results after it returns instead of
+        // bridging its optional callback with a continuation that may never resume
+        // on a thrown error. Keep image analysis off the caller's (often main) thread.
+        return await Task.detached {
+            do {
+                let request = VNRecognizeTextRequest()
+                request.recognitionLevel = .accurate
+                let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+                try perform(handler, [request])
+                let text = (request.results ?? [])
                     .sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
                     .compactMap { $0.topCandidates(1).first?.string }
                     .joined(separator: "\n")
 
-                continuation.resume(returning: text.isEmpty ? .error(.ocrFailed) : .text(text, isOCR: true))
+                return text.isEmpty ? ContextResult.error(.ocrFailed) : .text(text, isOCR: true)
+            } catch {
+                return .error(.ocrFailed)
             }
-
-            request.recognitionLevel = .accurate
-
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            try? handler.perform([request])
-        }
+        }.value
     }
 }

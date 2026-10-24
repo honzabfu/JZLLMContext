@@ -1,6 +1,8 @@
 # Release Notes
 
 ## Unreleased
+- Fix: OCR errors and missing observations finish with an error instead of risking an unresumed continuation; Vision processing runs on a background task (#34)
+- Fix: image files copied in Finder are loaded and OCR'd before the clipboard's filename text is considered (#33)
 - Fix: failed extraction of binary documents no longer falls through to plain-text decoding; ZIP/OLE signatures, NUL bytes and binary control characters are rejected while BOM-marked Unicode and legacy text encodings remain supported (#44)
 - Fix: incomplete streams, malformed chunks and HTTP 200 responses in an incompatible format now fail instead of completing successfully; partial text stays available without history or auto Copy & Close (#41)
 - Fix: preserve unreadable or invalid configuration files in unique backups before using defaults; unknown per-action Copy & Close modes fall back to the global setting without losing actions (#29)

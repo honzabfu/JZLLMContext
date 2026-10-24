@@ -1,9 +1,128 @@
+import AppKit
 import Foundation
 import Testing
 @testable import JZLLMContext
 
+@MainActor
 struct ContextResolverTests {
-    private func withDirectory(_ body: (URL) async throws -> Void) async throws {
+    @MainActor
+    private func image(withText text: String = "") throws -> NSImage {
+        let bitmap = try #require(NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 1000, pixelsHigh: 240,
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0))
+        let context = try #require(NSGraphicsContext(bitmapImageRep: bitmap))
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        NSGraphicsContext.current = context
+        NSColor.white.setFill()
+        NSRect(x: 0, y: 0, width: 1000, height: 240).fill()
+        (text as NSString).draw(at: NSPoint(x: 50, y: 90), withAttributes: [
+            .font: NSFont.systemFont(ofSize: 64), .foregroundColor: NSColor.black
+        ])
+        return NSImage(cgImage: try #require(bitmap.cgImage), size: NSSize(width: 1000, height: 240))
+    }
+
+    @Test @MainActor func thrownVisionErrorFinishesOCR() async throws {
+        struct TestError: Error {}
+        let result = await ContextResolver.performOCR(on: try image()) { _, requests in
+            #expect(requests.count == 1)
+            #expect(requests.first?.completionHandler == nil)
+            throw TestError()
+        }
+        guard case .error(.ocrFailed) = result else {
+            Issue.record("Expected ocrFailed for thrown Vision error, got \(result)")
+            return
+        }
+    }
+
+    @Test @MainActor func missingVisionResultsFinishOCR() async throws {
+        let result = await ContextResolver.performOCR(on: try image()) { _, _ in }
+        guard case .error(.ocrFailed) = result else {
+            Issue.record("Expected ocrFailed without observations, got \(result)")
+            return
+        }
+    }
+
+    @Test @MainActor func finderImageURLTakesPrecedenceOverFilename() async throws {
+        try await withDirectory { directory in
+            let url = directory.appendingPathComponent("photo.png")
+            let pasteboard = NSPasteboard.withUniqueName()
+            defer { pasteboard.releaseGlobally() }
+            #expect(pasteboard.writeObjects([url as NSURL]))
+            #expect(pasteboard.setString("photo.png", forType: .string))
+            let result = await ContextResolver.resolve(pasteboard: pasteboard) { receivedURL in
+                #expect(receivedURL == url)
+                return .text("FILE EXTRACTION RESULT", isOCR: true)
+            }
+            guard case .text(let text, let isOCR) = result else {
+                Issue.record("Expected file extraction result")
+                return
+            }
+            #expect(text == "FILE EXTRACTION RESULT")
+            #expect(isOCR)
+        }
+    }
+
+    // Actual Vision inference depends on locally installed system models, and may
+    // take minutes or fail to initialize on test hosts. Keep it explicitly opt-in.
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["VISION_TESTS"] == "1"))
+    func finderImageRunsRealOCR() async throws {
+        try await withDirectory { directory in
+            let url = directory.appendingPathComponent("photo.png")
+            let tiff = try #require(try image(withText: "FINDER IMAGE TEST").tiffRepresentation)
+            let bitmap = try #require(NSBitmapImageRep(data: tiff))
+            try #require(bitmap.representation(using: .png, properties: [:])).write(to: url)
+            let pasteboard = NSPasteboard.withUniqueName()
+            defer { pasteboard.releaseGlobally() }
+            // Reproduce Finder's file URL + filename, deliberately without bitmap data.
+            #expect(pasteboard.writeObjects([url as NSURL]))
+            #expect(pasteboard.setString("photo.png", forType: .string))
+            guard case .text(let text, let isOCR) = await ContextResolver.resolve(pasteboard: pasteboard) else {
+                Issue.record("Expected OCR text from Finder image URL")
+                return
+            }
+            #expect(isOCR)
+            #expect(text.contains("FINDER IMAGE TEST"))
+            #expect(text != "photo.png")
+        }
+    }
+
+    @Test @MainActor func unreadableFinderImageDoesNotFallBackToFilename() async throws {
+        try await withDirectory { directory in
+            let pasteboard = NSPasteboard.withUniqueName()
+            defer { pasteboard.releaseGlobally() }
+            #expect(pasteboard.writeObjects([directory.appendingPathComponent("missing.png") as NSURL]))
+            #expect(pasteboard.setString("missing.png", forType: .string))
+            expectFileReadFailure(await ContextResolver.resolve(pasteboard: pasteboard))
+        }
+    }
+
+    @Test func clipboardTextStillWorks() async {
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        #expect(pasteboard.setString("Clipboard text", forType: .string))
+        guard case .text(let text, let isOCR) = await ContextResolver.resolve(pasteboard: pasteboard) else {
+            Issue.record("Expected plain clipboard text")
+            return
+        }
+        #expect(text == "Clipboard text")
+        #expect(!isOCR)
+    }
+
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["VISION_TESTS"] == "1"))
+    func clipboardBitmapRunsRealOCR() async throws {
+        let pasteboard = NSPasteboard.withUniqueName()
+        defer { pasteboard.releaseGlobally() }
+        #expect(pasteboard.writeObjects([try image(withText: "CLIPBOARD IMAGE TEST")]))
+        guard case .text(let bitmapText, let bitmapOCR) = await ContextResolver.resolve(pasteboard: pasteboard) else {
+            Issue.record("Expected OCR from clipboard bitmap")
+            return
+        }
+        #expect(bitmapOCR)
+        #expect(bitmapText.contains("CLIPBOARD IMAGE TEST"))
+    }
+
+    private func withDirectory(_ body: @MainActor (URL) async throws -> Void) async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
