@@ -499,6 +499,8 @@ Files can be loaded two ways: drag & drop directly onto the overlay panel, or co
 
 **Size limit:** 5 MB (file size on disk). Files exceeding this limit are rejected immediately with an error.
 
+If document extraction fails, binary document containers are rejected instead of being read as plain text. The plain-text fallback also checks file signatures, NUL bytes and decoded control characters; UTF-16/32 text with a BOM and common legacy text encodings remain supported. Files with no extractable text show a file-read error.
+
 **History logging:** when interaction logging is enabled, the full extracted text is written to the MD log as the input field. For large files this can produce large log entries.
 
 **Recommended action for document analysis:**
@@ -1015,6 +1017,8 @@ Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, ne
 | TXT, MD, CSV, JSON, zdrojový kód, … | kódování auto-detekováno (BOM / Foundation heuristiky); fallback: Windows-1250 → ISO Latin-2 → ISO Latin-1 |
 
 **Limit velikosti:** 5 MB (velikost souboru na disku). Soubory přes tento limit jsou okamžitě odmítnuty s chybou.
+
+Pokud extrakce dokumentu selže, binární dokumentové kontejnery se odmítnou místo čtení jako prostý text. Náhradní čtení textu navíc kontroluje signatury souborů, nulové bajty a dekódované řídicí znaky; texty UTF-16/32 s BOM a běžná starší textová kódování zůstávají podporovaná. U souborů bez extrahovatelného textu se zobrazí chyba čtení souboru.
 
 **Logování do MD souboru:** pokud je zapnuto logování interakcí, celý extrahovaný text se zapíše do MD logu jako pole vstup. U velkých souborů to může vytvořit velké záznamy.
 

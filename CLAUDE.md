@@ -87,6 +87,8 @@ The result area is `.focusable()`/`.focused($resultAreaFocused)` so users can te
 
 ## File processing
 
+After document extractors and Spotlight fail, binary document extensions must not enter the plain-text fallback (#44). That fallback checks signatures and NUL bytes (allowing BOM-marked UTF-16/32) before decoding, then rejects binary control characters. Preserve CP1250/Latin text support; do not use successful single-byte decoding as proof that a file is text. File-extraction tests use synthetic archives and temporary files.
+
 Files enter via two paths — both call `ContextResolver.extractText(from:)`:
 
 1. **Drag & drop** — `OverlayView.handleDroppedFile(url:)` via `.onDrop(of: [UTType.fileURL])` + `NSItemProvider.loadObject(ofClass: URL.self)`

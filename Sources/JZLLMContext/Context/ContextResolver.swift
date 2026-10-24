@@ -116,13 +116,19 @@ enum ContextResolver {
             return .text(text, isOCR: false)
         }
 
+        // A failed document extractor must not fall through to single-byte decoding:
+        // Latin-1 can turn an entire ZIP/OLE container into apparent text.
+        let documentExts = iworkExts.union(["doc", "docx", "odt", "rtfd", "xls", "xlsx", "ppt", "pptx"])
+        guard !documentExts.contains(ext) else { return .error(.fileReadFailed) }
+
         // Plain text fallback for .txt, .md, .csv, .json, source code, etc. (off main thread)
         // Auto-detect encoding via BOM/heuristics; fall back to common legacy encodings.
         let plainText: String? = await Task.detached {
+            guard let data = try? Data(contentsOf: fileURL), !looksLikeBinary(data) else { return nil }
             var enc: String.Encoding = .utf8
-            if let text = try? String(contentsOf: fileURL, usedEncoding: &enc) { return text }
+            if let text = try? String(contentsOf: fileURL, usedEncoding: &enc), isPlainText(text) { return text }
             for fallback: String.Encoding in [.windowsCP1250, .isoLatin2, .isoLatin1] {
-                if let text = try? String(contentsOf: fileURL, encoding: fallback) { return text }
+                if let text = String(data: data, encoding: fallback), isPlainText(text) { return text }
             }
             return nil
         }.value
@@ -131,6 +137,28 @@ enum ContextResolver {
         }
 
         return .error(.fileReadFailed)
+    }
+
+    private static func looksLikeBinary(_ data: Data) -> Bool {
+        let signatures: [[UInt8]] = [
+            [0x50, 0x4B, 0x03, 0x04], [0x50, 0x4B, 0x05, 0x06], [0x50, 0x4B, 0x07, 0x08], // ZIP
+            [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1], // OLE (DOC/XLS/PPT)
+            [0x1F, 0x8B], // gzip
+            Array("%PDF-".utf8), Array("bplist00".utf8),
+            [0x89, 0x50, 0x4E, 0x47], [0xFF, 0xD8, 0xFF], // PNG, JPEG
+            Array("GIF87a".utf8), Array("GIF89a".utf8)
+        ]
+        if signatures.contains(where: { data.starts(with: $0) }) { return true }
+        // UTF-16/32 legitimately contain NUL bytes; a BOM identifies those encodings.
+        let unicodeBOMs: [[UInt8]] = [[0xFF, 0xFE], [0xFE, 0xFF], [0x00, 0x00, 0xFE, 0xFF]]
+        return data.contains(0) && !unicodeBOMs.contains(where: { data.starts(with: $0) })
+    }
+
+    private static func isPlainText(_ text: String) -> Bool {
+        // Keep newlines, tabs and page breaks, but reject embedded binary controls.
+        !text.unicodeScalars.contains {
+            CharacterSet.controlCharacters.contains($0) && ![9, 10, 12, 13].contains($0.value)
+        }
     }
 
     private static func unzipEntry(from archive: URL, path: String) async -> Data? {
