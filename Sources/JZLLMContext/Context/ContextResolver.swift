@@ -202,26 +202,9 @@ enum ContextResolver {
             if ext == "xlsx" {
                 return try? OfficeOpenXML.workbook { readArchiveEntry(from: fileURL, path: $0) }
             }
-            // Slide ordering remains a separate fix (#31).
-            let listing = Process()
-            listing.executableURL = URL(fileURLWithPath: "/usr/bin/unzip")
-            listing.arguments = ["-Z1", fileURL.path]
-            let pipe = Pipe()
-            listing.standardOutput = pipe
-            listing.standardError = FileHandle.nullDevice
-            guard (try? listing.run()) != nil else { return nil }
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            listing.waitUntilExit()
-            guard listing.terminationStatus == 0, let text = String(data: data, encoding: .utf8) else { return nil }
-            let paths = text.components(separatedBy: "\n")
-                .filter { $0.hasPrefix("ppt/slides/slide") && $0.hasSuffix(".xml") }.sorted()
-            var strings: [String] = []
-            for path in paths {
-                guard let data = readArchiveEntry(from: fileURL, path: path),
-                      let texts = try? OfficeOpenXML.presentationText(data) else { return nil }
-                strings.append(contentsOf: texts)
-            }
-            return strings.isEmpty ? nil : strings.joined(separator: "\n")
+            guard let text = try? OfficeOpenXML.presentation(read: { readArchiveEntry(from: fileURL, path: $0) }),
+                  !text.isEmpty else { return nil }
+            return text
         }.value
     }
 

@@ -3,6 +3,56 @@ import Testing
 @testable import JZLLMContext
 
 struct OfficeOpenXMLTests {
+    @Test(arguments: [Array(1...12), [12, 2, 1, 10, 3, 11, 4, 9, 5, 8, 6, 7]])
+    func presentationUsesDeclaredOrder(order: [Int]) throws {
+        var parts = OfficeFixtures.presentation(order: order)
+        // An orphan slide must neither appear nor make an otherwise valid deck fail.
+        parts["ppt/slides/slide99.xml"] = "not XML"
+        let result = try presentation(parts)
+        #expect(result == order.map { "Slide \($0)" }.joined(separator: "\n"))
+    }
+
+    @Test func slideRelationshipsSupportNonstandardAndAbsolutePaths() throws {
+        var parts = OfficeFixtures.presentation(order: [2, 1])
+        parts["ppt/_rels/presentation.xml.rels"] = """
+        <Relationships><Relationship Id="slide1" Type="x/slide" Target="/ppt/slides/renamed.xml"/>
+        <Relationship Id="slide2" Type="x/slide" Target="./slides/moved%20slide.xml"/></Relationships>
+        """
+        parts["ppt/slides/renamed.xml"] = parts.removeValue(forKey: "ppt/slides/slide1.xml")
+        parts["ppt/slides/moved slide.xml"] = parts.removeValue(forKey: "ppt/slides/slide2.xml")
+        #expect(try presentation(parts) == "Slide 2\nSlide 1")
+    }
+
+    @Test(arguments: ["metadata", "relationships", "slide", "malformed", "wrong-root", "wrong-type", "external", "duplicate-id"])
+    func damagedPresentationFailsInsteadOfReturningPartialText(failure: String) throws {
+        var parts = OfficeFixtures.presentation(order: [1, 2])
+        switch failure {
+        case "metadata": parts.removeValue(forKey: "ppt/presentation.xml")
+        case "relationships": parts.removeValue(forKey: "ppt/_rels/presentation.xml.rels")
+        case "slide": parts.removeValue(forKey: "ppt/slides/slide2.xml")
+        case "malformed": parts["ppt/slides/slide2.xml"] = "<sld>broken"
+        case "wrong-root": parts["ppt/slides/slide2.xml"] = "<worksheet/>"
+        case "wrong-type":
+            parts["ppt/_rels/presentation.xml.rels"] = parts["ppt/_rels/presentation.xml.rels"]?
+                .replacingOccurrences(of: "/slide\"", with: "/slideMaster\"")
+        case "external":
+            parts["ppt/_rels/presentation.xml.rels"] = "<Relationships><Relationship Id=\"slide1\" Type=\"x/slide\" TargetMode=\"External\" Target=\"https://example.test/slide.xml\"/></Relationships>"
+        default:
+            parts["ppt/_rels/presentation.xml.rels"] = "<Relationships><Relationship Id=\"slide1\" Type=\"x/slide\" Target=\"slides/slide1.xml\"/><Relationship Id=\"slide1\" Type=\"x/slide\" Target=\"slides/slide2.xml\"/></Relationships>"
+        }
+        #expect(throws: OfficeOpenXML.ExtractionError.self) { try presentation(parts) }
+    }
+
+    @Test func blankSlidesDoNotChangeOrderOfRemainingText() throws {
+        var parts = OfficeFixtures.presentation(order: [3, 2, 1])
+        parts["ppt/slides/slide2.xml"] = "<p:sld xmlns:p=\"http://schemas.openxmlformats.org/presentationml/2006/main\"><p:cSld/></p:sld>"
+        #expect(try presentation(parts) == "Slide 3\nSlide 1")
+    }
+
+    private func presentation(_ parts: [String: String]) throws -> String {
+        try OfficeOpenXML.presentation { parts[$0].map { Data($0.utf8) } }
+    }
+
     @Test func workbookKeepsSheetOrderCellPositionsAndRepeatedValues() throws {
         var parts = OfficeFixtures.workbook
         parts["xl/workbook.xml"] = """
@@ -133,6 +183,26 @@ struct OfficeOpenXMLTests {
 
 /// Synthetic package parts shared by parser tests and the actual unzip integration test.
 enum OfficeFixtures {
+    static func presentation(order: [Int]) -> [String: String] {
+        let namespace = "http://schemas.openxmlformats.org/presentationml/2006/main"
+        let relationship = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        let ids = order.enumerated().map {
+            "<p:sldId id=\"\(256 + $0.offset)\" r:id=\"slide\($0.element)\"/>"
+        }.joined()
+        // Relationship order deliberately differs from presentation order.
+        let relations = order.sorted().reversed().map {
+            "<Relationship Id=\"slide\($0)\" Type=\"\(relationship)/slide\" Target=\"slides/slide\($0).xml\"/>"
+        }.joined()
+        var parts = [
+            "ppt/presentation.xml": "<p:presentation xmlns:p=\"\(namespace)\" xmlns:r=\"\(relationship)\"><p:sldIdLst>\(ids)</p:sldIdLst></p:presentation>",
+            "ppt/_rels/presentation.xml.rels": "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\(relations)</Relationships>"
+        ]
+        for index in order {
+            parts["ppt/slides/slide\(index).xml"] = "<p:sld xmlns:p=\"\(namespace)\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\"><a:t>Slide \(index)</a:t></p:sld>"
+        }
+        return parts
+    }
+
     static let relationshipsWithStrings = """
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
       <Relationship Id="r1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>

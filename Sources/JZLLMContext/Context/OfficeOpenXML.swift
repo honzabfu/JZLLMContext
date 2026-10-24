@@ -48,8 +48,42 @@ enum OfficeOpenXML {
         return sections.joined(separator: "\n\n")
     }
 
+    static func presentation(read: (String) -> Data?) throws -> String {
+        let presentation = try parse(read("ppt/presentation.xml"))
+        let relationships = try parse(read("ppt/_rels/presentation.xml.rels"))
+        guard presentation.name == "presentation", relationships.name == "Relationships",
+              let slideList = presentation.child("sldIdLst") else {
+            throw ExtractionError.invalidDocument
+        }
+        var targets: [String: String] = [:]
+        for relation in relationships.children where relation.name == "Relationship" {
+            guard let type = relation.attributes["Type"], type.hasSuffix("/slide"),
+                  relation.attributes["TargetMode"] != "External",
+                  let id = relation.attributes["Id"], let target = relation.attributes["Target"] else { continue }
+            guard targets[id] == nil else { throw ExtractionError.invalidDocument }
+            targets[id] = try partPath(target, relativeTo: "ppt")
+        }
+        var texts: [String] = []
+        var outputSize = 0
+        for slide in slideList.children where slide.name == "sldId" {
+            guard let id = slide.attributes.first(where: { $0.key.hasSuffix(":id") })?.value,
+                  let path = targets[id] else { throw ExtractionError.invalidDocument }
+            let root = try parse(read(path))
+            guard root.name == "sld" else { throw ExtractionError.invalidDocument }
+            for text in drawingText(root) {
+                outputSize += text.utf8.count + 1
+                guard outputSize <= 10 * 1024 * 1024 else { throw ExtractionError.invalidDocument }
+                texts.append(text)
+            }
+        }
+        return texts.joined(separator: "\n")
+    }
+
     static func presentationText(_ data: Data) throws -> [String] {
-        let root = try parse(data)
+        drawingText(try parse(data))
+    }
+
+    private static func drawingText(_ root: Node) -> [String] {
         let namespaces = ["http://schemas.openxmlformats.org/drawingml/2006/main",
                           "http://purl.oclc.org/ooxml/drawingml/main"]
         return root.descendants(named: "t").filter { namespaces.contains($0.namespace) }
@@ -176,12 +210,12 @@ enum OfficeOpenXML {
         return "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 
-    private static func partPath(_ target: String) throws -> String {
+    private static func partPath(_ target: String, relativeTo directory: String = "xl") throws -> String {
         guard !target.contains(":"), !target.contains("\\"), !target.contains("?"),
               !target.contains("#"), let decoded = target.removingPercentEncoding,
               !decoded.contains(":"), !decoded.contains("\\"),
               !decoded.contains(where: { "*?[]".contains($0) }) else { throw ExtractionError.invalidDocument }
-        var components = decoded.hasPrefix("/") ? [] : ["xl"]
+        var components = decoded.hasPrefix("/") ? [] : [directory]
         for component in decoded.split(separator: "/").map(String.init) {
             if component == "." { continue }
             if component == ".." {
