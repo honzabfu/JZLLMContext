@@ -265,6 +265,8 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 ### Technical Overview
 
+Developer documentation — building from source, app icons, architecture, OCR pipeline and the global shortcut — is in [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
 #### Features
 
 - **Global shortcut** – opens the overlay panel with clipboard content from anywhere (default: Cmd+Shift+Space)
@@ -299,68 +301,6 @@ If "Launch at Login" was enabled, unregister the app in Settings → General bef
 
 - macOS 15.0 (Sequoia) or later
 - API key for at least one supported provider
-
-#### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/honzabfu/JZLLMContext.git
-cd JZLLMContext
-
-# Generate the Xcode project
-brew install xcodegen
-xcodegen generate
-
-# Build the app
-xcodebuild -scheme JZLLMContext -configuration Debug build
-
-# Run the unit tests (network is mocked — no API keys or costs)
-xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'
-
-# Optional: live tests against the real provider APIs, using the API keys and
-# provider settings stored by the app (costs a few cents)
-TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test -scheme JZLLMContext -destination 'platform=macOS' \
-  -only-testing:JZLLMContextTests/LiveAPITests
-```
-
-The built app is located at:
-
-```
-~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app
-```
-
-#### App Icons
-
-The app looks for these PNG files in the asset catalog. Without them it falls back to a system star symbol.
-
-| File | Size | Usage |
-|------|------|-------|
-| `Assets.xcassets/MenuBarIcon.imageset/MenuBarIcon.png` | 18×18 px, black & white | Menu bar icon (template) |
-| `Assets.xcassets/MenuBarIcon.imageset/MenuBarIcon@2x.png` | 36×36 px, black & white | Menu bar icon @2x |
-| `Assets.xcassets/AppColorIcon.imageset/AppColorIcon.png` | min. 64×64 px, color | Icon in the dropdown menu |
-
-#### Architecture
-
-```
-AppDelegate
-  ├── HotkeyManager          – global shortcut registration via Carbon API
-  ├── OverlayWindowController – NSPanel management (created once, shown repeatedly)
-  │     └── OverlayView       – SwiftUI overlay panel UI
-  │           └── ActionEngine – async LLM calls (ObservableObject)
-  ├── SettingsWindowController – NSWindow + NSHostingView(SettingsView)
-  └── AboutWindowController   – NSWindow + NSHostingView(AboutView)
-
-ConfigStore (singleton)       – read/write config.json
-KeychainStore                 – store API keys in macOS Keychain
-ContextResolver               – read NSPasteboard + Vision OCR
-ProviderFactory               – create LLMProvider based on action config
-  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 slots) + dynamic custom endpoints
-  └── AnthropicProvider        – Anthropic Claude
-```
-
-The overlay panel is created once and reused. Subsequent shortcut presses refresh the clipboard unless a dropped file is loaded; in that case the file, current run and result are preserved.
-
-The app is an LSUIElement (agent) – no Dock icon and no standard app menu bar, so the settings window is managed manually via `NSWindowController` in `AppDelegate`.
 
 #### Prompt Variables
 
@@ -478,15 +418,6 @@ All HTTP requests time out after **180 seconds** of inactivity (reasoning models
 
 If a response ends unexpectedly or arrives in an unreadable format, the app shows an error. Any text already received remains available, but the run is not saved to history or automatically copied, and the panel stays open.
 
-#### OCR Pipeline
-
-When the overlay panel is activated, the app checks the clipboard:
-
-1. A file copied in Finder is read first; for an image, its text is recognized instead of using its filename
-2. Otherwise, copied text is used directly
-3. Otherwise, text is recognized from a copied image. Recognition runs in the background; if it fails or finds no text, an error is shown
-4. If the clipboard is empty → an error message is shown
-
 #### File Processing
 
 Files can be loaded two ways: drag & drop directly onto the overlay panel, or copy a file in Finder (Cmd+C) and open the panel — both routes use the same local extraction pipeline. Nothing is uploaded. Text is extracted according to the file type:
@@ -524,12 +455,6 @@ Adapt the output structure to the document type.
 ```
 
 Suggested settings: model with a large context window (e.g. `gemini-3.8-flash` or `claude-sonnet-5.5`), max tokens 8192. For interactive Q&A about a document, add `{{kontext}}` to the prompt and use the additional context field to ask specific questions.
-
-#### Global Shortcut
-
-The shortcut is registered via Carbon `RegisterEventHotKey` with identifier `JZLC`. On change, `unregister()` is called followed by `register()` with the new values; the change is propagated via `NotificationCenter` (`hotkeyDidChange`).
-
----
 
 ### Disclaimer
 
@@ -804,6 +729,8 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 ### Technický popis
 
+Dokumentace pro vývojáře – sestavení ze zdrojů, ikony aplikace, architektura, OCR pipeline a globální zkratka – je v [docs/DEVELOPMENT.cs.md](docs/DEVELOPMENT.cs.md).
+
 #### Funkce
 
 - **Globální zkratka** – otevře overlay panel s obsahem schránky odkudkoli (výchozí: Cmd+Shift+Space)
@@ -838,68 +765,6 @@ Pokud bylo zapnuto „Spustit při přihlášení", odregistruj aplikaci před s
 
 - macOS 15.0 (Sequoia) nebo novější
 - API klíč alespoň jednoho podporovaného poskytovatele
-
-#### Instalace a sestavení
-
-```bash
-# Naklonuj repozitář
-git clone https://github.com/honzabfu/JZLLMContext.git
-cd JZLLMContext
-
-# Vygeneruj Xcode projekt
-brew install xcodegen
-xcodegen generate
-
-# Sestav aplikaci
-xcodebuild -scheme JZLLMContext -configuration Debug build
-
-# Spusť unit testy (síť je simulovaná – bez API klíčů a bez nákladů)
-xcodebuild test -scheme JZLLMContext -destination 'platform=macOS'
-
-# Volitelně: živé testy proti skutečným API poskytovatelů s API klíči
-# a nastavením uloženými v aplikaci (stojí pár centů)
-TEST_RUNNER_LIVE_API_TESTS=1 xcodebuild test -scheme JZLLMContext -destination 'platform=macOS' \
-  -only-testing:JZLLMContextTests/LiveAPITests
-```
-
-Sestavená aplikace se nachází v:
-
-```
-~/Library/Developer/Xcode/DerivedData/JZLLMContext-*/Build/Products/Debug/JZLLMContext.app
-```
-
-#### Ikony aplikace
-
-Aplikace hledá tyto PNG soubory v katalogu assetů. Bez nich použije systémový symbol hvězdičky jako zálohu.
-
-| Soubor | Rozměr | Použití |
-|--------|--------|---------|
-| `Assets.xcassets/MenuBarIcon.imageset/MenuBarIcon.png` | 18×18 px, černobílá | Ikona v menu baru (template) |
-| `Assets.xcassets/MenuBarIcon.imageset/MenuBarIcon@2x.png` | 36×36 px, černobílá | Ikona v menu baru @2x |
-| `Assets.xcassets/AppColorIcon.imageset/AppColorIcon.png` | min. 64×64 px, barevná | Ikona v dropdown menu |
-
-#### Architektura
-
-```
-AppDelegate
-  ├── HotkeyManager          – registrace globální zkratky přes Carbon API
-  ├── OverlayWindowController – správa NSPanel (vytvořen jednou, opakovaně zobrazován)
-  │     └── OverlayView       – SwiftUI UI overlay panelu
-  │           └── ActionEngine – asynchronní volání LLM (ObservableObject)
-  ├── SettingsWindowController – NSWindow + NSHostingView(SettingsView)
-  └── AboutWindowController   – NSWindow + NSHostingView(AboutView)
-
-ConfigStore (singleton)       – čtení/zápis config.json
-KeychainStore                 – ukládání API klíčů do macOS Keychain
-ContextResolver               – čtení NSPasteboard + Vision OCR
-ProviderFactory               – vytváření LLMProvider podle konfigurace akce
-  ├── OpenAIProvider           – OpenAI + Azure OpenAI (2 sloty) + dynamické vlastní endpointy
-  └── AnthropicProvider        – Anthropic Claude
-```
-
-Overlay panel se vytvoří jednou a opakovaně se používá. Další stisknutí zkratky obnoví obsah schránky, pokud není načtený přetažený soubor; v takovém případě zůstane zachován soubor, běžící akce i výsledek.
-
-Aplikace je typu LSUIElement (agent) – nemá ikonu v Docku a nevytváří standardní aplikační menu, proto je okno nastavení spravováno ručně přes `NSWindowController` v `AppDelegate`.
 
 #### Proměnné v promptech
 
@@ -1004,15 +869,6 @@ Timeout všech HTTP požadavků: **180 sekund** nečinnosti (reasoning modely mo
 
 Pokud odpověď předčasně skončí nebo přijde v nečitelném formátu, aplikace zobrazí chybu. Už přijatý text zůstane dostupný, ale běh se neuloží do historie, výsledek se automaticky nezkopíruje a panel zůstane otevřený.
 
-#### OCR pipeline
-
-Při aktivaci overlay panelu aplikace zkontroluje obsah schránky:
-
-1. Nejdříve se načte soubor zkopírovaný ve Finderu; u obrázku se rozpozná text místo použití názvu souboru
-2. Jinak se použije zkopírovaný text
-3. Jinak se rozpozná text ze zkopírovaného obrázku. Rozpoznávání běží na pozadí; při chybě nebo nenalezení textu se zobrazí chyba
-4. Pokud je schránka prázdná → zobrazí se chybová zpráva
-
 #### Zpracování souborů
 
 Soubory lze načíst dvěma způsoby: přetažením přímo na overlay panel, nebo zkopírováním souboru ve Finderu (Cmd+C) a otevřením panelu — obě cesty používají stejnou lokální pipeline extrakce. Nic se nenahrává. Text se extrahuje podle typu souboru:
@@ -1050,12 +906,6 @@ Přizpůsob strukturu výstupu typu dokumentu.
 ```
 
 Doporučené nastavení: model s velkým kontextovým oknem (např. `gemini-3.8-flash` nebo `claude-sonnet-5.5`), max tokenů 8192. Pro interaktivní Q&A nad dokumentem přidej do promptu `{{kontext}}` a doplňkový kontext použij na konkrétní otázky.
-
-#### Globální zkratka
-
-Zkratka je registrována přes Carbon `RegisterEventHotKey` s identifikátorem `JZLC`. Při změně se provede `unregister()` → `register()` se novými hodnotami; změna se šíří přes `NotificationCenter` (`hotkeyDidChange`).
-
----
 
 ### Zřeknutí se odpovědnosti
 

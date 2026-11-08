@@ -2,8 +2,8 @@
 
 Read and follow `CLAUDE.md` before working in this repository. It is the shared
 source of project rules for all coding agents; keep those rules there rather
-than duplicating them here. Read the relevant sections of `README.md` for the
-architecture and user-facing behavior.
+than duplicating them here. Read `docs/DEVELOPMENT.md` for the architecture and
+building, and the relevant sections of `README.md` for user-facing behavior.
 
 This is a Swift 6 macOS 15+ menu bar app using SwiftUI and AppKit. Application
 code lives in `Sources/JZLLMContext`, and Swift Testing tests live in
