@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(*)"
+      "Bash(xcodegen generate)",
+      "Bash(xcodebuild:*)",
+      "Bash(codesign -dv:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
     ]
   }
 }

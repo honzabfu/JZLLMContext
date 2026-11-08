@@ -1,6 +1,6 @@
 # JZLLMContext
 
-macOS menu bar app (Swift 6, macOS 15+). Architecture and full feature overview in README.md.
+macOS menu bar app (Swift 6, macOS 15+). Architecture, building from source and the OCR/shortcut details: `docs/DEVELOPMENT.md` (Czech: `docs/DEVELOPMENT.cs.md`); features and user guide: `README.md`.
 
 ## Build
 
@@ -57,7 +57,7 @@ Presets go stale as providers ship new models — **last reviewed 2026-10-07**; 
 
 ## Documentation
 
-Keep README updates focused on users: visible behavior, usage instructions and relevant limitations, in both English and Czech. Keep implementation details and developer test procedures in this file; record changes in `RELEASE_NOTES.md`.
+Keep README updates focused on users: visible behavior, usage instructions and relevant limitations, in both English and Czech. Keep implementation details and developer test procedures in this file; architecture and build documentation lives in `docs/DEVELOPMENT.md` and `docs/DEVELOPMENT.cs.md` (keep both in step); record changes in `RELEASE_NOTES.md`.
 
 Keep local session handoffs, screenshots, test logs and release-review artifacts under gitignored `tmp/`, never in public commits. When resuming maintenance, check for a recent `tmp/session-*/PREDANI.md` if present; verify its remote release/issue state before acting.
 
